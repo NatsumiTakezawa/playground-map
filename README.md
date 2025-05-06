@@ -83,6 +83,48 @@ npm install @supabase/supabase-js
 
 ---
 
+## UI コンポーネントの追加・使用方法（shadcn/ui）
+
+### 1. コンポーネントの追加
+
+shadcn/ui の CLI を使って、必要な UI コンポーネントを追加できます。
+
+```bash
+npx shadcn@latest add <component名>
+```
+
+例：Button コンポーネントを追加する場合
+
+```bash
+npx shadcn@latest add button
+```
+
+追加されたコンポーネントは `src/components/ui/` 配下に生成されます。
+
+### 2. コンポーネントの使用例
+
+追加した UI コンポーネントは、以下のようにインポートして利用します。
+
+```tsx
+import { Button } from "@/components/ui/button";
+
+export default function Example() {
+  return <Button>ボタン</Button>;
+}
+```
+
+### 3. カスタマイズ
+
+- デザインやバリアントは `src/components/ui/` 内の各ファイルを編集して調整できます。
+- Tailwind CSS のカスタムテーマやクラスも利用可能です。
+
+### 4. 参考
+
+- [shadcn/ui ドキュメント](https://ui.shadcn.com/docs/components)
+- [プロジェクトの UI 仕様書](./specifications/ui_specification.md)
+
+---
+
 # English (for reference)
 
 ## Local Development Setup
