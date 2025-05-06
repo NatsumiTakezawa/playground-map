@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import type { Database } from "@/lib/supabase.types";
 import { MapView } from "@/components/MapView";
+import { useRouter } from "next/navigation";
 
 /**
  * 温泉データ型（Supabase型から抽出）
@@ -38,9 +39,21 @@ function SpotCardListSkeleton() {
  * 温泉カード
  */
 function SpotCard({ onsen }: { onsen: Onsen }) {
+  const router = useRouter();
   if (!onsen) return null;
   return (
-    <Card className="w-full cursor-pointer hover:shadow-lg transition">
+    <Card
+      className="w-full cursor-pointer hover:shadow-lg transition"
+      tabIndex={0}
+      role="button"
+      aria-label={`${onsen.name}の詳細ページへ`}
+      onClick={() => router.push(`/onsen/${onsen.id}`)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          router.push(`/onsen/${onsen.id}`);
+        }
+      }}
+    >
       <CardHeader>
         <CardTitle>{onsen.name}</CardTitle>
       </CardHeader>
@@ -90,35 +103,23 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="w-full px-4 py-3 flex items-center justify-between border-b bg-white">
-        <div className="font-bold text-lg text-primary-700">
-          松江市温泉マップ
-        </div>
-        <button className="text-primary-700 font-medium hover:underline">
-          サインイン
-        </button>
-      </header>
-      {/* メインレイアウト */}
-      <div className="flex-1 flex flex-col md:flex-row gap-4 p-4 bg-primary-50">
-        {/* MapView（左） */}
-        <div className="md:w-3/5 w-full mb-4 md:mb-0">
-          {onsens === null ? <MapSkeleton /> : <MapView onsens={onsens} />}
-        </div>
-        {/* SpotCardList（右） */}
-        <div className="md:w-2/5 w-full">
-          <h2 className="font-bold text-xl mb-2">温泉一覧</h2>
-          {onsens === null ? (
-            <SpotCardListSkeleton />
-          ) : (
-            <div className="space-y-4">
-              {onsens.map((onsen: Onsen) => (
-                <SpotCard key={onsen.id} onsen={onsen} />
-              ))}
-            </div>
-          )}
-        </div>
+    <main className="flex-1 flex flex-col md:flex-row gap-4 p-4 bg-primary-50">
+      {/* MapView（左） */}
+      <div className="md:w-3/5 w-full mb-4 md:mb-0">
+        {onsens === null ? <MapSkeleton /> : <MapView onsens={onsens} />}
+      </div>
+      {/* SpotCardList（右） */}
+      <div className="md:w-2/5 w-full">
+        <h2 className="font-bold text-xl mb-2">温泉一覧</h2>
+        {onsens === null ? (
+          <SpotCardListSkeleton />
+        ) : (
+          <div className="space-y-4">
+            {onsens.map((onsen: Onsen) => (
+              <SpotCard key={onsen.id} onsen={onsen} />
+            ))}
+          </div>
+        )}
       </div>
       {/* BannerAd（フッター直上） */}
       <div className="w-full flex justify-center py-4">

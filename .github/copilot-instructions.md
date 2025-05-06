@@ -5,9 +5,9 @@
 - 実装指示[実装指示ファイル](./specifications/implementation_specifications.md)）を参照しながら実装を進めてください。
 - 未定義の内容があれば実装指示[実装指示ファイル](./specifications/implementation_specifications.md)）へ追記を行い、齟齬の無いようにドキュメントを整備してください。
 - 問題ない場合は自立的に判断し、実装を進めてください。
+- 編集について、 filesystem, edit_file を使用して、編集を行ってください。
 - MCP の filesystem を使用して実装してください。
 - MCP の filesystem を使用して、ファイルの読み書きを行ってください。
-- MCP の filesystem を使用して、編集を行ってください。
 - Git を適切に使用してください。
 - Git の操作は、以下のルールに従って行ってください。
   - コミットは小さく、意味のある単位で行ってください。
