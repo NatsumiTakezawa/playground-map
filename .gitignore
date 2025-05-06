@@ -68,4 +68,5 @@ yarn-error.log*
 *.log
 
 # VSCode
+!.vscode/mcp.json
 .vscode/
