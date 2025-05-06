@@ -8,8 +8,9 @@ import type { Database } from "@/lib/supabase.types";
 import { notFound } from "next/navigation";
 import ImageCarousel from "@/components/ImageCarousel";
 import SpotHeader from "@/components/SpotHeader";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import ReviewModal from "@/components/ReviewModal";
+import { revalidatePath } from "next/cache";
 
 /**
  * 温泉データ型
@@ -33,6 +34,7 @@ export default function OnsenDetailPage({
   const [onsen, setOnsen] = useState<Onsen | null>(null);
   const [reviews, setReviews] = useState<Review[] | null>(null);
   const [isReviewModalOpen, setReviewModalOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const avgRating =
     reviews && reviews.length > 0
@@ -132,9 +134,7 @@ export default function OnsenDetailPage({
                   {review.comment}
                 </div>
                 <div className="text-xs text-gray-400 mt-1">
-                  {review.created_at
-                    ? new Date(review.created_at).toLocaleString()
-                    : "日時不明"}
+                  {new Date(review.created_at).toLocaleString()}
                 </div>
               </li>
             ))
@@ -155,9 +155,21 @@ export default function OnsenDetailPage({
       <ReviewModal
         open={isReviewModalOpen}
         onClose={() => setReviewModalOpen(false)}
-        onSubmit={(rating, comment, image) => {
-          // TODO: Supabaseへレビュー投稿処理
+        onSubmit={async (rating, comment, image) => {
+          // Supabaseへレビュー投稿処理
+          // TODO: 認証ユーザー取得・画像アップロード対応
+          const { error } = await supabase.from("review").insert({
+            onsen_id: params.id,
+            user_id: null, // TODO: 認証ユーザーIDに置換
+            rating,
+            comment,
+          });
           setReviewModalOpen(false);
+          // レビューリスト再取得
+          startTransition(() => {
+            revalidatePath(`/onsen/${params.id}`);
+          });
+          // TODO: トースト通知
         }}
       />
       {/* BannerAd（サンプル） */}
