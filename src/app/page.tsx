@@ -6,6 +6,8 @@ import { supabase } from "@/lib/supabaseClient";
 import type { Database } from "@/lib/supabase.types";
 import { MapView } from "@/components/MapView";
 import { useRouter } from "next/navigation";
+import Header from "@/components/Header";
+import Image from "next/image";
 
 /**
  * 温泉データ型（Supabase型から抽出）
@@ -42,6 +44,8 @@ function SpotCardListSkeleton() {
 function SpotCard({ onsen }: { onsen: Onsen }) {
   const router = useRouter();
   if (!onsen) return null;
+  const thumb =
+    onsen.images && onsen.images.length > 0 ? onsen.images[0] : "/file.svg";
   return (
     <Card
       className="w-full cursor-pointer hover:shadow-lg transition"
@@ -55,7 +59,14 @@ function SpotCard({ onsen }: { onsen: Onsen }) {
         }
       }}
     >
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center gap-3">
+        <Image
+          src={thumb}
+          alt={onsen.name + "のサムネイル"}
+          width={56}
+          height={56}
+          className="rounded object-cover border w-14 h-14 bg-gray-100"
+        />
         <CardTitle>{onsen.name}</CardTitle>
       </CardHeader>
       <CardContent>
@@ -105,6 +116,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <Header />
       <div className="flex-1 flex flex-col md:flex-row gap-4 p-4 bg-primary-50">
         {/* MapView（左） */}
         <div className="md:w-3/5 w-full mb-4 md:mb-0">

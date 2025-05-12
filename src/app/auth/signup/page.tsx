@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
+import OAuthButtons from "@/components/OAuthButtons";
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
@@ -31,7 +32,8 @@ export default function SignUpPage() {
     <main className="min-h-screen flex flex-col items-center justify-center bg-primary-50">
       <div className="w-full max-w-md bg-white rounded-lg shadow p-8">
         <h1 className="text-2xl font-bold mb-6 text-center">新規登録</h1>
-        <form onSubmit={handleSignUp} className="space-y-4">
+        <OAuthButtons />
+        <form onSubmit={handleSignUp} className="space-y-4 mt-4">
           <input
             type="email"
             className="w-full border rounded p-2"
@@ -39,6 +41,7 @@ export default function SignUpPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            autoComplete="email"
           />
           <input
             type="password"
@@ -48,10 +51,13 @@ export default function SignUpPage() {
             onChange={(e) => setPassword(e.target.value)}
             minLength={8}
             required
+            autoComplete="new-password"
           />
-          {error && <div className="text-red-500 text-sm">{error}</div>}
+          {error && (
+            <div className="text-red-500 text-sm text-center">{error}</div>
+          )}
           {success && (
-            <div className="text-green-600 text-sm">
+            <div className="text-green-600 text-sm text-center">
               登録完了！サインイン画面へ移動します
             </div>
           )}
@@ -62,9 +68,13 @@ export default function SignUpPage() {
             新規登録
           </button>
         </form>
-        <div className="text-center mt-4">
-          <a href="/auth/signin" className="text-primary-700 hover:underline">
-            サインインはこちら
+        <div className="mt-4 text-center text-sm">
+          すでにアカウントをお持ちの方は
+          <a
+            href="/auth/signin"
+            className="text-primary-700 hover:underline ml-1"
+          >
+            サインイン
           </a>
         </div>
       </div>

@@ -70,3 +70,6 @@ yarn-error.log*
 # VSCode
 !.vscode/mcp.json
 .vscode/
+
+# テスト結果
+test-results/

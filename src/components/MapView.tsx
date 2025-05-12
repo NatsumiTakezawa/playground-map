@@ -26,36 +26,45 @@ export function MapView({ onsens }: MapViewProps) {
   const markers = useRef<google.maps.Marker[]>([]);
 
   useEffect(() => {
-    if (!mapRef.current) return;
-    // Google Maps APIが未ロードならスクリプトを動的追加
-    if (!window.google || !window.google.maps) {
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`;
-      script.async = true;
-      script.onload = () => {
-        initMap();
-      };
-      document.body.appendChild(script);
-    } else {
-      initMap();
+    if (typeof window === "undefined" || !mapRef.current) return;
+    const apiKey =
+      process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
+      process.env.GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
+      mapRef.current.innerHTML = ""; // 直接エラー文をDOMに入れずJSXで表示
+      return;
     }
+    const w = window as typeof window & { google?: typeof google };
+    if (w.google && w.google.maps) {
+      initMap();
+      return;
+    }
+    if (document.getElementById("google-maps-script")) return;
+    const script = document.createElement("script");
+    script.id = "google-maps-script";
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      initMap();
+    };
+    document.body.appendChild(script);
     function initMap() {
       if (!mapRef.current) return;
       if (!mapInstance.current) {
-        mapInstance.current = new window.google.maps.Map(mapRef.current, {
+        mapInstance.current = new google.maps.Map(mapRef.current, {
           center: { lat: 35.4723, lng: 133.0505 }, // 松江しんじ湖温泉を中心
           zoom: 12,
           mapTypeControl: false,
           streetViewControl: false,
         });
       }
-      // 既存マーカーをクリア
       markers.current.forEach((m) => m.setMap(null));
       markers.current = [];
-      // 温泉ごとにマーカーを追加
       onsens.forEach((onsen) => {
         if (!onsen.geo_lat || !onsen.geo_lng) return;
-        const marker = new window.google.maps.Marker({
+        // TODO: AdvancedMarkerElementへの移行検討
+        const marker = new google.maps.Marker({
           position: { lat: onsen.geo_lat, lng: onsen.geo_lng },
           map: mapInstance.current!,
           title: onsen.name,
@@ -63,12 +72,50 @@ export function MapView({ onsens }: MapViewProps) {
         markers.current.push(marker);
       });
     }
-    // クリーンアップ
     return () => {
       markers.current.forEach((m) => m.setMap(null));
       markers.current = [];
     };
   }, [onsens]);
+
+  const apiKey =
+    typeof window !== "undefined"
+      ? process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
+        process.env.GOOGLE_MAPS_API_KEY
+      : undefined;
+
+  if (!apiKey) {
+    return (
+      <div
+        className="w-full h-[400px] rounded-lg border border-red-200 bg-red-50 flex flex-col items-center justify-center text-red-700 gap-2"
+        aria-label="温泉マップ"
+        tabIndex={0}
+      >
+        <svg
+          width="40"
+          height="40"
+          fill="none"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="10" fill="#fee2e2" />
+          <path
+            d="M12 8v4m0 4h.01"
+            stroke="#ef4444"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        <div className="font-bold text-lg">Google Mapsが表示できません</div>
+        <div className="text-sm">
+          APIキーが設定されていません。
+          <br />
+          管理者にお問い合わせください。
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
