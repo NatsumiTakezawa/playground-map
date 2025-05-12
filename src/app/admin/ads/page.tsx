@@ -1,3 +1,4 @@
+"use client";
 /**
  * S08 広告管理画面（バナー一覧・新規作成・スケジュール設定）
  * @package MatsueOnsenMap

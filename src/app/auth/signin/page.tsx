@@ -1,3 +1,4 @@
+"use client";
 /**
  * S03 サインインページ
  * @package MatsueOnsenMap

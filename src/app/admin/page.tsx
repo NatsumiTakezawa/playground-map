@@ -1,3 +1,4 @@
+"use client";
 /**
  * S05 管理ダッシュボード
  * @package MatsueOnsenMap

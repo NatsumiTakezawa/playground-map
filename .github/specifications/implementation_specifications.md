@@ -238,3 +238,49 @@ public/
 ---
 
 > 本仕様書は[要件定義書](./specification.md)・[UI 仕様書](./ui_specification.md)と連携し、実装の Single Source of Truth とする。
+
+---
+
+# 追加実装方針（2025-05-12 追記）
+
+## サービス名・各ページ名・SEO/Metadata 方針
+
+- サービス名: 松江市温泉マップ
+- サービス説明: 松江市周辺の温泉を地図・リストで比較し、レビュー・写真・広告など地域情報を一元的に提供する観光支援サービス
+- 各ページ名:
+
+  - トップページ: 松江市温泉マップ（温泉一覧・地図）
+  - 温泉詳細ページ: [温泉名] | 松江市温泉マップ
+  - レビュー投稿: レビューを書く | 松江市温泉マップ
+  - サインイン: サインイン | 松江市温泉マップ
+  - サインアップ: 新規登録 | 松江市温泉マップ
+  - 管理ダッシュボード: 管理ダッシュボード | 松江市温泉マップ
+  - スポット CMS: スポット管理 | 松江市温泉マップ
+  - 広告管理: 広告管理 | 松江市温泉マップ
+  - テーマ管理: テーマ管理 | 松江市温泉マップ
+
+- 各ページで SEO/OGP/アクセシビリティを考慮した Metadata（title, description, og:image, og:type, og:url, twitter:card 等）を設定する。
+
+## Metadata 実装・ページ分離方針
+
+- 各ページは「サーバコンポーネント（metadata, データ取得）」と「クライアントコンポーネント（UI/UX）」に分離する。
+  - サーバコンポーネント: `page.tsx`（Next.js App Router の Page）、`generateMetadata`関数で title/description/OGP 等を返す。
+  - クライアントコンポーネント: `PageClient.tsx`等で UI/UX・インタラクションを実装。
+- 例：
+  - `/src/app/onsen/[id]/page.tsx`（サーバ）→ `/src/app/onsen/[id]/PageClient.tsx`（クライアント）
+  - `/src/app/page.tsx`（サーバ）→ `/src/app/PageClient.tsx`（クライアント）
+- これにより、SEO 最適化・SNS シェア時の OGP・アクセシビリティ向上を両立。
+
+## Placehold 画像・ダミーデータ方針
+
+- 画像が無い場合は必ず`/file.svg`等の美しい placehold 画像を表示する。
+- ダミーデータ（seed.sql）は温泉・ユーザー・レビュー・広告・テーマで十分な件数・多様な内容を用意し、各画像も適切に設定。
+- Placehold 画像は`public/file.svg`を共通利用し、alt 属性・サイズ・object-fit 等も統一。
+
+## テスト・ビルドエラー対応
+
+- すべてのページ・主要機能で E2E テスト（Playwright）を実装・通過必須。
+- ビルドエラー・型エラーは PR 時に必ず解消。
+- Metadata/OGP/アクセシビリティもテストで検証。
+
+---
