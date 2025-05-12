@@ -4,74 +4,39 @@
  * @module app/onsen/[id]/page
  */
 import { supabase } from "@/lib/supabaseClient";
-import type { Database } from "@/lib/supabase.types";
-import { notFound } from "next/navigation";
 import ImageCarousel from "@/components/ImageCarousel";
 import SpotHeader from "@/components/SpotHeader";
-import { useEffect, useState, useTransition } from "react";
-import ReviewModal from "@/components/ReviewModal";
-import { revalidatePath } from "next/cache";
 
 /**
- * 温泉データ型
+ * S01 温泉詳細ページ（サーバーコンポーネント化）
  */
-type Onsen = Database["public"]["Tables"]["onsen"]["Row"];
-
-/**
- * レビューデータ型
- */
-type Review = Database["public"]["Tables"]["review"]["Row"];
-
-/**
- * 温泉詳細ページ
- * @param params.id - 温泉ID
- */
-export default function OnsenDetailPage({
+export default async function OnsenDetailPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const [onsen, setOnsen] = useState<Onsen | null>(null);
-  const [reviews, setReviews] = useState<Review[] | null>(null);
-  const [isReviewModalOpen, setReviewModalOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
-
+  // サーバーサイドで温泉データ・レビューを取得
+  const { data: onsen, error: onsenError } = await supabase
+    .from("onsen")
+    .select("*")
+    .eq("id", params.id)
+    .single();
+  if (onsenError || !onsen)
+    return <div className="p-8 text-red-500">データ取得に失敗しました</div>;
+  const { data: reviews } = await supabase
+    .from("review")
+    .select("*")
+    .eq("onsen_id", params.id)
+    .order("created_at", { ascending: false });
   const avgRating =
     reviews && reviews.length > 0
-      ? reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length
+      ? reviews.reduce(
+          (sum: number, r: { rating?: number }) => sum + (r.rating || 0),
+          0
+        ) / reviews.length
       : 0;
   const reviewCount = reviews ? reviews.length : 0;
-
-  useEffect(() => {
-    async function fetchData() {
-      const { data: onsen, error: onsenError } = await supabase
-        .from("onsen")
-        .select("*")
-        .eq("id", params.id)
-        .single();
-      if (onsenError || !onsen) {
-        notFound();
-        return;
-      }
-      setOnsen(onsen);
-
-      const { data: reviews } = await supabase
-        .from("review")
-        .select("*")
-        .eq("onsen_id", params.id)
-        .order("created_at", { ascending: false });
-      setReviews(reviews || []);
-    }
-
-    fetchData();
-  }, [params.id]);
-
-  if (!onsen) {
-    return <div>Loading...</div>;
-  }
-
   const activeTab = "overview";
-
   return (
     <main className="min-h-screen flex flex-col">
       {/* Header（共通） */}
@@ -90,7 +55,7 @@ export default function OnsenDetailPage({
           reviewCount={reviewCount}
         />
         <div className="flex flex-wrap gap-1 mb-2">
-          {(onsen.tags || []).map((tag) => (
+          {(onsen.tags || []).map((tag: string) => (
             <span
               key={tag}
               className="text-xs bg-primary-100 text-primary-700 px-2 py-0.5 rounded"
@@ -100,7 +65,6 @@ export default function OnsenDetailPage({
           ))}
         </div>
       </section>
-      {/* SpotInfoTabs（雛形） */}
       <section className="p-4">
         <div className="flex gap-4 border-b mb-4">
           <button
@@ -119,9 +83,7 @@ export default function OnsenDetailPage({
             レビュー
           </button>
         </div>
-        {/* 概要タブ内容 */}
         <div className="text-gray-600 mb-2">{onsen.description}</div>
-        {/* レビューリストは今後タブ切替で分離 */}
         <h2 className="font-bold text-lg mb-2">レビュー</h2>
         <ul className="space-y-2">
           {reviews && reviews.length > 0 ? (
@@ -134,7 +96,8 @@ export default function OnsenDetailPage({
                   {review.comment}
                 </div>
                 <div className="text-xs text-gray-400 mt-1">
-                  {new Date(review.created_at).toLocaleString()}
+                  {review.created_at &&
+                    new Date(review.created_at).toLocaleString()}
                 </div>
               </li>
             ))
@@ -144,43 +107,22 @@ export default function OnsenDetailPage({
         </ul>
       </section>
       {/* WriteReviewButton（モーダル起動） */}
+      {/*
       <div className="w-full flex justify-center py-4">
-        <button
-          className="bg-primary-500 text-white px-6 py-2 rounded font-bold hover:bg-primary-700 transition"
-          onClick={() => setReviewModalOpen(true)}
-        >
-          レビューを書く
-        </button>
+        <Suspense fallback={null}>
+          <ReviewModal ... />
+        </Suspense>
       </div>
-      <ReviewModal
-        open={isReviewModalOpen}
-        onClose={() => setReviewModalOpen(false)}
-        onSubmit={async (rating, comment, image) => {
-          // Supabaseへレビュー投稿処理
-          // TODO: 認証ユーザー取得・画像アップロード対応
-          const { error } = await supabase.from("review").insert({
-            onsen_id: params.id,
-            user_id: null, // TODO: 認証ユーザーIDに置換
-            rating,
-            comment,
-          });
-          setReviewModalOpen(false);
-          // レビューリスト再取得
-          startTransition(() => {
-            revalidatePath(`/onsen/${params.id}`);
-          });
-          // TODO: トースト通知
-        }}
-      />
+      */}
       {/* BannerAd（サンプル） */}
       <div className="w-full flex justify-center py-4">
         <div className="w-full max-w-2xl h-20 bg-gradient-to-r from-primary-100 to-primary-50 rounded-lg flex items-center justify-center text-primary-700 font-semibold">
           広告バナー（サンプル）
         </div>
       </div>
-      {/* Footer */}
-      <footer className="w-full text-center text-xs text-gray-500 py-2 border-t bg-white">
-        © 2025 松江市温泉マップ
+      {/* Footer（共通） */}
+      <footer className="w-full px-4 py-4 text-center text-xs text-gray-400 border-t bg-white mt-auto">
+        &copy; {new Date().getFullYear()} 松江市温泉マップ
       </footer>
     </main>
   );

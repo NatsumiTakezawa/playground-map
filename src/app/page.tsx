@@ -1,3 +1,4 @@
+"use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
@@ -103,23 +104,25 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="flex-1 flex flex-col md:flex-row gap-4 p-4 bg-primary-50">
-      {/* MapView（左） */}
-      <div className="md:w-3/5 w-full mb-4 md:mb-0">
-        {onsens === null ? <MapSkeleton /> : <MapView onsens={onsens} />}
-      </div>
-      {/* SpotCardList（右） */}
-      <div className="md:w-2/5 w-full">
-        <h2 className="font-bold text-xl mb-2">温泉一覧</h2>
-        {onsens === null ? (
-          <SpotCardListSkeleton />
-        ) : (
-          <div className="space-y-4">
-            {onsens.map((onsen: Onsen) => (
-              <SpotCard key={onsen.id} onsen={onsen} />
-            ))}
-          </div>
-        )}
+    <div className="min-h-screen flex flex-col bg-white">
+      <div className="flex-1 flex flex-col md:flex-row gap-4 p-4 bg-primary-50">
+        {/* MapView（左） */}
+        <div className="md:w-3/5 w-full mb-4 md:mb-0">
+          {onsens === null ? <MapSkeleton /> : <MapView onsens={onsens} />}
+        </div>
+        {/* SpotCardList（右） */}
+        <div className="md:w-2/5 w-full">
+          <h2 className="font-bold text-xl mb-2">温泉一覧</h2>
+          {onsens === null ? (
+            <SpotCardListSkeleton />
+          ) : (
+            <div className="space-y-4">
+              {onsens.map((onsen: Onsen) => (
+                <SpotCard key={onsen.id} onsen={onsen} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
       {/* BannerAd（フッター直上） */}
       <div className="w-full flex justify-center py-4">
@@ -131,6 +134,6 @@ export default function HomePage() {
       <footer className="w-full text-center text-xs text-gray-500 py-2 border-t bg-white">
         © 2025 松江市温泉マップ
       </footer>
-    </main>
+    </div>
   );
 }

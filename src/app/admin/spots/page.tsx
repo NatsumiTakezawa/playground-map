@@ -1,3 +1,4 @@
+"use client";
 /**
  * S06 スポットCMS（温泉一覧）
  * @package MatsueOnsenMap
@@ -25,7 +26,7 @@ export default function AdminSpotsPage() {
     fetchSpots();
   }, []);
 
-  const filtered = spots.filter(s =>
+  const filtered = spots.filter((s) =>
     s.name?.toLowerCase().includes(keyword.toLowerCase())
   );
 
@@ -39,11 +40,15 @@ export default function AdminSpotsPage() {
           className="border rounded p-2 w-64"
           placeholder="温泉名で検索"
           value={keyword}
-          onChange={e => setKeyword(e.target.value)}
+          onChange={(e) => setKeyword(e.target.value)}
         />
-        <button className="bg-primary-500 text-white px-4 py-2 rounded font-bold hover:bg-primary-700 transition">検索</button>
+        <button className="bg-primary-500 text-white px-4 py-2 rounded font-bold hover:bg-primary-700 transition">
+          検索
+        </button>
         {/* CSVImportBtn（ダミー） */}
-        <button className="ml-auto bg-gray-100 text-gray-700 px-4 py-2 rounded font-bold border hover:bg-primary-100">CSVインポート</button>
+        <button className="ml-auto bg-gray-100 text-gray-700 px-4 py-2 rounded font-bold border hover:bg-primary-100">
+          CSVインポート
+        </button>
       </div>
       {/* DataTable */}
       <div className="overflow-x-auto bg-white rounded shadow">
@@ -59,7 +64,7 @@ export default function AdminSpotsPage() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map(spot => (
+            {filtered.map((spot) => (
               <tr key={spot.id} className="border-b hover:bg-primary-50">
                 <td className="p-2 font-mono text-xs">{spot.id}</td>
                 <td className="p-2">{spot.name}</td>
@@ -67,13 +72,20 @@ export default function AdminSpotsPage() {
                 <td className="p-2">{spot.geo_lng}</td>
                 <td className="p-2">{(spot.tags || []).join(", ")}</td>
                 <td className="p-2">
-                  <Link href={`/admin/spots/${spot.id}`} className="text-primary-700 hover:underline">編集</Link>
+                  <Link
+                    href={`/admin/spots/${spot.id}`}
+                    className="text-primary-700 hover:underline"
+                  >
+                    編集
+                  </Link>
                 </td>
               </tr>
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="p-4 text-center text-gray-400">該当データがありません</td>
+                <td colSpan={6} className="p-4 text-center text-gray-400">
+                  該当データがありません
+                </td>
               </tr>
             )}
           </tbody>
