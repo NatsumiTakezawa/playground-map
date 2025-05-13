@@ -4,16 +4,28 @@
  * @module components/ReviewModal
  */
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import StarRatingInput from "./StarRatingInput";
 
 export type ReviewModalProps = {
   open: boolean;
   onClose: () => void;
   onSubmit: (rating: number, comment: string, image?: File) => void;
+  error?: string | null;
 };
 
-export default function ReviewModal({ open, onClose, onSubmit }: ReviewModalProps) {
+export default function ReviewModal({
+  open,
+  onClose,
+  onSubmit,
+  error,
+}: ReviewModalProps) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [image, setImage] = useState<File | undefined>(undefined);
@@ -26,17 +38,21 @@ export default function ReviewModal({ open, onClose, onSubmit }: ReviewModalProp
         </DialogHeader>
         <div className="space-y-4">
           <StarRatingInput value={rating} onChange={setRating} />
+          <label className="block text-sm font-medium">1つ星</label>
           <textarea
             className="w-full border rounded p-2 min-h-[80px]"
             placeholder="コメントを入力..."
             value={comment}
-            onChange={e => setComment(e.target.value)}
+            onChange={(e) => setComment(e.target.value)}
           />
           <input
             type="file"
             accept="image/*"
-            onChange={e => setImage(e.target.files?.[0])}
+            onChange={(e) => setImage(e.target.files?.[0])}
           />
+          {error && (
+            <div className="text-red-500 text-sm text-center">{error}</div>
+          )}
         </div>
         <DialogFooter>
           <button

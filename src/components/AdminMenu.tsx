@@ -42,7 +42,8 @@ export default function AdminMenu() {
       </nav>
       <div className="mt-auto">
         <button
-          className="text-xs text-gray-400 hover:underline"
+          className="text-xs text-gray-400 hover:underline relative z-[1000]"
+          data-testid="signout-btn"
           onClick={handleSignOut}
         >
           サインアウト

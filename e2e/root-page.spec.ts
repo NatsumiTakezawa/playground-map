@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 
 // 正常系: ルートページの主要要素が表示されること
 // - ヘッダー、温泉一覧見出し、地図、SpotCardリスト、バナー、フッター

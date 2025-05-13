@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 
 // 温泉詳細ページのE2Eテスト
 // - レビュー投稿ボタンの表示

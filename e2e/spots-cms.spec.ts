@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 import fs from "fs/promises";
 
 // 管理者用テストユーザー

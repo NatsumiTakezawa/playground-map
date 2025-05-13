@@ -71,10 +71,8 @@ export default function ReviewModalClient({ onsenId }: { onsenId: string }) {
         open={open}
         onClose={() => setOpen(false)}
         onSubmit={handleSubmit}
+        error={error}
       />
-      {error && (
-        <div className="text-red-500 text-sm mt-2 text-center">{error}</div>
-      )}
     </>
   );
 }
