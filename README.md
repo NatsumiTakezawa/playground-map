@@ -125,6 +125,55 @@ export default function Example() {
 
 ---
 
+## テスト実行方法
+
+### E2E テスト（Playwright）
+
+本プロジェクトでは E2E テストに [Playwright](https://playwright.dev/) を使用しています。
+
+#### テスト実行
+
+```bash
+npx playwright test --workers=2
+```
+
+- `--workers=2` で 2 並列実行（CI/CD 推奨）。
+- テストファイルは `e2e/` ディレクトリ配下にあります。
+
+#### テスト用サーバ起動例
+
+```bash
+PLAYWRIGHT_RUN=1 npm run dev
+```
+
+- `PLAYWRIGHT_RUN=1` で Next.js の dev インジケーターを非表示にできます（next.config.js で制御する場合）。
+
+#### テストレポート表示
+
+```bash
+npx playwright show-report
+```
+
+### ユニットテスト（Jest）
+
+本プロジェクトではユニットテストに [Jest](https://jestjs.io/) を使用しています。
+
+#### テスト実行
+
+```bash
+npm run test
+```
+
+- テストファイルは `*.test.ts` 形式で `src/` 配下に配置してください。
+
+#### カバレッジ計測
+
+```bash
+npm run test -- --coverage
+```
+
+---
+
 # English (for reference)
 
 ## Local Development Setup
