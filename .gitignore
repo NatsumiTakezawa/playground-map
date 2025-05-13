@@ -48,6 +48,7 @@ node_modules/
 
 # 環境変数
 .env*
+!.env.example
 
 # Supabase
 .supabase/
