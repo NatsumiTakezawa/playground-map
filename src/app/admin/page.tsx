@@ -4,10 +4,9 @@
  * @package MatsueOnsenMap
  * @module app/admin/page
  */
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import AdminMenu from "@/components/AdminMenu";
 
 export default function AdminDashboardPage() {
   const [counts, setCounts] = useState({
@@ -17,82 +16,30 @@ export default function AdminDashboardPage() {
   });
   const router = useRouter();
 
+  // 仮認証: localStorageで認可
   useEffect(() => {
-    async function fetchCounts() {
-      // 認証ユーザー取得
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        router.replace("/auth/signin");
-        return;
-      }
-      // ユーザー情報取得
-      const { data: userInfo } = await supabase
-        .from("users")
-        .select("role")
-        .eq("id", user.id)
-        .single();
-      if (!userInfo || userInfo.role !== "admin") {
-        router.replace("/auth/signin");
-        return;
-      }
-      // 集計値取得
-      const [{ count: spotCount }, { count: reviewCount }, { count: adCount }] =
-        await Promise.all([
-          supabase.from("onsen").select("id", { count: "exact", head: true }),
-          supabase.from("review").select("id", { count: "exact", head: true }),
-          supabase
-            .from("ad_banner")
-            .select("id", { count: "exact", head: true }),
-        ]);
-      setCounts({
-        spots: spotCount?.toString() ?? "--",
-        reviews: reviewCount?.toString() ?? "--",
-        ads: adCount?.toString() ?? "--",
-      });
+    if (typeof window === "undefined") return;
+    const userStr = localStorage.getItem("loginUser");
+    if (!userStr) {
+      router.replace("/auth/signin");
+      return;
     }
-    fetchCounts();
+    const user = JSON.parse(userStr);
+    if (user.role !== "admin") {
+      router.replace("/auth/signin");
+      return;
+    }
   }, [router]);
+
+  // ダミー集計値（仮認証用: 固定値）
+  useEffect(() => {
+    setCounts({ spots: "3", reviews: "5", ads: "2" });
+  }, []);
 
   return (
     <main className="min-h-screen flex bg-primary-50">
-      {/* NavSidebar */}
-      <aside className="w-56 bg-white border-r flex flex-col p-4 gap-4 min-h-screen">
-        <div className="font-bold text-lg text-primary-700 mb-6">
-          管理メニュー
-        </div>
-        <nav className="flex flex-col gap-2">
-          <Link href="/admin" className="font-medium text-primary-700">
-            ダッシュボード
-          </Link>
-          <Link
-            href="/admin/spots"
-            className="text-gray-700 hover:text-primary-700"
-          >
-            スポットCMS
-          </Link>
-          <Link
-            href="/admin/ads"
-            className="text-gray-700 hover:text-primary-700"
-          >
-            広告管理
-          </Link>
-          <Link
-            href="/admin/themes"
-            className="text-gray-700 hover:text-primary-700"
-          >
-            テーマ管理
-          </Link>
-        </nav>
-        <div className="mt-auto">
-          <button className="text-xs text-gray-400 hover:underline">
-            サインアウト
-          </button>
-        </div>
-      </aside>
-      {/* メイン */}
-      <section className="flex-1 flex flex-col p-8 gap-8">
+      <AdminMenu />
+      <div className="flex-1 flex flex-col p-8 gap-8">
         <h1 className="text-2xl font-bold mb-4">管理ダッシュボード</h1>
         {/* StatsCards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -125,7 +72,7 @@ export default function AdminDashboardPage() {
             ダーク
           </button>
         </div>
-      </section>
+      </div>
     </main>
   );
 }

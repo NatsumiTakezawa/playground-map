@@ -147,7 +147,7 @@ export default function AdminSpotEditPage() {
         <div className="flex gap-4 mt-6">
           <button
             type="submit"
-            className="bg-primary-500 text-white px-6 py-2 rounded font-bold hover:bg-primary-700 transition"
+            className="bg-primary-500 text-black px-6 py-2 rounded font-bold hover:bg-primary-700 transition"
           >
             保存
           </button>

@@ -9,6 +9,8 @@ import { supabase } from "@/lib/supabaseClient";
 import type { Database } from "@/lib/supabase.types";
 import Link from "next/link";
 import Image from "next/image";
+import AdminMenu from "@/components/AdminMenu";
+import { useRouter } from "next/navigation";
 
 /**
  * 広告バナーデータ型
@@ -18,6 +20,21 @@ type AdBanner = Database["public"]["Tables"]["ad_banner"]["Row"];
 export default function AdminAdsPage() {
   const [ads, setAds] = useState<AdBanner[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const userStr = localStorage.getItem("loginUser");
+    if (!userStr) {
+      router.replace("/auth/signin");
+      return;
+    }
+    const user = JSON.parse(userStr);
+    if (user.role !== "admin") {
+      router.replace("/auth/signin");
+      return;
+    }
+  }, [router]);
 
   useEffect(() => {
     async function fetchAds() {
@@ -30,57 +47,63 @@ export default function AdminAdsPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-primary-50 p-8">
-      <h1 className="text-2xl font-bold mb-6">広告管理</h1>
-      <div className="flex justify-end mb-4">
-        <Link
-          href="/admin/ads/new"
-          className="bg-primary-500 text-white px-4 py-2 rounded font-bold hover:bg-primary-700 transition"
-        >
-          新規バナー作成
-        </Link>
-      </div>
-      {/* BannerPreviewGrid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {ads.map((ad) => (
-          <div
-            key={ad.id}
-            className="bg-white rounded shadow p-4 flex flex-col gap-2"
+    <main className="min-h-screen flex bg-primary-50">
+      <AdminMenu />
+      <div className="flex-1 p-8">
+        <h1 className="text-2xl font-bold mb-6">広告管理</h1>
+        <div className="flex justify-end mb-4">
+          <Link
+            href="/admin/ads/new"
+            className="bg-primary-500 text-white px-4 py-2 rounded font-bold hover:bg-primary-700 transition"
           >
-            <Image
-              src={ad.image_url || "/file.svg"}
-              alt="バナー画像"
-              width={400}
-              height={128}
-              className="w-full h-32 object-cover rounded"
-              style={{ objectFit: "cover" }}
-              priority={false}
-            />
-            <div className="text-sm text-gray-700 truncate">{ad.link_url}</div>
-            <div className="text-xs text-gray-500">
-              掲載期間: {ad.start_at?.slice(0, 10)} ～ {ad.end_at?.slice(0, 10)}
+            新規バナー作成
+          </Link>
+        </div>
+        {/* BannerPreviewGrid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {ads.map((ad) => (
+            <div
+              key={ad.id}
+              className="bg-white rounded shadow p-4 flex flex-col gap-2"
+            >
+              <Image
+                src={ad.image_url || "/file.svg"}
+                alt="バナー画像"
+                width={400}
+                height={128}
+                className="w-full h-32 object-cover rounded"
+                style={{ objectFit: "cover" }}
+                priority={false}
+              />
+              <div className="text-sm text-gray-700 truncate">
+                {ad.link_url}
+              </div>
+              <div className="text-xs text-gray-500">
+                掲載期間: {ad.start_at?.slice(0, 10)} ～{" "}
+                {ad.end_at?.slice(0, 10)}
+              </div>
+              <div className="text-xs text-gray-500">
+                掲載位置: {ad.placement}
+              </div>
+              <div className="flex gap-2 mt-2">
+                <Link
+                  href={`/admin/ads/${ad.id}`}
+                  className="text-primary-700 hover:underline"
+                >
+                  編集
+                </Link>
+                <button className="text-red-500 hover:underline text-xs">
+                  削除
+                </button>
+              </div>
             </div>
-            <div className="text-xs text-gray-500">
-              掲載位置: {ad.placement}
+          ))}
+          {ads.length === 0 && !loading && (
+            <div className="col-span-full text-gray-400 text-center py-12">
+              バナーがありません
             </div>
-            <div className="flex gap-2 mt-2">
-              <Link
-                href={`/admin/ads/${ad.id}`}
-                className="text-primary-700 hover:underline"
-              >
-                編集
-              </Link>
-              <button className="text-red-500 hover:underline text-xs">
-                削除
-              </button>
-            </div>
-          </div>
-        ))}
-        {ads.length === 0 && !loading && (
-          <div className="col-span-full text-gray-400 text-center py-12">
-            バナーがありません
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </main>
   );

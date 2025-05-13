@@ -4,29 +4,47 @@
  * @package MatsueOnsenMap
  * @module app/auth/signup/page
  */
-import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import OAuthButtons from "@/components/OAuthButtons";
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const router = useRouter();
 
-  async function handleSignUp(e: React.FormEvent) {
+  useEffect(() => {
+    // 既にログイン済みなら管理画面へ
+    if (typeof window !== "undefined") {
+      const user = localStorage.getItem("loginUser");
+      if (user) {
+        const parsed = JSON.parse(user);
+        if (parsed.role === "admin") {
+          router.replace("/admin/spots");
+        }
+      }
+    }
+  }, [router]);
+
+  function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setSuccess(false);
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) {
-      setError(error.message);
+    if (!email) {
+      setError("メールアドレスを入力してください");
       return;
     }
+    // 仮登録: admin@example.comのみ管理者
+    const role = email === "admin@example.com" ? "admin" : "user";
+    if (typeof window !== "undefined") {
+      localStorage.setItem("loginUser", JSON.stringify({ email, role }));
+    }
     setSuccess(true);
-    setTimeout(() => router.push("/auth/signin"), 1500);
+    setTimeout(
+      () => router.replace(role === "admin" ? "/admin/spots" : "/auth/signin"),
+      1200
+    );
   }
 
   return (
@@ -37,6 +55,7 @@ export default function SignUpPage() {
         <form onSubmit={handleSignUp} className="space-y-4 mt-4">
           <input
             type="email"
+            aria-label="メールアドレス"
             className="w-full border rounded p-2"
             placeholder="メールアドレス"
             value={email}
@@ -44,26 +63,15 @@ export default function SignUpPage() {
             required
             autoComplete="email"
           />
-          <input
-            type="password"
-            className="w-full border rounded p-2"
-            placeholder="パスワード（8文字以上）"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            minLength={8}
-            required
-            autoComplete="new-password"
-          />
           {error && (
             <div className="text-red-500 text-sm text-center">{error}</div>
           )}
           {success && (
-            <div className="text-green-600 text-sm text-center">
-              登録完了！サインイン画面へ移動します
-            </div>
+            <div className="text-green-600 text-sm text-center">登録完了！</div>
           )}
           <button
             type="submit"
+            aria-label="サインアップ（メール）"
             className="w-full bg-primary-500 text-white py-2 rounded font-bold hover:bg-primary-700 transition"
           >
             新規登録
