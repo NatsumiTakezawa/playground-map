@@ -83,6 +83,97 @@ npm install @supabase/supabase-js
 
 ---
 
+## UI コンポーネントの追加・使用方法（shadcn/ui）
+
+### 1. コンポーネントの追加
+
+shadcn/ui の CLI を使って、必要な UI コンポーネントを追加できます。
+
+```bash
+npx shadcn@latest add <component名>
+```
+
+例：Button コンポーネントを追加する場合
+
+```bash
+npx shadcn@latest add button
+```
+
+追加されたコンポーネントは `src/components/ui/` 配下に生成されます。
+
+### 2. コンポーネントの使用例
+
+追加した UI コンポーネントは、以下のようにインポートして利用します。
+
+```tsx
+import { Button } from "@/components/ui/button";
+
+export default function Example() {
+  return <Button>ボタン</Button>;
+}
+```
+
+### 3. カスタマイズ
+
+- デザインやバリアントは `src/components/ui/` 内の各ファイルを編集して調整できます。
+- Tailwind CSS のカスタムテーマやクラスも利用可能です。
+
+### 4. 参考
+
+- [shadcn/ui ドキュメント](https://ui.shadcn.com/docs/components)
+- [プロジェクトの UI 仕様書](./specifications/ui_specification.md)
+
+---
+
+## テスト実行方法
+
+### E2E テスト（Playwright）
+
+本プロジェクトでは E2E テストに [Playwright](https://playwright.dev/) を使用しています。
+
+#### テスト実行
+
+```bash
+npx playwright test --workers=2
+```
+
+- `--workers=2` で 2 並列実行（CI/CD 推奨）。
+- テストファイルは `e2e/` ディレクトリ配下にあります。
+
+#### テスト用サーバ起動例
+
+```bash
+PLAYWRIGHT_RUN=1 npm run dev
+```
+
+- `PLAYWRIGHT_RUN=1` で Next.js の dev インジケーターを非表示にできます（next.config.js で制御する場合）。
+
+#### テストレポート表示
+
+```bash
+npx playwright show-report
+```
+
+### ユニットテスト（Jest）
+
+本プロジェクトではユニットテストに [Jest](https://jestjs.io/) を使用しています。
+
+#### テスト実行
+
+```bash
+npm run test
+```
+
+- テストファイルは `*.test.ts` 形式で `src/` 配下に配置してください。
+
+#### カバレッジ計測
+
+```bash
+npm run test -- --coverage
+```
+
+---
+
 # English (for reference)
 
 ## Local Development Setup
