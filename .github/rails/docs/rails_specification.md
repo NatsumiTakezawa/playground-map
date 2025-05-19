@@ -1,0 +1,98 @@
+# 松江市温泉マップ（Rails 教育版）プロダクト仕様書
+
+## 1. 目的
+
+松江市周辺の温泉を検索・閲覧・レビューできる Web アプリを、**React 等を使わず Ruby on Rails 7.1 + Hotwire + Tailwind** で構築する。学習教材としてコードを読みやすく保つことを最優先とする。
+開発／CI／本番すべてを Docker コンテナで再現できる学習用リポジトリを提供する。
+**認証・権限は一切設けない**。
+
+## 2. 技術スタック
+
+| カテゴリ         | 採用技術 / バージョン                                |
+| ---------------- | ---------------------------------------------------- |
+| 言語 / FW        | Ruby 3.3, Rails 7.1 (最新安定版にする)               |
+| フロント         | Hotwire (Turbo, Stimulus) + Tailwind CSS + Importmap |
+| DB（開発・本番） | PostgreSQL 15（Docker コンテナ／Heroku Postgres）    |
+| ストレージ       | Active Storage（開発: local、<br>本番: Amazon S3）   |
+| メッセージ       | Redis 7 + Sidekiq（バックグラウンドジョブ）          |
+| インフラ         | Docker, docker-compose, Heroku Container Registry    |
+| CI/CD            | GitHub Actions → Heroku Container 自動デプロイ       |
+
+> **ポイント**
+>
+> - **開発環境はすべて docker-compose up で完結**。
+> - 手元に Ruby や Postgres を直接インストールする必要はない。
+
+## 3. サイトマップ
+
+| ID  | 画面名       | URL / 経路           | アクセス権 |
+| --- | ------------ | -------------------- | ---------- |
+| S00 | トップ       | `/`                  | 全員       |
+| S01 | 温泉詳細     | `/onsens/:id`        | 全員       |
+| S02 | 新規温泉     | `/onsens/new`        | 全員       |
+| S03 | 温泉編集     | `/onsens/:id/edit`   | 全員       |
+| S04 | 温泉削除     | `DELETE /onsens/:id` | 全員       |
+| S05 | レビュー投稿 | Turbo Stream Modal   | 全員       |
+
+> **備考**
+>
+> - `/admin` 名前空間は存在しません。
+> - CRUD はすべて `OnsensController` に統合し、匿名で操作可。
+
+## 4. ドメインモデル
+
+### 4.1 Onsen
+
+| カラム        | 型                          | 制約・仕様                            |
+| ------------- | --------------------------- | ------------------------------------- |
+| `name`        | string                      | 必須・100 文字以内                    |
+| `geo_lat`     | decimal                     | 必須・小数 6 桁                       |
+| `geo_lng`     | decimal                     | 必須・小数 6 桁                       |
+| `description` | text                        | 任意・1000 文字以内・プレーンテキスト |
+| `tags`        | string                      | 任意・カンマ区切り                    |
+| 添付画像      | `has_many_attached :images` | 最大 5 枚・JPEG/PNG/GIF・1 枚 5 MB    |
+
+### 4.2 Review
+
+| カラム     | 型                          | 制約・仕様                     |
+| ---------- | --------------------------- | ------------------------------ |
+| `rating`   | integer                     | 必須・1〜5                     |
+| `comment`  | text                        | 任意・500 文字以内             |
+| `onsen_id` | integer                     | 必須・FK                       |
+| 添付画像   | `has_many_attached :images` | 最大 3 枚・JPEG/PNG・1 枚 3 MB |
+
+`Onsen` 1-N `Review`（匿名投稿）
+
+### 4.3 CSV インポート
+
+| 項目       | 内容                                                                     |
+| ---------- | ------------------------------------------------------------------------ |
+| 対応拡張子 | `.csv`（UTF-8、BOM 可）                                                  |
+| ヘッダ     | `name`,`geo_lat`,`geo_lng`,`description`,`tags`（順不同可）              |
+| 処理       | 行ごとバリデーションし、失敗行はスキップ。最後に「X 行スキップ」と表示。 |
+
+## 5. 検索・フィルタ
+
+1. **テキスト検索**：`name` と `description` の部分一致
+2. **位置情報検索**：
+   - 「現在地ボタン」で Geolocation API を使用
+   - 取得失敗時は住所入力 → ジオコーディング
+3. **ハイブリッド検索**：テキスト + 位置情報を組み合わせ可能
+4. **半径**：初期 5 km／最大 50 km
+5. **タグフィルタ**：複数タグは OR 条件
+
+## 6. 非機能要件
+
+| 分類             | 要件                                                          |
+| ---------------- | ------------------------------------------------------------- |
+| セキュリティ     | Rails デフォルトの CSRF / XSS 保護を利用                      |
+| アクセシビリティ | WCAG 2.1 AA 相当：alt 属性、キーボード操作、ARIA ランドマーク |
+| 国際化           | I18n 構造で実装。v1 は `ja` のみ                              |
+
+## 7. 実行プラットフォーム
+
+| 環境 | 方法                        | 備考                           |
+| ---- | --------------------------- | ------------------------------ |
+| 開発 | `docker-compose up --build` | web / db / redis / sidekiq     |
+| CI   | GitHub Actions `services:`  | docker-compose を再利用        |
+| 本番 | Heroku Container Registry   | `heroku container:release web` |
