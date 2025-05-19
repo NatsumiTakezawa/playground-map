@@ -3,8 +3,8 @@ FROM ruby:3.3-slim
 # 基本ライブラリ
 RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends \
-      build-essential libpq-dev nodejs postgresql-client curl && \
-    rm -rf /var/lib/apt/lists/*
+      build-essential libpq-dev libyaml-dev pkg-config nodejs postgresql-client curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # 作業ディレクトリ
 WORKDIR /app
