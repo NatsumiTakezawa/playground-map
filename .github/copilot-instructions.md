@@ -1,6 +1,6 @@
 # COPILOT リポジトリ用カスタム指示
 
-- 仕様書（[仕様書ファイル](./specifications/specification.md)）を参照しながら実装を進めてください。
+- 仕様書（[仕様書ファイル](./specifications/specification_v2.md)）を参照しながら実装を進めてください。
 - UI 仕様書（[UI 仕様書ファイル](./specifications/ui_specification.md)）を参照しながら実装を進めてください。
 - 実装指示[実装指示ファイル](./specifications/implementation_specifications.md)）を参照しながら実装を進めてください。
 - [Readme](./README.md) も参照しながら実装を進めてください。
