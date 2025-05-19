@@ -25,19 +25,40 @@
 
 ## 3. サイトマップ
 
-| ID  | 画面名       | URL / 経路           | アクセス権 |
-| --- | ------------ | -------------------- | ---------- |
-| S00 | トップ       | `/`                  | 全員       |
-| S01 | 温泉詳細     | `/onsens/:id`        | 全員       |
-| S02 | 新規温泉     | `/onsens/new`        | 全員       |
-| S03 | 温泉編集     | `/onsens/:id/edit`   | 全員       |
-| S04 | 温泉削除     | `DELETE /onsens/:id` | 全員       |
-| S05 | レビュー投稿 | Turbo Stream Modal   | 全員       |
+| ID  | 画面名                 | URL                      | アクセス権 |
+| --- | ---------------------- | ------------------------ | ---------- |
+| S00 | トップ                 | `/`                      | 全員       |
+| S01 | 温泉詳細               | `/onsens/:id`            | 全員       |
+| S02 | レビュー投稿           | Turbo Stream Modal       | 全員       |
+| S03 | **管理ダッシュボード** | `/admin`                 | 全員       |
+| S04 | 温泉一覧 (管理)        | `/admin/onsens`          | 全員       |
+| S05 | 新規温泉 (管理)        | `/admin/onsens/new`      | 全員       |
+| S06 | 温泉編集 (管理)        | `/admin/onsens/:id/edit` | 全員       |
+| S07 | CSV インポート         | `/admin/onsens/import`   | 全員       |
 
 > **備考**
 >
 > - `/admin` 名前空間は存在しません。
 > - CRUD はすべて `OnsensController` に統合し、匿名で操作可。
+> - 認証は無いままですが、UI の整理のため /admin 名前空間を復活 させ「管理画面」と呼称します。
+> - ルートは次のように定義し、フィルタは一切置きません。
+
+      ```ruby
+
+      # config/routes.rb
+
+      Rails.application.routes.draw do
+      resources :onsens, only: %i[index show] # 一般閲覧
+      namespace :admin do # 誰でも利用可
+      root "onsens#index"
+      resources :onsens do
+      collection { post :import } # POST /admin/onsens/import
+      end
+      end
+      root "onsens#index"
+      end
+
+      ```
 
 ## 4. ドメインモデル
 
@@ -96,3 +117,7 @@
 | 開発 | `docker-compose up --build` | web / db / redis / sidekiq     |
 | CI   | GitHub Actions `services:`  | docker-compose を再利用        |
 | 本番 | Heroku Container Registry   | `heroku container:release web` |
+
+```
+
+```
