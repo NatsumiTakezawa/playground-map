@@ -4,7 +4,7 @@ ARG RUBY_VERSION=3.3.8
 # 1. Base イメージの定義
 #########################################
 FROM ruby:${RUBY_VERSION}-slim AS base
-WORKDIR /rails
+WORKDIR /app
 
 # 本番時ランタイムパッケージ（PostgreSQL クライアント等）
 RUN apt-get update -qq && \
@@ -14,7 +14,7 @@ RUN apt-get update -qq && \
 
 ENV RAILS_ENV=development \
     RAILS_LOG_TO_STDOUT=true \
-    BUNDLE_DEPLOYMENT=1 \
+    # BUNDLE_DEPLOYMENT=1 \
     BUNDLE_PATH=/usr/local/bundle
 
 #########################################
@@ -29,8 +29,10 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives
 
 # 2-1) Gems のインストール
-COPY Gemfile Gemfile.lock ./
-RUN bundle install --jobs 4 --retry 3
+COPY Gemfile ./
+# COPY Gemfile Gemfile.lock ./
+# RUN bundle install --jobs 4 --retry 3
+RUN bundle install
 
 # 2-2) アプリケーションコードをコピー
 COPY . .
@@ -58,13 +60,13 @@ RUN groupadd --system --gid 1000 rails && \
 
 # build ステージからバンドル済み gems とアプリコードをコピー
 COPY --from=build /usr/local/bundle /usr/local/bundle
-COPY --from=build /rails /rails
+COPY --from=build /app /app
 
 # パーミッション調整
-RUN chown -R rails:rails /rails /usr/local/bundle
+RUN chown -R rails:rails /app /usr/local/bundle
 
 USER rails
-WORKDIR /rails
+WORKDIR /app
 
 # データベース準備用エントリポイント
 ENTRYPOINT ["bin/docker-entrypoint"]
