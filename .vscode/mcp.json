@@ -1,0 +1,24 @@
+{
+  "servers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/home/takemasa32/programs/sen/matsue-onsen-map-temp/"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    }
+
+    // "github": {
+    //   "command": "npx",
+    //   "args": ["-y", "@modelcontextprotocol/server-github"],
+    //   "env": {
+    //     "GITHUB_PERSONAL_ACCESS_TOKEN": "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"
+    //   }
+    // }
+  }
+}

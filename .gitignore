@@ -9,6 +9,8 @@
 
 # Ignore all environment files.
 /.env*
+!/.env.example
+!/.env.sample
 
 # Ignore all logfiles and tempfiles.
 /log/*
@@ -30,8 +32,5 @@
 
 /public/assets
 
-
-# vscode
-.vscode/*
-!.vscode/settings.json
-!.vscode/extensions.json
+# Ignore master key for decrypting credentials and more.
+/config/master.key

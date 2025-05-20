@@ -10,7 +10,7 @@
 
 | カテゴリ         | 採用技術 / バージョン                                |
 | ---------------- | ---------------------------------------------------- |
-| 言語 / FW        | Ruby 3.3, Rails 7.1 (最新安定版にする)               |
+| 言語 / FW        | Ruby 3.3, Rails 8.x                                  |
 | フロント         | Hotwire (Turbo, Stimulus) + Tailwind CSS + Importmap |
 | DB（開発・本番） | PostgreSQL 15（Docker コンテナ／Heroku Postgres）    |
 | ストレージ       | Active Storage（開発: local、<br>本番: Amazon S3）   |

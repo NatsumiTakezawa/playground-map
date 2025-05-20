@@ -5,7 +5,7 @@ services:
     build: .
     command: bundle exec puma -C config/puma.rb
     volumes:
-      - .:/app
+      - .:/app # この行でホストの現在のディレクトリがコンテナの /app にマウントされます
       - bundle_cache:/gems
     ports:
       - "3000:3000"
@@ -18,7 +18,7 @@ services:
     build: .
     command: bundle exec sidekiq
     volumes:
-      - .:/app
+      - .:/app # こちらも同様です
       - bundle_cache:/gems
     env_file: .env
     depends_on:
