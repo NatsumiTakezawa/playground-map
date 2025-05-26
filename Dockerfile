@@ -9,10 +9,14 @@
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 ARG RUBY_VERSION=3.3.8
+ARG UID=1000
+ARG GID=1001
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
 # Rails app lives here
-WORKDIR /rails
+ENV HOME=/app
+ENV BUNDLE_USER_HOME=/app/.bundle
+WORKDIR /app
 
 # Install base packages
 RUN apt-get update -qq && \
@@ -23,14 +27,15 @@ RUN apt-get update -qq && \
 ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development"
+    BUNDLE_WITHOUT="development" \
+    BUNDLE_FROZEN=false
 
 # Throw-away build stage to reduce size of final image
 FROM base AS build
 
 # Install packages needed to build gems
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config && \
+    apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config libpq-dev && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install application gems
@@ -54,18 +59,23 @@ RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 # Final stage for app image
 FROM base
 
-# Copy built artifacts: gems, application
-COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
-COPY --from=build /rails /rails
+# PostgreSQLランタイムをインストール
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y libpq5 && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# Run and own only the runtime files as a non-root user for security
-RUN groupadd --system --gid 1000 rails && \
-    useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash && \
-    chown -R rails:rails db log storage tmp
-USER 1000:1000
+# Copy built artifacts: gems, application
+COPY --from=build "/usr/local/bundle" "/usr/local/bundle"
+COPY --from=build /app /app
+
+# ホストと同じUID/GIDでappuserを作成し、/appをchown
+RUN (getent group $GID || addgroup --gid $GID appgroup) \
+ && (getent passwd $UID || adduser --disabled-password --uid $UID --ingroup appgroup --home /home/appuser --shell /bin/bash appuser) \
+ && chown -R $UID:$GID /app
+USER appuser
 
 # Entrypoint prepares the database.
-ENTRYPOINT ["/rails/bin/docker-entrypoint"]
+ENTRYPOINT ["/app/bin/docker-entrypoint"]
 
 # Start server via Thruster by default, this can be overwritten at runtime
 EXPOSE 80
