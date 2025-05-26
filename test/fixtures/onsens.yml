@@ -1,15 +1,15 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  name: MyString
-  geo_lat: 9.99
-  geo_lng: 9.99
-  description: MyText
-  tags: MyString
+  name: 松江しんじ湖温泉
+  geo_lat: 35.475
+  geo_lng: 133.048
+  description: 宍道湖畔の絶景温泉
+  tags: 湖畔,絶景
 
 two:
-  name: MyString
-  geo_lat: 9.99
-  geo_lng: 9.99
-  description: MyText
-  tags: MyString
+  name: 玉造温泉
+  geo_lat: 35.413
+  geo_lng: 133.070
+  description: 美肌の湯で有名
+  tags: 美肌,歴史

@@ -10,40 +10,19 @@ class Admin::OnsensTest < ApplicationSystemTestCase
     assert_selector "h1", text: "Onsens"
   end
 
-  test "should create onsen" do
+  test "管理画面で温泉の新規作成・編集・削除ができる" do
     visit admin_onsens_url
-    click_on "New onsen"
-
-    fill_in "Description", with: @admin_onsen.description
-    fill_in "Geo lat", with: @admin_onsen.geo_lat
-    fill_in "Geo lng", with: @admin_onsen.geo_lng
-    fill_in "Name", with: @admin_onsen.name
-    fill_in "Tags", with: @admin_onsen.tags
-    click_on "Create Onsen"
-
-    assert_text "Onsen was successfully created"
-    click_on "Back"
-  end
-
-  test "should update Onsen" do
-    visit admin_onsen_url(@admin_onsen)
-    click_on "Edit this onsen", match: :first
-
-    fill_in "Description", with: @admin_onsen.description
-    fill_in "Geo lat", with: @admin_onsen.geo_lat
-    fill_in "Geo lng", with: @admin_onsen.geo_lng
-    fill_in "Name", with: @admin_onsen.name
-    fill_in "Tags", with: @admin_onsen.tags
-    click_on "Update Onsen"
-
-    assert_text "Onsen was successfully updated"
-    click_on "Back"
-  end
-
-  test "should destroy Onsen" do
-    visit admin_onsen_url(@admin_onsen)
-    click_on "Destroy this onsen", match: :first
-
-    assert_text "Onsen was successfully destroyed"
+    click_on "新規登録"
+    fill_in "名称", with: "新しい温泉"
+    fill_in "緯度", with: 35.5
+    fill_in "経度", with: 133.1
+    click_on "登録"
+    assert_text "新しい温泉"
+    click_on "編集", match: :first
+    fill_in "名称", with: "編集後温泉"
+    click_on "更新"
+    assert_text "編集後温泉"
+    click_on "削除", match: :first
+    assert_no_text "編集後温泉"
   end
 end

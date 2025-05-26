@@ -1,0 +1,10 @@
+<%# @param rating [Integer] 1〜5 %>
+<span class="inline-block" aria-label="評価: <%= rating %>">
+  <% 1.upto(5) do |i| %>
+    <% if i <= rating %>
+      <span class="text-yellow-400">&#9733;</span>
+    <% else %>
+      <span class="text-gray-300">&#9733;</span>
+    <% end %>
+  <% end %>
+</span>

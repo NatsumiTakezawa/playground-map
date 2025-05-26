@@ -1,8 +1,9 @@
 require "test_helper"
 
 class Admin::OnsensControllerTest < ActionDispatch::IntegrationTest
+  fixtures :onsens
   setup do
-    @admin_onsen = admin_onsens(:one)
+    @onsen = onsens(:one)
   end
 
   test "should get index" do
@@ -15,32 +16,32 @@ class Admin::OnsensControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should create admin_onsen" do
-    assert_difference("Admin::Onsen.count") do
-      post admin_onsens_url, params: { admin_onsen: { description: @admin_onsen.description, geo_lat: @admin_onsen.geo_lat, geo_lng: @admin_onsen.geo_lng, name: @admin_onsen.name, tags: @admin_onsen.tags } }
+  test "should create onsen" do
+    assert_difference("Onsen.count") do
+      post admin_onsens_url, params: { onsen: { description: @onsen.description, geo_lat: @onsen.geo_lat, geo_lng: @onsen.geo_lng, name: @onsen.name, tags: @onsen.tags } }
     end
 
-    assert_redirected_to admin_onsen_url(Admin::Onsen.last)
+    assert_redirected_to admin_onsen_url(Onsen.last)
   end
 
-  test "should show admin_onsen" do
-    get admin_onsen_url(@admin_onsen)
+  test "should show onsen" do
+    get admin_onsen_url(@onsen)
     assert_response :success
   end
 
   test "should get edit" do
-    get edit_admin_onsen_url(@admin_onsen)
+    get edit_admin_onsen_url(@onsen)
     assert_response :success
   end
 
-  test "should update admin_onsen" do
-    patch admin_onsen_url(@admin_onsen), params: { admin_onsen: { description: @admin_onsen.description, geo_lat: @admin_onsen.geo_lat, geo_lng: @admin_onsen.geo_lng, name: @admin_onsen.name, tags: @admin_onsen.tags } }
-    assert_redirected_to admin_onsen_url(@admin_onsen)
+  test "should update onsen" do
+    patch admin_onsen_url(@onsen), params: { onsen: { description: @onsen.description, geo_lat: @onsen.geo_lat, geo_lng: @onsen.geo_lng, name: @onsen.name, tags: @onsen.tags } }
+    assert_redirected_to admin_onsen_url(@onsen)
   end
 
-  test "should destroy admin_onsen" do
-    assert_difference("Admin::Onsen.count", -1) do
-      delete admin_onsen_url(@admin_onsen)
+  test "should destroy onsen" do
+    assert_difference("Onsen.count", -1) do
+      delete admin_onsen_url(@onsen)
     end
 
     assert_redirected_to admin_onsens_url
