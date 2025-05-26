@@ -1,0 +1,36 @@
+<%# 温泉一覧ページ %>
+<div class="container mx-auto px-4 py-6">
+  <h1 class="text-2xl font-bold mb-4"><%= t('views.onsens.index.title') %></h1>
+  <div class="mb-6">
+    <%= form_with url: onsens_path, method: :get, local: true, class: "flex flex-wrap gap-2 items-end" do |f| %>
+      <div>
+        <%= f.label :q, "キーワード", class: "block text-sm font-bold" %>
+        <%= f.text_field :q, value: params[:q], class: "border rounded px-2 py-1 w-40" %>
+      </div>
+      <div>
+        <%= f.label :tags, "タグ(カンマ区切り)", class: "block text-sm font-bold" %>
+        <%= f.text_field :tags, value: params[:tags], class: "border rounded px-2 py-1 w-40" %>
+      </div>
+      <div>
+        <%= f.label :lat, "緯度", class: "block text-sm font-bold" %>
+        <%= f.text_field :lat, value: params[:lat], class: "border rounded px-2 py-1 w-28", placeholder: "例: 35.472" %>
+      </div>
+      <div>
+        <%= f.label :lng, "経度", class: "block text-sm font-bold" %>
+        <%= f.text_field :lng, value: params[:lng], class: "border rounded px-2 py-1 w-28", placeholder: "例: 133.050" %>
+      </div>
+      <div>
+        <%= f.label :radius_km, "半径(km)", class: "block text-sm font-bold" %>
+        <%= f.number_field :radius_km, value: params[:radius_km] || 5, min: 1, max: 50, class: "border rounded px-2 py-1 w-20" %>
+      </div>
+      <div>
+        <%= f.submit "検索", class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
+      </div>
+    <% end %>
+  </div>
+  <div class="grid md:grid-cols-2 gap-6">
+    <% @onsens.each do |onsen| %>
+      <%= render partial: "spot_card", locals: { onsen: onsen } %>
+    <% end %>
+  </div>
+</div>

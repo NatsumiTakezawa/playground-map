@@ -1,0 +1,25 @@
+<%# 温泉詳細ページ %>
+<div class="container mx-auto px-4 py-6">
+  <h1 class="text-2xl font-bold mb-2"><%= @onsen.name %></h1>
+  <div class="mb-4 text-gray-600">タグ: <%= @onsen.tags %></div>
+  <div class="mb-4">
+    <%= image_tag @onsen.images.first, class: "rounded shadow w-full max-w-md", alt: @onsen.name if @onsen.images.attached? %>
+  </div>
+  <div class="mb-6">
+    <p><%= @onsen.description %></p>
+    <p class="text-sm text-gray-500">緯度: <%= @onsen.geo_lat %> / 経度: <%= @onsen.geo_lng %></p>
+  </div>
+  <h2 class="text-xl font-semibold mb-2"><%= t('views.onsens.show.reviews') %></h2>
+  <div class="space-y-4">
+    <% @reviews.each do |review| %>
+      <div class="bg-gray-50 rounded p-3 shadow">
+        <div class="font-bold text-yellow-500">★ <%= review.rating %></div>
+        <div><%= review.comment %></div>
+        <div class="text-xs text-gray-400"><%= l review.created_at, format: :short %></div>
+      </div>
+    <% end %>
+  </div>
+  <div class="mt-6">
+    <%= render partial: "reviews/form", locals: { review: @review, onsen: @onsen } %>
+  </div>
+</div>

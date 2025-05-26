@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  resources :onsens, only: %i[index show] do
+    resources :reviews, only: :create
+  end
   namespace :admin do
     resources :onsens
   end
@@ -13,5 +16,5 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # Defines the root path route ("/")
-  # root "posts#index"
+  root "onsens#index"
 end

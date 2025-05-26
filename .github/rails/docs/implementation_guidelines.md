@@ -29,6 +29,8 @@ docker compose run --rm web rails new . --force --css=tailwind --skip-javascript
 
 2.  Webpacker / jsbundling-rails の導入
 
+    - なお，使用することが Rails で一般的なものであれば gem を追加してもよい.
+
 3.  認証・認可ロジックの追加
 
 4.  コントローラ 100 行超過

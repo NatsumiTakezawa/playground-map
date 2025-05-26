@@ -1,0 +1,18 @@
+<%# レビューフォーム（Turbo Stream Modal対応予定） %>
+<%= form_with(model: [onsen, review], local: true, html: { class: "space-y-2" }) do |f| %>
+  <div>
+    <%= f.label :rating, "評価", class: "block font-bold" %>
+    <%= f.select :rating, options_for_select(1..5, review.rating), {}, class: "border rounded px-2 py-1" %>
+  </div>
+  <div>
+    <%= f.label :comment, "コメント", class: "block font-bold" %>
+    <%= f.text_area :comment, rows: 2, class: "border rounded w-full px-2 py-1" %>
+  </div>
+  <div>
+    <%= f.label :images, "画像（最大3枚）", class: "block font-bold" %>
+    <%= f.file_field :images, multiple: true, accept: 'image/jpeg,image/png,image/gif', class: "block" %>
+  </div>
+  <div>
+    <%= f.submit t('views.reviews.form.submit'), class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
+  </div>
+<% end %>

@@ -1,0 +1,15 @@
+<%# 温泉スポットカード（Atomic Design: Molecule） %>
+<div class="bg-white rounded shadow p-4 hover:bg-blue-50 transition cursor-pointer">
+  <div class="flex items-center gap-4">
+    <% if onsen.images.attached? %>
+      <%= image_tag onsen.images.first, class: "w-20 h-20 object-cover rounded", alt: onsen.name %>
+    <% else %>
+      <div class="w-20 h-20 bg-gray-200 rounded flex items-center justify-center text-gray-400">No Image</div>
+    <% end %>
+    <div class="flex-1">
+      <h2 class="text-lg font-semibold mb-1"><%= link_to onsen.name, onsen_path(onsen), class: "hover:underline" %></h2>
+      <div class="text-sm text-gray-500 mb-1"><%= truncate(onsen.description, length: 40) %></div>
+      <div class="text-xs text-gray-400">タグ: <%= onsen.tags %></div>
+    </div>
+  </div>
+</div>

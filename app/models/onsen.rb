@@ -22,4 +22,34 @@ class Onsen < ApplicationRecord
             content_type: ["image/jpeg", "image/png", "image/gif"],
             limit: { max: 5 },
             size: { less_than: 5.megabytes }
+
+  # テキスト・タグ・距離検索
+  # @param params [ActionController::Parameters, Hash] :q, :tags, :lat, :lng, :radius_km
+  # @return [ActiveRecord::Relation]
+  def self.search(params)
+    scope = all
+    if params[:q].present?
+      q = params[:q].strip
+      scope = scope.where("name ILIKE :q OR description ILIKE :q", q: "%#{q}%")
+    end
+    if params[:tags].present?
+      tags = params[:tags].split(",").map(&:strip).reject(&:blank?)
+      if tags.any?
+        tag_query = tags.map { |t| "tags ILIKE ?" }.join(" OR ")
+        tag_values = tags.map { |t| "%#{t}%" }
+        scope = scope.where(tag_query, *tag_values)
+      end
+    end
+    if params[:lat].present? && params[:lng].present? && params[:radius_km].present?
+      lat = params[:lat].to_f
+      lng = params[:lng].to_f
+      radius = [[params[:radius_km].to_f, 1].max, 50].min # 1〜50km
+      # 粗い矩形で絞り込み→Rubyで厳密距離
+      lat_delta = radius / 111.0
+      lng_delta = radius / (111.0 * Math.cos(lat * Math::PI / 180))
+      scope = scope.where(geo_lat: (lat-lat_delta)..(lat+lat_delta), geo_lng: (lng-lng_delta)..(lng+lng_delta))
+      scope = scope.select { |onsen| MapService.distance_km(lat, lng, onsen.geo_lat, onsen.geo_lng) <= radius }
+    end
+    scope
+  end
 end
