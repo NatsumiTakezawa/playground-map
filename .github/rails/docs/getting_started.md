@@ -19,7 +19,7 @@ cp .env.sample .env      # APIキーなどを記入
 docker compose build     # Gem と npm パッケージをインストール
 docker compose run --rm web rails db:prepare
 docker compose run --rm web rails active_storage:install
-docker compose run --rm web rails tailwindcss:build
+docker compose run --rm web rails tailwindcss:watch
 # 管理画面用コントローラ・ビュー一括生成
 docker compose run --rm web rails g scaffold_controller admin/onsen \
   name:string geo_lat:decimal geo_lng:decimal description:text tags:string
