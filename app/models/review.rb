@@ -12,7 +12,7 @@ class Review < ApplicationRecord
   validates :rating, presence: true, inclusion: { in: 1..5 }
   validates :comment, length: { maximum: 500 }, allow_blank: true
   validates :images,
-            content_type: ["image/jpeg", "image/png", "image/gif"],
-            limit: { max: 3 },
-            size: { less_than: 3.megabytes }
+    content_type: ["image/jpeg", "image/png", "image/gif"],
+    size: { less_than: 3.megabytes },
+    limit: { max: 3 }
 end

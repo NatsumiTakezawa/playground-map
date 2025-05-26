@@ -13,8 +13,15 @@
   <div class="space-y-4">
     <% @reviews.each do |review| %>
       <div class="bg-gray-50 rounded p-3 shadow">
-        <div class="font-bold text-yellow-500">★ <%= review.rating %></div>
+        <div class="font-bold">
+          <%= render partial: "shared/rating_stars", locals: { rating: review.rating } %>
+        </div>
         <div><%= review.comment %></div>
+        <div class="flex gap-2 mt-2">
+          <% review.images.each do |img| %>
+            <%= image_tag img.variant(resize_to_limit: [120, 120]), class: "rounded border w-20 h-20 object-cover", alt: "レビュー画像" %>
+          <% end %>
+        </div>
         <div class="text-xs text-gray-400"><%= l review.created_at, format: :short %></div>
       </div>
     <% end %>

@@ -11,20 +11,22 @@
 
 ## 主な開発用コマンド（すべて Docker 内で実行）
 
-| タスク                   | コマンド例                                                                 |
-| ------------------------ | -------------------------------------------------------------------------- |
-| 初回セットアップ         | `docker compose build` then `docker compose run --rm web rails db:prepare` |
-| サーバ起動               | `docker compose up`                                                        |
-| マイグレーション実行     | `docker compose run --rm web rails db:migrate`                             |
-| モデル作成               | `docker compose run --rm web rails g model Xxx`                            |
-| コントローラ作成         | `docker compose run --rm web rails g controller Xxx`                       |
-| Gem 追加後のインストール | `docker compose run --rm web bundle install`                               |
-| Tailwind ビルドウォッチ  | `docker compose run --rm web rails tailwindcss:watch`                      |
-| RSpec テスト             | `docker compose run --rm web rspec`                                        |
-| シードデータ投入         | `docker compose run --rm web rails db:seed`                                |
-| Rails コンソール         | `docker compose run --rm web rails c`                                      |
-| DB コンソール            | `docker compose run --rm web rails db`                                     |
-| RuboCop（静的解析）      | `docker compose run --rm web rubocop`                                      |
+| タスク                   | コマンド例                                                                               |
+| ------------------------ | ---------------------------------------------------------------------------------------- |
+| 初回セットアップ         | `docker compose build` then `docker compose run --rm web rails db:prepare`               |
+| サーバ起動               | `docker compose up`                                                                      |
+| サーバ終了               | `Ctrl+C`（フォアグラウンド実行時）または `docker compose down`（バックグラウンド実行時） |
+| バックグラウンド起動     | `docker compose up -d`                                                                   |
+| マイグレーション実行     | `docker compose run --rm web rails db:migrate`                                           |
+| モデル作成               | `docker compose run --rm web rails g model Xxx`                                          |
+| コントローラ作成         | `docker compose run --rm web rails g controller Xxx`                                     |
+| Gem 追加後のインストール | `docker compose run --rm web bundle install`                                             |
+| Tailwind ビルドウォッチ  | `docker compose run --rm web rails tailwindcss:watch`                                    |
+| RSpec テスト             | `docker compose run --rm web rspec`                                                      |
+| シードデータ投入         | `docker compose run --rm web rails db:seed`                                              |
+| Rails コンソール         | `docker compose run --rm web rails c`                                                    |
+| DB コンソール            | `docker compose run --rm web rails db`                                                   |
+| RuboCop（静的解析）      | `docker compose run --rm web rubocop`                                                    |
 
 ---
 
@@ -38,6 +40,15 @@ $ docker compose run --rm web rails db:prepare
 # サーバ起動
 $ docker compose up
 
+# サーバ起動（バックグラウンド実行）
+$ docker compose up -d
+
+# サーバ停止・終了
+$ docker compose down
+
+# すべてのコンテナ・ボリュームを削除（完全クリーンアップ）
+$ docker compose down -v
+
 # マイグレーション
 $ docker compose run --rm web rails db:migrate
 
@@ -47,6 +58,15 @@ $ docker compose run --rm web bundle install
 # テスト
 $ docker compose run --rm web rspec
 ```
+
+---
+
+## Docker 環境の終了と停止
+
+- **フォアグラウンド実行時の終了**: ターミナルで `Ctrl+C` を押す
+- **バックグラウンド実行時の停止**: `docker compose down` を実行
+- **完全クリーンアップ**: `docker compose down -v` でコンテナとボリュームを削除
+- **特定コンテナの再起動**: `docker compose restart [サービス名]` (例: `docker compose restart web`)
 
 ---
 

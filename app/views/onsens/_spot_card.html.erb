@@ -10,6 +10,13 @@
       <h2 class="text-lg font-semibold mb-1"><%= link_to onsen.name, onsen_path(onsen), class: "hover:underline" %></h2>
       <div class="text-sm text-gray-500 mb-1"><%= truncate(onsen.description, length: 40) %></div>
       <div class="text-xs text-gray-400">タグ: <%= onsen.tags %></div>
+      <div class="text-xs text-yellow-400 mb-1">
+        <% if onsen.reviews.any? %>
+          <%= render partial: "shared/rating_stars", locals: { rating: (onsen.reviews.average(:rating)&.round || 0) } %>
+        <% else %>
+          <span class="text-gray-300">未評価</span>
+        <% end %>
+      </div>
     </div>
   </div>
 </div>

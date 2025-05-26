@@ -19,9 +19,9 @@ class Onsen < ApplicationRecord
   validates :description, length: { maximum: 1000 }, allow_blank: true
   validates :tags, length: { maximum: 255 }, allow_blank: true
   validates :images,
-            content_type: ["image/jpeg", "image/png", "image/gif"],
-            limit: { max: 5 },
-            size: { less_than: 5.megabytes }
+    content_type: ["image/jpeg", "image/png", "image/gif"],
+    size: { less_than: 5.megabytes },
+    limit: { max: 5 }
 
   # テキスト・タグ・距離検索
   # @param params [ActionController::Parameters, Hash] :q, :tags, :lat, :lng, :radius_km
@@ -51,5 +51,11 @@ class Onsen < ApplicationRecord
       scope = scope.select { |onsen| MapService.distance_km(lat, lng, onsen.geo_lat, onsen.geo_lng) <= radius }
     end
     scope
+  end
+
+  # @return [Integer] レビューの平均評価（小数点以下四捨五入、レビューがなければ0）
+  def average_rating
+    return 0 if reviews.empty?
+    reviews.average(:rating)&.round || 0
   end
 end

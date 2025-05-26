@@ -29,8 +29,13 @@
     <% end %>
   </div>
   <div class="grid md:grid-cols-2 gap-6">
-    <% @onsens.each do |onsen| %>
-      <%= render partial: "spot_card", locals: { onsen: onsen } %>
-    <% end %>
+    <div>
+      <%= render partial: "map" %>
+    </div>
+    <div class="space-y-6">
+      <% @onsens.each do |onsen| %>
+        <%= render partial: "spot_card", locals: { onsen: onsen } %>
+      <% end %>
+    </div>
   </div>
 </div>
