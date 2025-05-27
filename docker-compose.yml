@@ -7,7 +7,7 @@ services:
       args:
         UID: ${UID:-1000}
         GID: ${GID:-1001}
-    user: "${UID:-1000}:${GID:-1001}"
+    user: "${UID}:${GID}"
     command: bundle exec puma -C config/puma.rb
     entrypoint: ["/bin/bash", "./entrypoint.sh"]
     environment:
@@ -17,7 +17,7 @@ services:
     volumes:
       - .:/app:cached
       - .bundle:/app/.bundle
-      - bundle_cache:/gems
+      - bundle_cache:/usr/local/bundle
     ports:
       - "3000:3000"
     env_file: .env
@@ -31,7 +31,7 @@ services:
       args:
         UID: ${UID:-1000}
         GID: ${GID:-1001}
-    user: "${UID:-1000}:${GID:-1001}"
+    user: "${UID}:${GID}"
     command: bundle exec sidekiq
     entrypoint: ["/bin/bash", "./entrypoint.sh"]
     environment:
@@ -41,7 +41,7 @@ services:
     volumes:
       - .:/app:cached
       - .bundle:/app/.bundle
-      - bundle_cache:/gems
+      - bundle_cache:/usr/local/bundle
     env_file: .env
     depends_on:
       - db
@@ -61,6 +61,32 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+
+  css:
+    build:
+      context: .
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1001}
+    user: "${UID}:${GID}"
+    # command: >
+    #   sh -c "
+    #   bin/tailwindcss -i ./app/assets/tailwind/application.css -o ./app/assets/builds/tailwind.css --watch --poll
+    #   "
+    command: tail -f /dev/null
+    entrypoint: ["/bin/bash", "./entrypoint.sh"]
+    environment:
+      - UID=${UID:-1000}
+      - GID=${GID:-1001}
+      - BUNDLE_FROZEN=false
+    volumes:
+      - .:/app:cached
+      - .bundle:/app/.bundle
+      - bundle_cache:/usr/local/bundle
+    env_file: .env
+    depends_on:
+      - db
+      - redis
 
 volumes:
   pgdata:

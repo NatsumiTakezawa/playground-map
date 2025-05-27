@@ -1,0 +1,6 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" data-controller="modal" data-action="keydown.escape->modal#close click@window->modal#backdrop">
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative" tabindex="-1" role="dialog" aria-modal="true">
+    <button type="button" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700" aria-label="閉じる" data-action="modal#close">&times;</button>
+    <%= render partial: "reviews/form", locals: { review: review, onsen: onsen } %>
+  </div>
+</div>

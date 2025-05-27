@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   resources :onsens, only: %i[index show] do
-    resources :reviews, only: :create
+    resources :reviews, only: [:create, :new]
   end
   namespace :admin do
     resources :onsens do

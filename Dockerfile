@@ -1,82 +1,43 @@
 # syntax=docker/dockerfile:1
 # check=error=true
 
-# This Dockerfile is designed for production, not development. Use with Kamal or build'n'run by hand:
+# This Dockerfile is designed for development. Use with Kamal or build'n'run by hand:
 # docker build -t app .
-# docker run -d -p 80:80 -e RAILS_MASTER_KEY=<value from config/master.key> --name app app
+# docker run -d -p 3000:3000 -e RAILS_MASTER_KEY=<value from config/master.key> --name app app
 
 # For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
+
 ARG RUBY_VERSION=3.3.8
 ARG UID=1000
 ARG GID=1001
-FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
+FROM docker.io/library/ruby:$RUBY_VERSION-slim
 
-# Rails app lives here
-ENV HOME=/app
-ENV BUNDLE_USER_HOME=/app/.bundle
 WORKDIR /app
+
+# Make HOME writable for gem install
+ENV HOME=/usr/local/bundle
 
 # Install base packages
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libvips sqlite3 && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+    apt-get install --no-install-recommends -y build-essential git libpq-dev nodejs postgresql-client curl libvips sqlite3 libyaml-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-# Set production environment
-ENV RAILS_ENV="production" \
-    BUNDLE_DEPLOYMENT="1" \
-    BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development" \
-    BUNDLE_FROZEN=false
+ENV BUNDLE_PATH=/usr/local/bundle \
+    RAILS_ENV=development \
+    TZ=Asia/Tokyo
 
-# Throw-away build stage to reduce size of final image
-FROM base AS build
-
-# Install packages needed to build gems
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config libpq-dev && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
-
-# Install application gems
 COPY Gemfile Gemfile.lock ./
-RUN bundle install && \
-    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
-    bundle exec bootsnap precompile --gemfile
+RUN gem update --system && bundle install -j$(nproc)
 
-# Copy application code
+# foreman をグローバルにインストールして、bash の PATH 上に載せる
+RUN gem install foreman --no-document
+
 COPY . .
 
-# Precompile bootsnap code for faster boot times
-RUN bundle exec bootsnap precompile app/ lib/
+# Install Tailwind CSS specific files (binstub, default config if not present)
+RUN bundle exec rails tailwindcss:install
 
-# Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
-
-
-
-
-# Final stage for app image
-FROM base
-
-# PostgreSQLランタイムをインストール
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y libpq5 && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
-
-# Copy built artifacts: gems, application
-COPY --from=build "/usr/local/bundle" "/usr/local/bundle"
-COPY --from=build /app /app
-
-# ホストと同じUID/GIDでappuserを作成し、/appをchown
-RUN (getent group $GID || addgroup --gid $GID appgroup) \
- && (getent passwd $UID || adduser --disabled-password --uid $UID --ingroup appgroup --home /home/appuser --shell /bin/bash appuser) \
- && chown -R $UID:$GID /app
-USER appuser
-
-# Entrypoint prepares the database.
-ENTRYPOINT ["/app/bin/docker-entrypoint"]
-
-# Start server via Thruster by default, this can be overwritten at runtime
-EXPOSE 80
-CMD ["./bin/thrust", "./bin/rails", "server"]
+EXPOSE 3000
+CMD ["bash", "-c", "bundle exec puma -C config/puma.rb"]

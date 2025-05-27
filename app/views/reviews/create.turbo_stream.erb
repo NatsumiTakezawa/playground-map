@@ -1,0 +1,8 @@
+<turbo-stream action="replace" target="modal">
+  <template></template>
+</turbo-stream>
+<turbo-stream action="append" target="reviews">
+  <template>
+    <%= render partial: "reviews/review", locals: { review: @review } %>
+  </template>
+</turbo-stream>

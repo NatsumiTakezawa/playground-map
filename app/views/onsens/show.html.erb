@@ -10,6 +10,10 @@
     <p class="text-sm text-gray-500">緯度: <%= @onsen.geo_lat %> / 経度: <%= @onsen.geo_lng %></p>
   </div>
   <h2 class="text-xl font-semibold mb-2"><%= t('views.onsens.show.reviews') %></h2>
+  <div class="mb-4">
+    <turbo-frame id="modal"></turbo-frame>
+    <%= button_to 'レビューを書く', new_onsen_review_path(@onsen), method: :get, form: { data: { turbo_frame: 'modal' } }, class: "bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" %>
+  </div>
   <div class="space-y-4">
     <% @reviews.each do |review| %>
       <div class="bg-gray-50 rounded p-3 shadow">

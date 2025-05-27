@@ -26,5 +26,8 @@ module App
 
     # デフォルトロケールを日本語に設定
     config.i18n.default_locale = :ja
+
+    # Tailwind CSS (builds) ディレクトリを Propshaft の assets パスに追加
+    config.assets.paths << Rails.root.join("app/assets/builds")
   end
 end
