@@ -37,3 +37,41 @@
 !/app/assets/builds/.keep
 
 /vendor/bundle
+
+# Ignore node_modules, npm/yarn logs
+/node_modules/
+yarn-debug.log*
+yarn-error.log*
+npm-debug.log*
+
+# Editor/OS
+*.swp
+*~
+.DS_Store
+.idea/
+.vscode/
+
+# Sprockets
+.sprockets-manifest*
+
+# ActiveStorage
+/storage/*
+!/storage/.keep
+
+# Credentials
+/config/credentials.yml.enc
+
+# Coverage
+/coverage/
+
+# Test
+/spec/examples.txt
+
+# Docker
+*.pid
+
+# Heroku
+.heroku/
+
+# Custom
+/public/uploads/

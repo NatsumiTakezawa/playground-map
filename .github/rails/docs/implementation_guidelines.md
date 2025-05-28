@@ -30,6 +30,7 @@ docker compose run --rm web rails new . --force --css=tailwind --skip-javascript
 2.  Webpacker / jsbundling-rails の導入
 
     - なお，使用することが Rails で一般的なものであれば gem を追加してもよい.
+    - npm などは使用しない
 
 3.  認証・認可ロジックの追加
 
@@ -51,5 +52,10 @@ docker compose run --rm web rails new . --force --css=tailwind --skip-javascript
 - 入力エラー: 「%{field}」を正しく入力してください。
 
 - システムエラー（500）: システムエラーが発生しました。時間をおいて再度お試しください。
+
+## 6. ストレージについて
+
+- 現在のところ、Active Storage は使用しない。
+- 画像やファイルの保存は、`public/uploads` ディレクトリを使用。
 
 ---

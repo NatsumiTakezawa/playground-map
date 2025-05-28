@@ -21,7 +21,7 @@ ENV HOME=/usr/local/bundle
 
 # Install base packages
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libpq-dev nodejs postgresql-client curl libvips sqlite3 libyaml-dev && \
+    apt-get install --no-install-recommends -y build-essential git libpq-dev nodejs postgresql-client curl libvips sqlite3 libyaml-dev watchman && \
     rm -rf /var/lib/apt/lists/*
 
 ENV BUNDLE_PATH=/usr/local/bundle \

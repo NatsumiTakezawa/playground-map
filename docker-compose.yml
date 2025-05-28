@@ -69,11 +69,11 @@ services:
         UID: ${UID:-1000}
         GID: ${GID:-1001}
     user: "${UID}:${GID}"
-    # command: >
-    #   sh -c "
-    #   bin/tailwindcss -i ./app/assets/tailwind/application.css -o ./app/assets/builds/tailwind.css --watch --poll
-    #   "
-    command: tail -f /dev/null
+    command: >
+      sh -c "
+      bin/tailwindcss -i ./app/assets/tailwind/application.css -o ./app/assets/builds/tailwind.css --watch --poll
+      "
+    # command: tail -f /dev/null
     entrypoint: ["/bin/bash", "./entrypoint.sh"]
     environment:
       - UID=${UID:-1000}

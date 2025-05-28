@@ -16,6 +16,8 @@ class ReviewsController < ApplicationController
   def create
     @review = @onsen.reviews.build(review_params)
     if @review.save
+      # Turbo Streams配信ジョブを非同期実行
+      ReviewBroadcastJob.perform_later(@review)
       respond_to do |format|
         format.turbo_stream
         format.html { redirect_to onsen_path(@onsen), notice: t('flash.review_created') }

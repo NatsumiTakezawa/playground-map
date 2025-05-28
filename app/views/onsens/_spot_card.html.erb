@@ -1,5 +1,5 @@
 <%# 温泉スポットカード（Atomic Design: Molecule） %>
-<div class="bg-white rounded shadow p-4 hover:bg-blue-50 transition cursor-pointer">
+<div class="bg-white rounded shadow p-4 hover:bg-blue-50 transition cursor-pointer" data-controller="spot-card">
   <div class="flex items-center gap-4">
     <% if onsen.images.attached? %>
       <%= image_tag onsen.images.first, class: "w-20 h-20 object-cover rounded", alt: onsen.name %>
