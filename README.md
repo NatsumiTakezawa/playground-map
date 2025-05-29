@@ -81,3 +81,34 @@ $ docker compose run --rm web rspec
 ## 詳細仕様・セットアップ手順
 
 - 詳細は `rails/docs/rails_specification.md` および `rails/docs/system_design.md` を参照してください。
+
+---
+
+## CLI ツール・コマンド一覧
+
+本プロジェクトで利用できる主な CLI ツールとコマンドの用途・実行例をまとめます。
+すべて **Docker コンテナ内** で実行してください。
+
+| ツール/コマンド         | 用途・説明                                                               | 実行例                                                 |
+| ----------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------ |
+| RSpec (`rspec`)         | モデル・サービス等の自動テストを実行。テスト追加時やリファクタ時に推奨。 | `docker compose run --rm web rspec`                    |
+| RuboCop (`rubocop`)     | コードの静的解析・スタイルチェック。コミット前に推奨。                   | `docker compose run --rm web rubocop`                  |
+| DB マイグレーション     | スキーマ変更時に実行。                                                   | `docker compose run --rm web rails db:migrate`         |
+| シードデータ投入        | サンプルデータ投入。初回セットアップやリセット時に。                     | `docker compose run --rm web rails db:seed`            |
+| Rails コンソール        | Rails の REPL。モデル操作やデバッグに便利。                              | `docker compose run --rm web rails c`                  |
+| DB コンソール           | psql 等で DB へ直接接続。                                                | `docker compose run --rm web rails db`                 |
+| Tailwind ビルドウォッチ | Tailwind CSS の自動ビルド。スタイル編集時に。                            | `docker compose run --rm web rails tailwindcss:watch`  |
+| モデル生成              | 新しいモデル作成。                                                       | `docker compose run --rm web rails g model Xxx`        |
+| コントローラ生成        | 新しいコントローラ作成。                                                 | `docker compose run --rm web rails g controller Xxx`   |
+| Scaffold 生成           | 一括で CRUD 用コントローラ・ビュー等を生成。                             | `docker compose run --rm web rails g scaffold Xxx ...` |
+| Gem インストール        | Gemfile 変更後に実行。                                                   | `docker compose run --rm web bundle install`           |
+
+### 補足
+
+- すべてのコマンドは `docker compose run --rm web ...` 形式で実行してください。
+- テスト（RSpec）は `spec/` 配下にテストファイルを追加して実行します。
+- RuboCop はプロジェクトルートの `.rubocop.yml` 設定に従います。
+- DB リセットや再投入が必要な場合は `rails db:reset` も利用可能です。
+- コマンドの詳細は `rails --help` で確認できます。
+
+---

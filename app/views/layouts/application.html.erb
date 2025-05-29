@@ -24,6 +24,7 @@
     <script>
       window.GOOGLE_MAPS_API_KEY = "<%= Rails.application.credentials.dig(:google_maps, :api_key) || ENV['GOOGLE_MAPS_API_KEY'] %>";
     </script>
+    <%= javascript_importmap_tags %>
   </head>
 
   <%# <body class="bg-gray-50 min-h-screen flex flex-col"> %>
