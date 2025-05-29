@@ -1,5 +1,19 @@
 /* app/assets/tailwind/application.css */
-@config "../../../tailwind.config.js";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
+/* 1. Tailwind 本体の読み込み */
+@import "tailwindcss"; /*  */
+
+/* 2. クラス検出のためのソース指定 */
+
+/* 3. カスタムスタイルのレイヤ分け */
+@layer base {
+  /* ベーススタイルを定義 */
+}
+@layer components {
+}
+@layer utilities {
+}
+
+/* 4. デザイントークンの定義 */
+@theme {
+}
