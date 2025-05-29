@@ -1,30 +1,35 @@
 <%# 温泉一覧ページ %>
 <div class="container mx-auto px-4 py-6">
-  <h1 class="text-2xl font-bold mb-4">松江温泉マップ（検索）</h1>
+  <h1 class="text-2xl font-bold mb-4"><%= t('views.onsens.index.title') %></h1>
   <div class="mb-6">
-    <%= form_with url: onsens_path, method: :get, local: true, class: "flex flex-wrap gap-2 items-end" do |f| %>
+    <%= form_with url: onsens_path, method: :get, local: true, class: "flex flex-wrap gap-2 items-end", role: "search", 'aria-label': "温泉検索フォーム" do |f| %>
       <div>
-        <%= f.label :q, "キーワード", class: "block text-sm font-bold" %>
-        <%= f.text_field :q, value: params[:q], class: "border rounded px-2 py-1 w-40" %>
+        <%= f.label :q, t('activerecord.attributes.onsen.name'), class: "block text-sm font-bold" %>
+        <%= f.text_field :q, value: params[:q], class: "border rounded px-2 py-1 w-40", 'aria-label': t('views.onsens.index.search') %>
       </div>
       <div>
-        <%= f.label :tags, "タグ(カンマ区切り)", class: "block text-sm font-bold" %>
-        <%= f.text_field :tags, value: params[:tags], class: "border rounded px-2 py-1 w-40" %>
+        <%= f.label :tags, t('activerecord.attributes.onsen.tags') + '(カンマ区切り)', class: "block text-sm font-bold" %>
+        <%= f.text_field :tags, value: params[:tags], class: "border rounded px-2 py-1 w-40", 'aria-label': t('activerecord.attributes.onsen.tags') %>
       </div>
       <div>
-        <%= f.label :lat, "緯度", class: "block text-sm font-bold" %>
-        <%= f.text_field :lat, value: params[:lat], class: "border rounded px-2 py-1 w-28", placeholder: "例: 35.472" %>
+        <%= f.label :lat, t('activerecord.attributes.onsen.geo_lat'), class: "block text-sm font-bold" %>
+        <%= f.text_field :lat, value: params[:lat], class: "border rounded px-2 py-1 w-28", placeholder: "例: 35.472", 'aria-label': t('activerecord.attributes.onsen.geo_lat') %>
       </div>
       <div>
-        <%= f.label :lng, "経度", class: "block text-sm font-bold" %>
-        <%= f.text_field :lng, value: params[:lng], class: "border rounded px-2 py-1 w-28", placeholder: "例: 133.050" %>
+        <%= f.label :lng, t('activerecord.attributes.onsen.geo_lng'), class: "block text-sm font-bold" %>
+        <%= f.text_field :lng, value: params[:lng], class: "border rounded px-2 py-1 w-28", placeholder: "例: 133.050", 'aria-label': t('activerecord.attributes.onsen.geo_lng') %>
       </div>
       <div>
-        <%= f.label :radius_km, "半径(km)", class: "block text-sm font-bold" %>
-        <%= f.number_field :radius_km, value: params[:radius_km] || 5, min: 1, max: 50, class: "border rounded px-2 py-1 w-20" %>
+        <%= f.label :radius_km, t('views.onsens.index.radius_km', default: '半径(km)'), class: "block text-sm font-bold" %>
+        <%= f.number_field :radius_km, value: params[:radius_km] || 5, min: 1, max: 50, class: "border rounded px-2 py-1 w-20", 'aria-label': t('views.onsens.index.radius_km', default: '半径(km)') %>
       </div>
       <div>
-        <%= f.submit "検索", class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
+        <label for="address" class="block text-sm font-bold"><%= t('views.onsens.index.address', default: '住所') %></label>
+        <input type="text" id="address" name="address" value="<%= params[:address] %>" class="border rounded px-2 py-1 w-64" placeholder="例: 松江市朝日町" aria-label="<%= t('views.onsens.index.address', default: '住所') %>" />
+        <button type="button" class="ml-2 px-3 py-1 bg-gray-200 rounded hover:bg-blue-100 text-sm" id="geocode-btn" aria-label="<%= t('views.onsens.index.geocode_btn', default: '住所から緯度経度を取得') %>"><%= t('views.onsens.index.geocode_btn', default: '住所から緯度経度') %></button>
+      </div>
+      <div>
+        <%= f.submit t('views.onsens.index.search'), class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700", 'aria-label': t('views.onsens.index.search') %>
       </div>
     <% end %>
   </div>

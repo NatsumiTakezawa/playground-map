@@ -7,7 +7,6 @@ services:
         GID: ${GID:-1001}
     user: "${UID}:${GID}"
     command: bundle exec puma -C config/puma.rb
-    entrypoint: ["/bin/bash", "./entrypoint.sh"]
     environment:
       - UID=${UID:-1000}
       - GID=${GID:-1001}
@@ -31,7 +30,6 @@ services:
         GID: ${GID:-1001}
     user: "${UID}:${GID}"
     command: bundle exec sidekiq
-    entrypoint: ["/bin/bash", "./entrypoint.sh"]
     environment:
       - UID=${UID:-1000}
       - GID=${GID:-1001}

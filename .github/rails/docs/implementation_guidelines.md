@@ -58,4 +58,8 @@ docker compose run --rm web rails new . --force --css=tailwind --skip-javascript
 - 現在のところ、Active Storage は使用しない。
 - 画像やファイルの保存は、`public/uploads` ディレクトリを使用。
 
+## 7. Ci/CD について
+
+- 現在はローカルでの開発を学習用としているため、CI/CD の設定は行わない。
+
 ---

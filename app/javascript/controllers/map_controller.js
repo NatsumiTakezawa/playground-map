@@ -9,6 +9,7 @@ export default class extends Controller {
   connect() {
     this.onsens = JSON.parse(this.element.dataset.mapOnsens || "[]");
     this.loadGoogleMaps();
+    this.setupGeocodeButton();
   }
 
   loadGoogleMaps() {
@@ -71,5 +72,34 @@ export default class extends Controller {
       },
       () => alert("現在地の取得に失敗しました")
     );
+  }
+
+  setupGeocodeButton() {
+    const btn = document.getElementById("geocode-btn");
+    if (!btn) return;
+    btn.addEventListener("click", async () => {
+      const address = document.getElementById("address").value;
+      if (!address) {
+        alert("住所を入力してください");
+        return;
+      }
+      try {
+        const apiKey = window.GOOGLE_MAPS_API_KEY;
+        const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+          address
+        )}&key=${apiKey}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.status === "OK") {
+          const loc = data.results[0].geometry.location;
+          document.querySelector("input[name='lat']").value = loc.lat;
+          document.querySelector("input[name='lng']").value = loc.lng;
+        } else {
+          alert("ジオコーディング失敗: " + data.status);
+        }
+      } catch (e) {
+        alert("ジオコーディング通信エラー");
+      }
+    });
   }
 }

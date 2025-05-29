@@ -38,6 +38,9 @@ ja:
       index:
         title: 松江市周辺の温泉一覧
         search: 検索
+        radius_km: 半径(km)
+        address: 住所
+        geocode_btn: 住所から緯度経度
       show:
         reviews: レビュー
         post_review: レビュー投稿
