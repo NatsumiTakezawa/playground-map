@@ -67,19 +67,20 @@ class Admin::OnsensController < ApplicationController
   # @return [void]
   def import
     if params[:file].present?
-      result = CsvImportService.call(params[:file])
-      skipped = result[:skipped]
-      if result[:error]
-        flash[:alert] = "CSVインポート失敗: #{result[:error]}"
+      @import_result = CsvImportService.call(params[:file])
+      skipped = @import_result[:skipped]
+      if @import_result[:error]
+        flash.now[:alert] = "CSVインポート失敗: #{@import_result[:error]}"
       elsif skipped > 0
-        flash[:notice] = "インポート完了（#{skipped}行スキップ）"
+        flash.now[:notice] = "インポート完了（#{skipped}行スキップ）"
       else
-        flash[:notice] = 'インポート完了'
+        flash.now[:notice] = 'インポート完了'
       end
+      render :import
     else
       flash[:alert] = 'CSVファイルを選択してください'
+      redirect_to admin_onsens_path
     end
-    redirect_to admin_onsens_path
   end
 
   private
