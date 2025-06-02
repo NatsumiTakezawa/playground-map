@@ -1,8 +1,7 @@
 <%# @param rating [Integer] 1〜5, @param form [Boolean] 入力用ならtrue %>
 <% if local_assigns[:form] %>
   <span data-controller="rating-stars" class="inline-block" aria-label="評価: <%= rating %>">
-    <label for="review_rating_input" class="sr-only">評価</label>
-    <input type="hidden" name="review[rating]" id="review_rating_input" value="<%= rating %>" data-rating-stars-target="input" />
+    <input type="hidden" name="review[rating]" id="review_rating" value="<%= rating %>" data-rating-stars-target="input" />
     <% 1.upto(5) do |i| %>
       <button type="button"
         class="text-2xl focus:outline-none transition-colors duration-100 mx-0.5 <%= i <= rating ? 'text-yellow-400' : 'text-gray-300' %>"

@@ -1,8 +1,8 @@
 <%# レビューフォーム（Turbo Stream Modal対応予定） %>
-<%= form_with(model: [onsen, review], local: true, html: { class: "space-y-2" }) do |f| %>
+<%= form_with(model: [onsen, review], local: false, html: { class: "space-y-2" }) do |f| %>
   <div>
-    <%= f.label :rating, "評価", class: "block font-bold" %>
-    <%= render "shared/rating_stars", rating: (review.rating || 5), form: true %>
+    <span class="block font-bold">評価</span>
+    <%= render "shared/rating_stars", rating: (review.rating || 0), form: true %>
   </div>
   <div>
     <%= f.label :comment, "コメント", class: "block font-bold" %>
