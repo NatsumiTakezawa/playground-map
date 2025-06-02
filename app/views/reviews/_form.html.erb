@@ -2,15 +2,21 @@
 <%= form_with(model: [onsen, review], local: true, html: { class: "space-y-2" }) do |f| %>
   <div>
     <%= f.label :rating, "評価", class: "block font-bold" %>
-    <%= f.select :rating, options_for_select(1..5, review.rating), {}, class: "border rounded px-2 py-1" %>
+    <%= render "shared/rating_stars", rating: (review.rating || 5), form: true %>
   </div>
   <div>
     <%= f.label :comment, "コメント", class: "block font-bold" %>
     <%= f.text_area :comment, rows: 2, class: "border rounded w-full px-2 py-1" %>
   </div>
-  <div>
-    <%= f.label :images, "画像（最大3枚）", class: "block font-bold" %>
-    <%= f.file_field :images, multiple: true, accept: 'image/jpeg,image/png,image/gif', class: "block" %>
+  <div data-controller="file-input" class="space-y-1">
+    <%= f.label :images, "画像（最大3枚）", class: "block font-bold mb-1" %>
+    <div class="flex items-center gap-2">
+      <%= f.file_field :images, multiple: true, accept: 'image/jpeg,image/png,image/gif', class: "block file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition", data: { file_input_target: "input", action: "change->file-input#updateLabel" }, aria: { describedby: "images_help" } %>
+      <span class="text-sm text-gray-600" data-file-input-target="label">画像を選択してください</span>
+    </div>
+    <p id="images_help" class="text-xs text-gray-400">
+      JPEG/PNG/GIF・1枚3MBまで・最大3枚
+    </p>
   </div>
   <div>
     <%= f.submit t('views.reviews.form.submit'), class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>

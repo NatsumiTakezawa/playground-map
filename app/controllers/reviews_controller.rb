@@ -7,7 +7,7 @@ class ReviewsController < ApplicationController
   def new
     @review = @onsen.reviews.build
     respond_to do |format|
-      format.turbo_stream { render partial: "reviews/modal", locals: { review: @review, onsen: @onsen } }
+      format.turbo_stream { render template: "reviews/new" }
       format.html { redirect_to onsen_path(@onsen) }
     end
   end

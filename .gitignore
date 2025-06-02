@@ -8,7 +8,7 @@
 /.bundle
 
 # Ignore all environment files.
-/.env*
+/env*
 
 # Ignore all logfiles and tempfiles.
 /log/*
@@ -75,3 +75,11 @@ npm-debug.log*
 
 # Custom
 /public/uploads/
+
+# Ignore vendor/javascript (importmap pins)
+/vendor/javascript/
+
+# Ignore .env, but keep .env.sample
+.env
+.env.*
+!.env.sample
