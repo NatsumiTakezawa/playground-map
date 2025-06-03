@@ -1,3 +1,2 @@
 <%# Google Maps 地図表示パーシャル %>
-<div id="map" data-controller="map" data-map-onsens="<%= h @onsens.to_json(only: [:id, :name, :geo_lat, :geo_lng]) %>" class="w-full h-96 rounded shadow"></div>
-<button type="button" data-action="map#locate" class="mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">現在地を表示</button>
+<div id="map" data-controller="map" data-map-onsens="<%= h @onsens.to_json(only: [:id, :name, :geo_lat, :geo_lng]) %>" class="w-full h-full rounded shadow"></div>
