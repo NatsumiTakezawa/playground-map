@@ -1,12 +1,16 @@
 // @see rails/docs/ui_specification_tailwind.md
 import { Controller } from "@hotwired/stimulus";
 
+// デバッグ: ファイル読み込み確認
+console.log("map_controller.js がロードされました");
+
 // Google Maps API連携用 Stimulusコントローラ
 export default class extends Controller {
   static targets = [];
   static values = { onsens: Array };
 
   connect() {
+    console.log("MapController connected", this.element);
     this.onsens = JSON.parse(this.element.dataset.mapOnsens || "[]");
     // APIキー未設定時は地図を表示せずメッセージ
     const apiKey = window.GOOGLE_MAPS_API_KEY;

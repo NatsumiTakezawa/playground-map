@@ -2,6 +2,9 @@
 // @see https://zipcloud.ibsnet.co.jp/doc/api
 import { Controller } from "@hotwired/stimulus";
 
+// デバッグ: ファイル読み込み確認
+console.log("zipcode_controller.js がロードされました");
+
 export default class extends Controller {
   static targets = ["zipcode", "address"];
 
@@ -15,10 +18,20 @@ export default class extends Controller {
     return '<svg class="inline w-4 h-4 mr-1 animate-spin text-blue-500" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>';
   }
 
-  connect() {}
+  connect() {
+    // デバッグアラート：Stimulusコントローラーが初期化されたことを確認
+    alert("ZipcodeController が初期化されました");
+    console.log("ZipcodeController connected", this.element);
+    console.log("zipcode target:", this.zipcodeTarget);
+    console.log("address target:", this.addressTarget);
+    console.log("button:", this.button);
+  }
 
   // 郵便番号から住所を取得し、address欄にセット
   search() {
+    // デバッグアラート：ボタンが押されたことを確認
+    alert("郵便番号検索ボタンが押されました");
+
     const zipcode = this.zipcodeTarget.value.replace(/[^0-9]/g, "");
     if (!zipcode.match(/^\d{7}$/)) {
       alert("郵便番号は7桁の数字で入力してください。");
