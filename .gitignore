@@ -83,3 +83,5 @@ npm-debug.log*
 .env
 .env.*
 !.env.sample
+
+.solargraph.yml

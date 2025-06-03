@@ -8,44 +8,82 @@ export default class extends Controller {
 
   connect() {
     this.onsens = JSON.parse(this.element.dataset.mapOnsens || "[]");
-    this.loadGoogleMaps();
-    this.setupGeocodeButton();
+    // APIキー未設定時は地図を表示せずメッセージ
+    const apiKey = window.GOOGLE_MAPS_API_KEY;
+    if (!apiKey || apiKey === "replace_me" || apiKey.match(/^\s*$/)) {
+      this.showNoMapMessage();
+      return;
+    }
+    try {
+      this.loadGoogleMaps();
+      this.setupGeocodeButton();
+    } catch (e) {
+      this.showNoMapMessage("地図の初期化中にエラーが発生しました");
+      // 他のUIは壊さない
+    }
+  }
+
+  showNoMapMessage(msg = "地図は表示できません（APIキー未設定）") {
+    this.element.innerHTML = `
+      <div class="flex items-center justify-center h-full text-gray-500 bg-gray-100 rounded">
+        <span>${msg}</span>
+      </div>
+    `;
   }
 
   loadGoogleMaps() {
-    if (window.google && window.google.maps) {
-      this.initMap();
-      return;
+    try {
+      if (window.google && window.google.maps) {
+        this.initMap();
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${window.GOOGLE_MAPS_API_KEY}&callback=initMapFromStimulus`;
+      script.async = true;
+      window.initMapFromStimulus = () => {
+        try {
+          this.initMap();
+        } catch (e) {
+          this.showNoMapMessage("地図の描画に失敗しました");
+        }
+      };
+      document.head.appendChild(script);
+    } catch (e) {
+      this.showNoMapMessage("地図の読み込みに失敗しました");
     }
-    const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${window.GOOGLE_MAPS_API_KEY}&callback=initMapFromStimulus`;
-    script.async = true;
-    window.initMapFromStimulus = this.initMap.bind(this);
-    document.head.appendChild(script);
   }
 
   initMap() {
-    const center =
-      this.onsens.length > 0
-        ? {
-            lat: parseFloat(this.onsens[0].geo_lat),
-            lng: parseFloat(this.onsens[0].geo_lng),
-          }
-        : { lat: 35.472, lng: 133.05 };
-    this.map = new google.maps.Map(this.element, {
-      center: center,
-      zoom: 11,
-    });
-    this.onsens.forEach((onsen) => {
-      new google.maps.Marker({
-        position: {
-          lat: parseFloat(onsen.geo_lat),
-          lng: parseFloat(onsen.geo_lng),
-        },
-        map: this.map,
-        title: onsen.name,
+    try {
+      const center =
+        this.onsens.length > 0
+          ? {
+              lat: parseFloat(this.onsens[0].geo_lat),
+              lng: parseFloat(this.onsens[0].geo_lng),
+            }
+          : { lat: 35.472, lng: 133.05 };
+      this.map = new google.maps.Map(this.element, {
+        center: center,
+        zoom: 11,
       });
-    });
+      this.onsens.forEach((onsen) => {
+        // google.maps.Markerは非推奨だがAPIキー無し時は何も起きない
+        try {
+          new google.maps.Marker({
+            position: {
+              lat: parseFloat(onsen.geo_lat),
+              lng: parseFloat(onsen.geo_lng),
+            },
+            map: this.map,
+            title: onsen.name,
+          });
+        } catch (e) {
+          /* 無視 */
+        }
+      });
+    } catch (e) {
+      this.showNoMapMessage("地図の描画に失敗しました");
+    }
   }
 
   locate() {

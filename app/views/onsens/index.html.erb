@@ -23,10 +23,17 @@
         <%= f.label :radius_km, t('views.onsens.index.radius_km', default: '半径(km)'), class: "block text-sm font-bold" %>
         <%= f.number_field :radius_km, value: params[:radius_km] || 5, min: 1, max: 50, class: "border rounded px-2 py-1 w-20", 'aria-label': t('views.onsens.index.radius_km', default: '半径(km)') %>
       </div>
-      <div>
-        <label for="address" class="block text-sm font-bold"><%= t('views.onsens.index.address', default: '住所') %></label>
-        <input type="text" id="address" name="address" value="<%= params[:address] %>" class="border rounded px-2 py-1 w-64" placeholder="例: 松江市朝日町" aria-label="<%= t('views.onsens.index.address', default: '住所') %>" />
-        <button type="button" class="ml-2 px-3 py-1 bg-gray-200 rounded hover:bg-blue-100 text-sm" id="geocode-btn" aria-label="<%= t('views.onsens.index.geocode_btn', default: '住所から緯度経度を取得') %>"><%= t('views.onsens.index.geocode_btn', default: '住所から緯度経度') %></button>
+      <div data-controller="zipcode">
+        <div>
+          <label for="zipcode" class="block text-sm font-bold">郵便番号</label>
+          <input type="text" id="zipcode" name="zipcode" value="<%= params[:zipcode] %>" class="border rounded px-2 py-1 w-32" placeholder="例: 6900874" aria-label="郵便番号" data-zipcode-target="zipcode" />
+          <button type="button" class="ml-2 px-3 py-1 bg-gray-200 rounded hover:bg-blue-100 text-sm" id="zipcode-search-btn" aria-label="郵便番号から住所検索" data-action="click->zipcode#search">住所自動入力</button>
+        </div>
+        <div>
+          <label for="address" class="block text-sm font-bold"><%= t('views.onsens.index.address', default: '住所') %></label>
+          <input type="text" id="address" name="address" value="<%= params[:address] %>" class="border rounded px-2 py-1 w-64" placeholder="例: 松江市朝日町" aria-label="<%= t('views.onsens.index.address', default: '住所') %>" data-zipcode-target="address" />
+          <button type="button" class="ml-2 px-3 py-1 bg-gray-200 rounded hover:bg-blue-100 text-sm" id="geocode-btn" aria-label="<%= t('views.onsens.index.geocode_btn', default: '住所から緯度経度を取得') %>"><%= t('views.onsens.index.geocode_btn', default: '住所から緯度経度') %></button>
+        </div>
       </div>
       <div>
         <%= f.submit t('views.onsens.index.search'), class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700", 'aria-label': t('views.onsens.index.search') %>
