@@ -4,21 +4,45 @@
 
 ## 技術スタック
 
-- **フレームワーク**: Ruby on Rails 8.x
-- **フロントエンド**: Hotwire (Turbo + Stimulus) + Tailwind CSS
-- **データベース**: PostgreSQL 15
+- **言語・フレームワーク**: Ruby 3.3.8 + Rails 8.0.2
+- **フロントエンド**: Hotwire (Turbo + Stimulus) + Tailwind CSS + Importmap
+- **データベース**: PostgreSQL 15（開発環境・本番環境共通）
+- **ジョブ処理**: Sidekiq + Redis 7
 - **コンテナ**: Docker + docker-compose
-- **JavaScript**: Importmap（Webpack 等は使用しない）
+- **アセットパイプライン**: Propshaft（Rails 8 デフォルト）
+- **キャッシュ・キュー**: Solid Cache, Solid Queue, Solid Cable
 
 ## 主な機能
 
+### 一般ユーザー向け機能
+
 - 温泉スポットの一覧表示・詳細表示
 - 地図上での温泉位置表示（Google Maps API）
-- 温泉の検索・フィルタリング
-- 郵便番号からの住所自動入力機能
-- 住所から緯度経度の自動取得
-- レビュー投稿機能
-- 管理画面（CRUD 操作・CSV インポート）
+- 温泉の検索・フィルタリング（テキスト検索・位置情報検索）
+- レビュー投稿機能（評価・コメント・画像アップロード）
+
+### 住所・位置情報機能
+
+- 郵便番号からの住所自動入力機能（zipcloud API）
+- 住所から緯度経度の自動取得（Google Geocoding API）
+- 現在地取得（Geolocation API）
+- 半径指定での温泉検索
+
+### 管理機能
+
+- 管理画面（認証なしでアクセス可能）
+- 温泉情報の CRUD 操作
+- CSV ファイルからの一括インポート
+- 画像アップロード機能
+
+### 技術的特徴
+
+- Hotwire/Turbo による SPA ライクな操作感
+- Stimulus による JavaScript 機能
+- レスポンシブデザイン（Tailwind CSS）
+- Docker での開発環境完結
+
+---
 
 ---
 
@@ -30,7 +54,7 @@
 
 ### 2. 初回セットアップ
 
-```bash
+````bash
 # リポジトリをクローン
 git clone <repository-url>
 cd matsue-onsen-map-temp
@@ -41,13 +65,28 @@ cp .env.sample .env
 # Dockerイメージのビルド
 docker compose build
 
-# データベースの準備
-docker compose run --rm web rails db:prepare
+### データベース準備
 
-# アセットのプリコンパイル（JavaScript機能のため重要）
-docker compose run --rm web rails assets:precompile
+```bash
+# データベース作成・マイグレーション・シードデータ投入
+docker compose run --rm web bundle exec rails db:prepare
+
+# または手動で実行する場合
+docker compose run --rm web bundle exec rails db:create
+docker compose run --rm web bundle exec rails db:migrate
+docker compose run --rm web bundle exec rails db:seed
+````
+
+### アセットプリコンパイル
+
+```bash
+# JavaScript機能のために重要（必須）
+docker compose run --rm web bundle exec rails assets:precompile
+```
 
 # サーバー起動
+
+```bash
 docker compose up
 ```
 
@@ -59,7 +98,7 @@ docker compose up
 
 ## 開発用コマンド一覧
 
-すべてのコマンドは **Docker コンテナ内** で実行してください。
+すべてのコマンドは **Docker コンテナ内** で実行してください。Rails コマンドは `bundle exec` を使用します。
 
 ### 基本操作
 
@@ -73,30 +112,31 @@ docker compose up
 
 ### 開発・メンテナンス
 
-| タスク                   | コマンド                                              |
-| ------------------------ | ----------------------------------------------------- |
-| マイグレーション実行     | `docker compose run --rm web rails db:migrate`        |
-| シードデータ投入         | `docker compose run --rm web rails db:seed`           |
-| アセットプリコンパイル   | `docker compose run --rm web rails assets:precompile` |
-| Gem 追加後のインストール | `docker compose run --rm web bundle install`          |
-| テスト実行               | `docker compose run --rm web rspec`                   |
-| 静的解析（RuboCop）      | `docker compose run --rm web rubocop`                 |
+| タスク                   | コマンド                                                          |
+| ------------------------ | ----------------------------------------------------------------- |
+| マイグレーション実行     | `docker compose run --rm web bundle exec rails db:migrate`        |
+| シードデータ投入         | `docker compose run --rm web bundle exec rails db:seed`           |
+| アセットプリコンパイル   | `docker compose run --rm web bundle exec rails assets:precompile` |
+| Gem 追加後のインストール | `docker compose run --rm web bundle install`                      |
+| テスト実行               | `docker compose run --rm web bundle exec rspec`                   |
+| 静的解析（RuboCop）      | `docker compose run --rm web bundle exec rubocop`                 |
 
 ### 生成系コマンド
 
-| タスク           | コマンド                                             |
-| ---------------- | ---------------------------------------------------- |
-| モデル作成       | `docker compose run --rm web rails g model Xxx`      |
-| コントローラ作成 | `docker compose run --rm web rails g controller Xxx` |
-| Scaffold 生成    | `docker compose run --rm web rails g scaffold Xxx`   |
+| タスク           | コマンド                                                         |
+| ---------------- | ---------------------------------------------------------------- |
+| モデル作成       | `docker compose run --rm web bundle exec rails g model Xxx`      |
+| コントローラ作成 | `docker compose run --rm web bundle exec rails g controller Xxx` |
+| Scaffold 生成    | `docker compose run --rm web bundle exec rails g scaffold Xxx`   |
 
 ### デバッグ・確認
 
-| タスク           | コマンド                               |
-| ---------------- | -------------------------------------- |
-| Rails コンソール | `docker compose run --rm web rails c`  |
-| DB コンソール    | `docker compose run --rm web rails db` |
-| ログ確認         | `docker compose logs web`              |
+| タスク           | コマンド                                               |
+| ---------------- | ------------------------------------------------------ |
+| Rails コンソール | `docker compose run --rm web bundle exec rails c`      |
+| DB コンソール    | `docker compose run --rm web bundle exec rails db`     |
+| ルーティング確認 | `docker compose run --rm web bundle exec rails routes` |
+| ログ確認         | `docker compose logs web`                              |
 
 ---
 
@@ -109,7 +149,7 @@ docker compose up
 1. **アセットプリコンパイルの実行**
 
    ```bash
-   docker compose run --rm web rails assets:precompile
+   docker compose run --rm web bundle exec rails assets:precompile
    ```
 
 2. **サーバーの再起動**
@@ -138,6 +178,7 @@ docker compose up
 2. Maps JavaScript API と Geocoding API を有効化
 3. API キーを取得
 4. `.env`ファイルに設定:
+
    ```env
    GOOGLE_MAPS_API_KEY=your_api_key_here
    ```
@@ -163,11 +204,20 @@ docker compose up
 - `app/javascript/controllers/index.js`に新しいコントローラーが正しく登録されているか確認
 - JavaScript 機能が動作しない場合は、ブラウザのデベロッパーツールでコンソールエラーを確認
 
+### 郵便番号・住所機能について
+
+- 郵便番号から住所自動入力機能は zipcloud.ibsnet.co.jp の無料 API を使用
+- Google Maps API による住所 → 緯度経度変換機能は API キー設定時に有効化
+- 温泉の位置情報検索（半径指定）は `MapService` で実装
+
 ---
 
 ## 詳細仕様
 
 詳細な仕様については以下のドキュメントを参照してください：
 
-- `rails/docs/rails_specification.md`
-- `rails/docs/system_design.md`
+- [プロダクト仕様書](.github/rails/docs/rails_specification.md)
+- [システム設計書](.github/rails/docs/system_design.md)
+- [UI/UX 仕様書](.github/rails/docs/ui_specification_tailwind.md)
+- [実装ガイドライン](.github/rails/docs/implementation_guidelines.md)
+- [Getting Started](.github/rails/docs/getting_started.md)

@@ -2,21 +2,23 @@
 
 ## 1. 目的
 
-松江市周辺の温泉を検索・閲覧・レビューできる Web アプリを、**React 等を使わず Ruby on Rails 7.1 + Hotwire + Tailwind** で構築する。学習教材としてコードを読みやすく保つことを最優先とする。
+松江市周辺の温泉を検索・閲覧・レビューできる Web アプリを、**React 等を使わず Ruby on Rails 8.0 + Hotwire + Tailwind** で構築する。学習教材としてコードを読みやすく保つことを最優先とする。
 開発／CI／本番すべてを Docker コンテナで再現できる学習用リポジトリを提供する。
 **認証・権限は一切設けない**。
 
 ## 2. 技術スタック
 
-| カテゴリ         | 採用技術 / バージョン                                |
-| ---------------- | ---------------------------------------------------- |
-| 言語 / FW        | Ruby 3.3, Rails 8.x                                  |
-| フロント         | Hotwire (Turbo, Stimulus) + Tailwind CSS + Importmap |
-| DB（開発・本番） | PostgreSQL 15（Docker コンテナ／Heroku Postgres）    |
-| ストレージ       | Active Storage（開発: local、<br>本番: Amazon S3）   |
-| メッセージ       | Redis 7 + Sidekiq（バックグラウンドジョブ）          |
-| インフラ         | Docker, docker-compose, Heroku Container Registry    |
-| CI/CD            | GitHub Actions → Heroku Container 自動デプロイ       |
+| カテゴリ           | 採用技術 / バージョン                                |
+| ------------------ | ---------------------------------------------------- |
+| 言語 / FW          | Ruby 3.3.8, Rails 8.0.2                              |
+| フロント           | Hotwire (Turbo, Stimulus) + Tailwind CSS + Importmap |
+| DB（開発・本番）   | PostgreSQL 15（Docker コンテナ）                     |
+| ストレージ         | ローカルストレージ（`public/uploads`）               |
+| メッセージ         | Redis 7 + Sidekiq（バックグラウンドジョブ）          |
+| アセット           | Propshaft（Rails 8 デフォルト）                      |
+| キャッシュ・キュー | Solid Cache, Solid Queue, Solid Cable                |
+| インフラ           | Docker, docker-compose                               |
+| CI/CD              | 現在は設定なし（ローカル開発優先）                   |
 
 > **ポイント**
 >

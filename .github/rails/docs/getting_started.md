@@ -46,14 +46,14 @@ GID=1000
 docker compose build
 
 # データベースの作成とマイグレーション
-docker compose run --rm web rails db:create
-docker compose run --rm web rails db:migrate
+docker compose run --rm web bundle exec rails db:create
+docker compose run --rm web bundle exec rails db:migrate
 
 # シードデータの投入（オプション）
-docker compose run --rm web rails db:seed
+docker compose run --rm web bundle exec rails db:seed
 
 # アセットのプリコンパイル
-docker compose run --rm web rails assets:precompile
+docker compose run --rm web bundle exec rails assets:precompile
 ```
 
 ## 4. アプリケーション起動
@@ -77,50 +77,50 @@ docker compose up -d
 
 ```bash
 # 基本形式
-docker compose run --rm web [コマンド]
+docker compose run --rm web bundle exec [コマンド]
 
 # マイグレーション実行
-docker compose run --rm web rails db:migrate
+docker compose run --rm web bundle exec rails db:migrate
 
 # ルーティング確認
-docker compose run --rm web rails routes
+docker compose run --rm web bundle exec rails routes
 
 # コンソール起動
-docker compose run --rm web rails console
+docker compose run --rm web bundle exec rails console
 
 # テスト実行
-docker compose run --rm web rspec
+docker compose run --rm web bundle exec rspec
 
 # Tailwind CSS の監視モード（開発時）
-docker compose run --rm web rails tailwindcss:watch
+docker compose run --rm web bundle exec rails tailwindcss:watch
 
 # アセットプリコンパイル
-docker compose run --rm web rails assets:precompile
+docker compose run --rm web bundle exec rails assets:precompile
 
 # 新しいモデル作成例
-docker compose run --rm web rails g model Example name:string
+docker compose run --rm web bundle exec rails g model Example name:string
 
 # 新しいコントローラ作成例
-docker compose run --rm web rails g controller Examples index show
+docker compose run --rm web bundle exec rails g controller Examples index show
 ```
 
 ## 6. データベース操作
 
 ```bash
 # データベース作成
-docker compose run --rm web rails db:create
+docker compose run --rm web bundle exec rails db:create
 
 # マイグレーション実行
-docker compose run --rm web rails db:migrate
+docker compose run --rm web bundle exec rails db:migrate
 
 # データベースリセット（開発時）
-docker compose run --rm web rails db:reset
+docker compose run --rm web bundle exec rails db:reset
 
 # シードデータ投入
-docker compose run --rm web rails db:seed
+docker compose run --rm web bundle exec rails db:seed
 
 # マイグレーション状態確認
-docker compose run --rm web rails db:migrate:status
+docker compose run --rm web bundle exec rails db:migrate:status
 ```
 
 ## 7. トラブルシューティング
@@ -129,7 +129,7 @@ docker compose run --rm web rails db:migrate:status
 
 ```bash
 # アセットプリコンパイルを実行
-docker compose run --rm web rails assets:precompile
+docker compose run --rm web bundle exec rails assets:precompile
 
 # サーバーを再起動
 docker compose restart web
@@ -145,7 +145,7 @@ docker compose ps
 docker compose restart db
 
 # データベース接続確認
-docker compose run --rm web rails db:version
+docker compose run --rm web bundle exec rails db:version
 ```
 
 ### ポート衝突エラーの場合
@@ -223,11 +223,13 @@ heroku run rails db:migrate --app matsue-onsen
    # 必要なAPIキーを編集
    ```
 3. **開発環境の起動**
+
    ```bash
    docker compose build
-   docker compose run --rm web rails db:create db:migrate db:seed
+   docker compose run --rm web bundle exec rails db:create db:migrate db:seed
    docker compose up
    ```
+
 4. **ブラウザでアクセス**
 
    - <http://localhost:3000> （メインアプリ）
@@ -237,9 +239,9 @@ heroku run rails db:migrate --app matsue-onsen
 
    ```bash
    # 新機能追加時
-   docker compose run --rm web [railsコマンド]
+   docker compose run --rm web bundle exec [railsコマンド]
 
    # アセット更新後
-   docker compose run --rm web rails assets:precompile
+   docker compose run --rm web bundle exec rails assets:precompile
    docker compose restart web
    ```

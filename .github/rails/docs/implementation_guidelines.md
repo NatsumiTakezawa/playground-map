@@ -3,7 +3,7 @@
 ## 0. 前提
 
 - すべてのコマンドは **コンテナ内** で実行する。
-  例）`docker compose run --rm web rails g model ...`
+  例）`docker compose run --rm web bundle exec rails g model ...`
 
 ## 1. コーディング規約
 
@@ -40,12 +40,21 @@ docker compose run --rm web rails new . --force --css=tailwind --skip-javascript
 
 - Google Maps API Key は credentials.yml.enc へ保存し環境変数で復号。
 
-- Active Storage バリデーションは validates :images, content_type: と byte_size: を設定。
+- 画像ファイルは `public/uploads` ディレクトリへ保存（Active Storage は現在未使用）。
 
 - シードデータは db/seeds.rb に Onsen 10 件・Review 合計 30 件を用意。
-- 環境変数は .env ↔ docker-compose.yml ↔ Heroku Config Vars で一元管理。
 
-- Google Maps API Key は RAILS_MASTER_KEY と併せて .env には置かない（.env.sample に鍵名のみ記載）s
+- 環境変数は .env ↔ docker-compose.yml で一元管理。
+
+- Google Maps API Key は RAILS_MASTER_KEY と併せて .env には置かない（.env.sample に鍵名のみ記載）。
+
+## 5. 郵便番号・住所機能について
+
+- 郵便番号 → 住所自動入力：zipcloud.ibsnet.co.jp の無料 API 使用（設定不要）
+
+- 住所 → 緯度経度変換：Google Geocoding API 使用（API Key 必要）
+
+- 温泉検索：MapService クラスで距離計算実装
 
 ## 5. エラーメッセージ指針
 
@@ -58,8 +67,14 @@ docker compose run --rm web rails new . --force --css=tailwind --skip-javascript
 - 現在のところ、Active Storage は使用しない。
 - 画像やファイルの保存は、`public/uploads` ディレクトリを使用。
 
-## 7. Ci/CD について
+## 7. CI/CD について
 
 - 現在はローカルでの開発を学習用としているため、CI/CD の設定は行わない。
+
+## 8. コマンド実行の注意点
+
+- **重要**: すべての Rails コマンドは `bundle exec` を付けて実行する
+- Docker コンテナ内での実行形式：`docker compose run --rm web bundle exec rails [コマンド]`
+- アセットプリコンパイルは JavaScript 機能変更時に必須実行
 
 ---
