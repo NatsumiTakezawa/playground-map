@@ -1,27 +1,43 @@
+# 松江市温泉マップ - Docker Compose設定
+#
+# このファイルは開発環境用のコンテナ構成を定義します
+# 使用方法:
+#   起動: docker compose up
+#   停止: docker compose down
+#   ビルド: docker compose build
+#
+# 構成:
+#   - web: Rails アプリケーション (ポート 3000)
+#   - sidekiq: バックグラウンドジョブ処理
+#   - db: PostgreSQL データベース (ポート 5432)
+#   - redis: Redis キャッシュ・ジョブキュー (ポート 6379)
+
 services:
+  # Rails Webアプリケーションコンテナ
   web:
     build:
       context: .
       args:
-        UID: ${UID:-1000}
-        GID: ${GID:-1001}
+        UID: ${UID:-1000} # ホストOSのユーザーIDと合わせる
+        GID: ${GID:-1001} # ホストOSのグループIDと合わせる
     user: "${UID}:${GID}"
     command: bundle exec puma -C config/puma.rb
     environment:
       - UID=${UID:-1000}
       - GID=${GID:-1001}
-      - BUNDLE_FROZEN=false
+      - BUNDLE_FROZEN=false # 開発時はGemfileの変更を許可
     volumes:
-      - .:/app:cached
-      - .bundle:/app/.bundle
-      - bundle_cache:/usr/local/bundle
+      - .:/app:cached # ソースコードをマウント（高速化）
+      - .bundle:/app/.bundle # Bundler設定を永続化
+      - bundle_cache:/usr/local/bundle # Gemキャッシュを永続化
     ports:
-      - "3000:3000"
-    env_file: .env
+      - "3000:3000" # ホスト:コンテナ のポートマッピング
+    env_file: .env # 環境変数ファイルを読み込み
     depends_on:
       - db
       - redis
 
+  # Sidekiq バックグラウンドジョブコンテナ
   sidekiq:
     build:
       context: .
@@ -43,21 +59,35 @@ services:
       - db
       - redis
 
+  # PostgreSQL データベースコンテナ
   db:
-    image: postgres:15-alpine
+    image: postgres:15-alpine # 軽量なAlpine Linux版を使用
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres # デフォルトデータベース名
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data # データを永続化
     ports:
-      - "5432:5432"
+      - "5432:5432" # 外部からDB接続可能（開発時のみ）
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # Redis キャッシュ・ジョブキューコンテナ
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "6379:6379" # 外部からRedis接続可能（開発時のみ）
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+# 永続化ボリューム
 volumes:
-  pgdata:
-  bundle_cache:
+  pgdata: # PostgreSQLデータ永続化
+  bundle_cache: # Gemキャッシュ永続化

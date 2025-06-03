@@ -8,7 +8,7 @@
         <%= f.text_field :q, value: params[:q], class: "border rounded px-2 py-1 w-40", 'aria-label': t('views.onsens.index.search') %>
       </div>
       <div>
-        <%= f.label :tags, t('activerecord.attributes.onsen.tags') + '(カンマ区切り)', class: "block text-sm font-bold" %>
+        <%= f.label :tags, t('activerecord.attributes.onsen.tags') + t('views.onsens.index.tags_hint'), class: "block text-sm font-bold" %>
         <%= f.text_field :tags, value: params[:tags], class: "border rounded px-2 py-1 w-40", 'aria-label': t('activerecord.attributes.onsen.tags') %>
       </div>
       <div>
@@ -25,9 +25,9 @@
       </div>
       <div data-controller="zipcode">
         <div>
-          <label for="zipcode" class="block text-sm font-bold">郵便番号</label>
-          <input type="text" id="zipcode" name="zipcode" value="<%= params[:zipcode] %>" class="border rounded px-2 py-1 w-32" placeholder="例: 6900874" aria-label="郵便番号" data-zipcode-target="zipcode" />
-          <button type="button" class="ml-2 px-3 py-1 bg-gray-200 rounded hover:bg-blue-100 text-sm" id="zipcode-search-btn" aria-label="郵便番号から住所検索" data-action="click->zipcode#search">住所自動入力</button>
+          <label for="zipcode" class="block text-sm font-bold"><%= t('views.onsens.index.zipcode') %></label>
+          <input type="text" id="zipcode" name="zipcode" value="<%= params[:zipcode] %>" class="border rounded px-2 py-1 w-32" placeholder="例: 6900874" aria-label="<%= t('views.onsens.index.zipcode') %>" data-zipcode-target="zipcode" />
+          <button type="button" class="ml-2 px-3 py-1 bg-gray-200 rounded hover:bg-blue-100 text-sm" id="zipcode-search-btn" aria-label="郵便番号から住所検索" data-action="click->zipcode#search"><%= t('views.onsens.index.zipcode_search') %></button>
         </div>
         <div>
           <label for="address" class="block text-sm font-bold"><%= t('views.onsens.index.address', default: '住所') %></label>
@@ -45,7 +45,7 @@
     <div class="order-2 lg:order-1">
       <div class="relative h-96 lg:h-[600px] rounded overflow-hidden shadow">
         <%= render partial: "map" %>
-        <button type="button" class="absolute top-2 right-2 bg-white border rounded px-3 py-1 text-sm shadow hover:bg-blue-100 z-10" data-action="click->map#locate">現在地</button>
+        <button type="button" class="absolute top-2 right-2 bg-white border rounded px-3 py-1 text-sm shadow hover:bg-blue-100 z-10" data-action="click->map#locate"><%= t('views.onsens.index.current_location') %></button>
       </div>
     </div>
 

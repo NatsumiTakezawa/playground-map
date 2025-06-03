@@ -3,9 +3,8 @@ Rails.application.routes.draw do
     resources :reviews, only: [:create, :new]
   end
   namespace :admin do
-    resources :onsens do
-      collection { post :import }
-    end
+    resources :onsens
+    resources :csv_imports, only: [:new, :create]
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

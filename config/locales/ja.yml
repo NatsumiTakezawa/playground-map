@@ -34,6 +34,13 @@ ja:
       create: "%{model}を登録する"
       update: "%{model}を更新する"
   views:
+    navigation:
+      site_title: 松江温泉マップ
+      search: 検索
+      admin: 管理画面
+      onsen_management: 温泉管理
+      public_site: 公開サイト
+    onsens:
     onsens:
       index:
         title: 松江市周辺の温泉一覧
@@ -41,6 +48,10 @@ ja:
         radius_km: 半径(km)
         address: 住所
         geocode_btn: 住所から緯度経度
+        zipcode: 郵便番号
+        zipcode_search: 住所自動入力
+        current_location: 現在地
+        tags_hint: (カンマ区切り)
       show:
         reviews: レビュー
         post_review: レビュー投稿

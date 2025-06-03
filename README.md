@@ -46,59 +46,174 @@
 
 ---
 
-## セットアップ手順
+## 初心者向けセットアップガイド
 
-### 1. 必要ツール
+### 必要な環境
 
-- Docker Desktop ≥ 4.x または docker + docker-compose CLI
+#### システム要件
 
-### 2. 初回セットアップ
+- **OS**: Windows 10/11, macOS 10.14+, Linux（Ubuntu 18.04+）
+- **メモリ**: 最低 4GB（推奨 8GB 以上）
+- **ディスク**: 最低 5GB の空き容量
 
-````bash
-# リポジトリをクローン
+#### 必要ソフトウェア
+
+1. **Docker Desktop**
+
+   - [Windows](https://docs.docker.com/desktop/windows/install/)
+   - [macOS](https://docs.docker.com/desktop/mac/install/)
+   - [Linux](https://docs.docker.com/engine/install/ubuntu/)（docker-compose 含む）
+
+2. **Git**（ソースコード取得用）
+
+   - [公式サイト](https://git-scm.com/downloads)からダウンロード
+
+3. **テキストエディタ**（推奨）
+   - [Visual Studio Code](https://code.visualstudio.com/)
+
+### ステップ 1: プロジェクトの取得
+
+```bash
+# 1. ターミナル/コマンドプロンプトを開く
+# 2. 作業ディレクトリに移動（例: デスクトップ）
+cd ~/Desktop  # macOS/Linux
+cd %USERPROFILE%\Desktop  # Windows
+
+# 3. リポジトリをクローン
 git clone <repository-url>
 cd matsue-onsen-map-temp
+```
 
-# 環境変数ファイルの作成（必要に応じて編集）
+### ステップ 2: 環境設定
+
+```bash
+# 1. 環境変数ファイルを作成
 cp .env.sample .env
 
-# Dockerイメージのビルド
+# 2. 必要に応じて .env ファイルを編集
+# （基本的にはそのまま使用可能）
+```
+
+#### 📝 .env ファイルの設定説明
+
+- `GOOGLE_MAPS_API_KEY`: 地図機能を使う場合のみ必要
+- その他の設定: 初期設定で動作します
+
+Google Maps API キーの取得方法は[こちら](https://developers.google.com/maps/documentation/javascript/get-api-key)
+
+### ステップ 3: Docker 環境の構築
+
+```bash
+# 1. Dockerイメージをビルド（初回のみ・時間がかかります）
 docker compose build
 
-### データベース準備
+# 📝 このコマンドの説明:
+# - Ruby 3.3.8 の環境を構築
+# - Rails 8.0.2 とその他の依存ライブラリをインストール
+# - PostgreSQL 15 のデータベースコンテナを準備
+# - Redis 7 のキャッシュサーバーを準備
+```
+
+### ステップ 4: データベースの準備
 
 ```bash
-# データベース作成・マイグレーション・シードデータ投入
+# 1. データベースの作成・初期化（初回のみ）
 docker compose run --rm web bundle exec rails db:prepare
 
-# または手動で実行する場合
-docker compose run --rm web bundle exec rails db:create
-docker compose run --rm web bundle exec rails db:migrate
-docker compose run --rm web bundle exec rails db:seed
-````
+# 📝 このコマンドは以下を実行します:
+# - データベースの作成（matsue_onsen_development）
+# - テーブル構造の作成（マイグレーション実行）
+# - サンプルデータの投入（温泉10件、レビュー30件）
+```
 
-### アセットプリコンパイル
+### ステップ 5: アセットの準備
 
 ```bash
-# JavaScript機能のために重要（必須）
+# 1. JavaScript・CSS ファイルの準備（初回のみ）
 docker compose run --rm web bundle exec rails assets:precompile
+
+# 📝 このコマンドの説明:
+# - Tailwind CSS のビルド
+# - Stimulus(JavaScript) のビルド
+# - アセットファイルの最適化
 ```
 
-# サーバー起動
+### ステップ 6: アプリケーションの起動
 
 ```bash
+# 1. 全サービスを起動
 docker compose up
+
+# 📝 起動されるサービス:
+# - web: Rails アプリ（http://localhost:3000）
+# - sidekiq: バックグラウンドジョブ処理
+# - db: PostgreSQL データベース
+# - redis: Redis キャッシュサーバー
+
+# バックグラウンドで起動する場合
+docker compose up -d
 ```
 
-### 3. アクセス確認
+### ステップ 7: 動作確認
 
-ブラウザで `http://localhost:3000` にアクセスしてください。
+1. ブラウザで http://localhost:3000 にアクセス
+2. 「松江市周辺の温泉一覧」が表示されることを確認
+3. 検索・地図表示が動作することを確認
+
+---
+
+## トラブルシューティング
+
+### よくある問題と解決方法
+
+#### 1. ポート番号の競合
+
+```bash
+# 3000番ポートが使用中の場合
+Error: port is already allocated
+
+# 解決方法:
+docker compose down  # 既存コンテナを停止
+docker compose up     # 再起動
+```
+
+#### 2. データベース接続エラー
+
+```bash
+# PostgreSQL コンテナが起動していない場合
+could not connect to server: Connection refused
+
+# 解決方法:
+docker compose restart db  # データベースコンテナを再起動
+docker compose logs db     # ログで状況確認
+```
+
+#### 3. JavaScript/CSS が反映されない
+
+```bash
+# アセットが正しくビルドされていない場合
+
+# 解決方法:
+docker compose run --rm web bundle exec rails assets:precompile
+docker compose restart web
+```
+
+#### 4. 権限エラー（Linux/macOS）
+
+```bash
+# Permission denied エラーが発生する場合
+
+# 解決方法:
+# .env ファイルで UID/GID を設定
+UID=1000  # `id -u` で確認
+GID=1000  # `id -g` で確認
+```
 
 ---
 
 ## 開発用コマンド一覧
 
-すべてのコマンドは **Docker コンテナ内** で実行してください。Rails コマンドは `bundle exec` を使用します。
+**重要**: すべてのコマンドは Docker コンテナ内で実行します。`bundle exec` を忘れずに付けてください。
 
 ### 基本操作
 

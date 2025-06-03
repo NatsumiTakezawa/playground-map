@@ -1,22 +1,27 @@
+# 松江市温泉マップ - 開発環境設定
+#
+# このファイルは開発環境での Rails アプリケーションの動作を制御します
+# 設定変更後は docker compose restart web で反映されます
+
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
-  # Settings specified here will take precedence over those in config/application.rb.
+  # config/application.rb の設定よりも優先されます
 
-  # Make code changes take effect immediately without server restart.
+  # コード変更時の自動リロード（開発効率向上）
   config.enable_reloading = true
 
-  # Do not eager load code on boot.
+  # アプリケーション起動時の一括読み込みを無効化（起動高速化）
   config.eager_load = false
 
-  # Show full error reports.
+  # エラー発生時に詳細情報を表示（デバッグ用）
   config.consider_all_requests_local = true
 
-  # Enable server timing.
+  # サーバータイミング情報の表示（パフォーマンス測定用）
   config.server_timing = true
 
-  # Enable/disable Action Controller caching. By default Action Controller caching is disabled.
-  # Run rails dev:cache to toggle Action Controller caching.
+  # Action Controller キャッシュの設定
+  # `rails dev:cache` でキャッシュの有効/無効を切り替え可能
   if Rails.root.join("tmp/caching-dev.txt").exist?
     config.action_controller.perform_caching = true
     config.action_controller.enable_fragment_cache_logging = true
@@ -25,7 +30,7 @@ Rails.application.configure do
     config.action_controller.perform_caching = false
   end
 
-  # Change to :null_store to avoid any caching.
+  # キャッシュストア設定（開発環境では メモリストア を使用）
   config.cache_store = :memory_store
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
