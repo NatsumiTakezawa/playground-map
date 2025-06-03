@@ -1,4 +1,4 @@
-<%= form_with(model: admin_onsen || @onsen, html: { multipart: true, class: "space-y-6" }) do |form| %>
+<%= form_with(model: [:admin, admin_onsen || @onsen], html: { multipart: true, class: "space-y-6" }) do |form| %>
   <% if admin_onsen.errors.any? %>
     <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
       <h2><%= pluralize(admin_onsen.errors.count, "件のエラー") %>があります:</h2>
@@ -15,14 +15,15 @@
     <%= form.text_field :name, class: "block shadow-sm rounded-md border px-3 py-2 w-full border-gray-300 focus:outline-blue-600" %>
   </div>
 
-  <div>
-    <%= form.label :geo_lat, '緯度', class: 'block font-semibold mb-1' %>
-    <%= form.text_field :geo_lat, class: "block shadow-sm rounded-md border px-3 py-2 w-full border-gray-300 focus:outline-blue-600" %>
-  </div>
-
-  <div>
-    <%= form.label :geo_lng, '経度', class: 'block font-semibold mb-1' %>
-    <%= form.text_field :geo_lng, class: "block shadow-sm rounded-md border px-3 py-2 w-full border-gray-300 focus:outline-blue-600" %>
+  <div class="flex flex-col sm:flex-row gap-4">
+    <div class="flex-1">
+      <%= form.label :geo_lat, '緯度', class: 'block font-semibold mb-1' %>
+      <%= form.text_field :geo_lat, class: "block shadow-sm rounded-md border px-3 py-2 w-full border-gray-300 focus:outline-blue-600" %>
+    </div>
+    <div class="flex-1">
+      <%= form.label :geo_lng, '経度', class: 'block font-semibold mb-1' %>
+      <%= form.text_field :geo_lng, class: "block shadow-sm rounded-md border px-3 py-2 w-full border-gray-300 focus:outline-blue-600" %>
+    </div>
   </div>
 
   <div>
@@ -52,7 +53,7 @@
     <% end %>
   </div>
 
-  <div>
-    <%= form.submit (admin_onsen.persisted? ? '更新する' : '登録する'), class: "w-full sm:w-auto rounded-md px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold cursor-pointer" %>
+  <div class="flex flex-col sm:flex-row gap-2">
+    <%= form.submit class: "rounded-md px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold w-full sm:w-auto" %>
   </div>
 <% end %>

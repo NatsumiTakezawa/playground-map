@@ -1,29 +1,29 @@
 <%# filepath: /home/takemasa32/programs/sen/matsue-onsen-map-temp/app/views/admin/onsens/index.html.erb %>
 <% content_for :title, t('admin.onsens.index.title', default: '温泉一覧') %>
 
-<div class="w-full max-w-5xl mx-auto py-8">
+<div class="w-full max-w-5xl mx-auto py-8 px-2 sm:px-4">
   <% if notice.present? %>
     <p class="py-2 px-3 bg-green-50 mb-5 text-green-600 font-medium rounded-md text-center" id="notice"><%= notice %></p>
   <% end %>
 
   <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
     <h1 class="font-bold text-3xl text-gray-800"><%= t('admin.onsens.index.title', default: '温泉一覧') %></h1>
-    <%= link_to t('admin.onsens.index.new', default: '新規温泉登録'), new_admin_onsen_path, class: "rounded-md px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow" %>
+    <%= link_to t('admin.onsens.index.new', default: '新規温泉登録'), new_admin_onsen_path, class: "rounded-md px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow w-full md:w-auto text-center" %>
   </div>
 
   <!-- CSVインポートフォーム -->
-  <div class="mb-8">
-    <%= form_with url: import_admin_onsens_path, method: :post, local: true, html: { multipart: true, class: "flex flex-col md:flex-row gap-2 items-center" } do |f| %>
-      <%= f.file_field :file, accept: '.csv', class: "block border rounded px-2 py-1" %>
-      <%= f.submit t('admin.onsens.index.import', default: 'CSVインポート'), class: "rounded-md px-4 py-2 bg-green-600 hover:bg-green-500 text-white font-semibold" %>
+  <div class="mb-8 w-full overflow-x-auto">
+    <%= form_with url: import_admin_onsens_path, method: :post, local: true, html: { multipart: true, class: "flex flex-col sm:flex-row gap-2 items-center w-full" } do |f| %>
+      <%= f.file_field :file, accept: '.csv', class: "block border rounded px-2 py-1 w-full sm:w-auto" %>
+      <%= f.submit t('admin.onsens.index.import', default: 'CSVインポート'), class: "rounded-md px-4 py-2 bg-green-600 hover:bg-green-500 text-white font-semibold w-full sm:w-auto" %>
     <% end %>
   </div>
 
-  <div id="admin_onsens" class="divide-y divide-gray-200">
+  <div id="admin_onsens" class="divide-y divide-gray-200 w-full overflow-x-auto">
     <% if @onsens.any? %>
       <% @onsens.each do |onsen| %>
-        <div class="flex flex-col md:flex-row justify-between items-center py-6 gap-4">
-          <div class="flex-1">
+        <div class="flex flex-col md:flex-row justify-between items-center py-6 gap-4 w-full">
+          <div class="flex-1 min-w-0">
             <%= render partial: 'onsen', locals: { onsen: onsen } %>
             <!-- 画像サムネイル -->
             <% if onsen.images.attached? %>
@@ -35,9 +35,9 @@
             <% end %>
           </div>
           <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
-            <%= link_to t('admin.onsens.index.show', default: '詳細'), admin_onsen_path(onsen), class: "rounded-md px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium text-center" %>
-            <%= link_to t('admin.onsens.index.edit', default: '編集'), edit_admin_onsen_path(onsen), class: "rounded-md px-4 py-2 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-medium text-center" %>
-            <%= button_to t('admin.onsens.index.destroy', default: '削除'), admin_onsen_path(onsen), method: :delete, class: "rounded-md px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-medium text-center", data: { turbo_confirm: t('admin.onsens.index.confirm_destroy', default: '本当に削除しますか？') } %>
+            <%= link_to t('admin.onsens.index.show', default: '詳細'), admin_onsen_path(onsen), class: "rounded-md px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium text-center w-full md:w-auto" %>
+            <%= link_to t('admin.onsens.index.edit', default: '編集'), edit_admin_onsen_path(onsen), class: "rounded-md px-4 py-2 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-medium text-center w-full md:w-auto" %>
+            <%= button_to t('admin.onsens.index.destroy', default: '削除'), admin_onsen_path(onsen), method: :delete, class: "rounded-md px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-medium text-center w-full md:w-auto", data: { turbo_confirm: t('admin.onsens.index.confirm_destroy', default: '本当に削除しますか？') } %>
           </div>
         </div>
       <% end %>

@@ -1,16 +1,18 @@
-<h2 class="text-xl font-bold mb-4">CSVインポート</h2>
-<p class="mb-2 text-gray-600">温泉データをCSVファイルで一括登録できます。ヘッダ: <code>name,geo_lat,geo_lng,description,tags</code>（順不同可）</p>
-<%= form_with url: import_admin_onsens_path, local: true, html: { multipart: true, class: "space-y-4" } do |f| %>
-  <div>
-    <%= f.file_field :file, accept: ".csv", class: "block w-full text-sm text-gray-700" %>
-  </div>
-  <div>
-    <%= f.submit "インポート", class: "btn btn-primary" %>
-  </div>
-<% end %>
+<h2 class="text-xl font-bold mb-4 px-2 sm:px-0">CSVインポート</h2>
+<p class="mb-2 text-gray-600 px-2 sm:px-0">温泉データをCSVファイルで一括登録できます。ヘッダ: <code>name,geo_lat,geo_lng,description,tags</code>（順不同可）</p>
+<div class="max-w-lg w-full mx-auto px-2 sm:px-0">
+  <%= form_with url: import_admin_onsens_path, local: true, html: { multipart: true, class: "space-y-4" } do |f| %>
+    <div>
+      <%= f.file_field :file, accept: ".csv", class: "block w-full text-sm text-gray-700" %>
+    </div>
+    <div>
+      <%= f.submit "インポート", class: "btn btn-primary w-full sm:w-auto" %>
+    </div>
+  <% end %>
+</div>
 
 <% if defined?(@import_result) && @import_result.present? %>
-  <div class="mt-4">
+  <div class="mt-4 px-2 sm:px-0">
     <p class="text-green-700">インポート完了: <%= @import_result[:results].count{|r| r[:success]} %>件</p>
     <% if @import_result[:skipped].to_i > 0 %>
       <p class="text-red-600">スキップ: <%= @import_result[:skipped] %>件</p>
