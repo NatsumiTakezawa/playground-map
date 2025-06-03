@@ -1,114 +1,173 @@
-# README
+# 松江市温泉マップ（Rails 教育版）
 
-このリポジトリは、Docker コンテナ上で完結する Rails 8 + Hotwire + Tailwind 学習用サンプルです。
+松江市周辺の温泉を検索・閲覧・レビューできる Web アプリケーション。Docker 環境で完結する Rails 8 + Hotwire + Tailwind 学習用サンプルです。
 
-## 開発環境の前提
+## 技術スタック
 
-- すべてのコマンドは **Docker コンテナ内** で実行してください。
-- Ruby や PostgreSQL をローカルに直接インストールする必要はありません。
+- **フレームワーク**: Ruby on Rails 8.x
+- **フロントエンド**: Hotwire (Turbo + Stimulus) + Tailwind CSS
+- **データベース**: PostgreSQL 15
+- **コンテナ**: Docker + docker-compose
+- **JavaScript**: Importmap（Webpack 等は使用しない）
 
----
+## 主な機能
 
-## 主な開発用コマンド（すべて Docker 内で実行）
-
-| タスク                   | コマンド例                                                                               |
-| ------------------------ | ---------------------------------------------------------------------------------------- |
-| 初回セットアップ         | `docker compose build` then `docker compose run --rm web rails db:prepare`               |
-| サーバ起動               | `docker compose up`                                                                      |
-| サーバ終了               | `Ctrl+C`（フォアグラウンド実行時）または `docker compose down`（バックグラウンド実行時） |
-| バックグラウンド起動     | `docker compose up -d`                                                                   |
-| マイグレーション実行     | `docker compose run --rm web rails db:migrate`                                           |
-| モデル作成               | `docker compose run --rm web rails g model Xxx`                                          |
-| コントローラ作成         | `docker compose run --rm web rails g controller Xxx`                                     |
-| Gem 追加後のインストール | `docker compose run --rm web bundle install`                                             |
-| Tailwind ビルドウォッチ  | `docker compose run --rm web rails tailwindcss:watch`                                    |
-| RSpec テスト             | `docker compose run --rm web rspec`                                                      |
-| シードデータ投入         | `docker compose run --rm web rails db:seed`                                              |
-| Rails コンソール         | `docker compose run --rm web rails c`                                                    |
-| DB コンソール            | `docker compose run --rm web rails db`                                                   |
-| RuboCop（静的解析）      | `docker compose run --rm web rubocop`                                                    |
+- 温泉スポットの一覧表示・詳細表示
+- 地図上での温泉位置表示（Google Maps API）
+- 温泉の検索・フィルタリング
+- 郵便番号からの住所自動入力機能
+- 住所から緯度経度の自動取得
+- レビュー投稿機能
+- 管理画面（CRUD 操作・CSV インポート）
 
 ---
 
-## よく使うコマンド例
+## セットアップ手順
+
+### 1. 必要ツール
+
+- Docker Desktop ≥ 4.x または docker + docker-compose CLI
+
+### 2. 初回セットアップ
 
 ```bash
-# 初回セットアップ
-$ docker compose build
-$ docker compose run --rm web rails db:prepare
+# リポジトリをクローン
+git clone <repository-url>
+cd matsue-onsen-map-temp
 
-# サーバ起動
-$ docker compose up
+# 環境変数ファイルの作成（必要に応じて編集）
+cp .env.sample .env
 
-# サーバ起動（バックグラウンド実行）
-$ docker compose up -d
+# Dockerイメージのビルド
+docker compose build
 
-# サーバ停止・終了
-$ docker compose down
+# データベースの準備
+docker compose run --rm web rails db:prepare
 
-# すべてのコンテナ・ボリュームを削除（完全クリーンアップ）
-$ docker compose down -v
+# アセットのプリコンパイル（JavaScript機能のため重要）
+docker compose run --rm web rails assets:precompile
 
-# マイグレーション
-$ docker compose run --rm web rails db:migrate
-
-# Gem追加後
-$ docker compose run --rm web bundle install
-
-# テスト
-$ docker compose run --rm web rspec
+# サーバー起動
+docker compose up
 ```
 
----
+### 3. アクセス確認
 
-## Docker 環境の終了と停止
-
-- **フォアグラウンド実行時の終了**: ターミナルで `Ctrl+C` を押す
-- **バックグラウンド実行時の停止**: `docker compose down` を実行
-- **完全クリーンアップ**: `docker compose down -v` でコンテナとボリュームを削除
-- **特定コンテナの再起動**: `docker compose restart [サービス名]` (例: `docker compose restart web`)
+ブラウザで `http://localhost:3000` にアクセスしてください。
 
 ---
 
-## 注意事項
+## 開発用コマンド一覧
 
-- 必ず `docker compose run --rm web ...` 形式でコマンドを実行してください。
-- 直接 `rails` や `bundle` コマンドをホスト OS で実行しないでください。
-- .env ファイルや API キーの管理も Docker 内で完結します。
+すべてのコマンドは **Docker コンテナ内** で実行してください。
+
+### 基本操作
+
+| タスク               | コマンド                              |
+| -------------------- | ------------------------------------- |
+| サーバ起動           | `docker compose up`                   |
+| バックグラウンド起動 | `docker compose up -d`                |
+| サーバ停止           | `Ctrl+C` または `docker compose down` |
+| サーバ再起動         | `docker compose restart web`          |
+| 完全クリーンアップ   | `docker compose down -v`              |
+
+### 開発・メンテナンス
+
+| タスク                   | コマンド                                              |
+| ------------------------ | ----------------------------------------------------- |
+| マイグレーション実行     | `docker compose run --rm web rails db:migrate`        |
+| シードデータ投入         | `docker compose run --rm web rails db:seed`           |
+| アセットプリコンパイル   | `docker compose run --rm web rails assets:precompile` |
+| Gem 追加後のインストール | `docker compose run --rm web bundle install`          |
+| テスト実行               | `docker compose run --rm web rspec`                   |
+| 静的解析（RuboCop）      | `docker compose run --rm web rubocop`                 |
+
+### 生成系コマンド
+
+| タスク           | コマンド                                             |
+| ---------------- | ---------------------------------------------------- |
+| モデル作成       | `docker compose run --rm web rails g model Xxx`      |
+| コントローラ作成 | `docker compose run --rm web rails g controller Xxx` |
+| Scaffold 生成    | `docker compose run --rm web rails g scaffold Xxx`   |
+
+### デバッグ・確認
+
+| タスク           | コマンド                               |
+| ---------------- | -------------------------------------- |
+| Rails コンソール | `docker compose run --rm web rails c`  |
+| DB コンソール    | `docker compose run --rm web rails db` |
+| ログ確認         | `docker compose logs web`              |
 
 ---
 
-## 詳細仕様・セットアップ手順
+## ⚠️ トラブルシューティング
 
-- 詳細は `rails/docs/rails_specification.md` および `rails/docs/system_design.md` を参照してください。
+### JavaScript 機能（Stimulus コントローラー）が動作しない場合
+
+新しい Stimulus コントローラーを追加したり、既存のコントローラーが動作しない場合の対処法：
+
+1. **アセットプリコンパイルの実行**
+
+   ```bash
+   docker compose run --rm web rails assets:precompile
+   ```
+
+2. **サーバーの再起動**
+
+   ```bash
+   docker compose restart web
+   ```
+
+3. **ブラウザキャッシュのクリア**
+   - デベロッパーツールで Network タブの「Disable cache」をチェック
+   - または強制リロード（Ctrl+Shift+R / Cmd+Shift+R）
+
+### よくある症状と対処法
+
+- **ボタンを押しても反応しない** → 上記手順 1-2 を実行
+- **console.log が表示されない** → Importmap に含まれていない可能性があります
+- **JavaScript エラーが発生** → ブラウザのコンソールでエラー内容を確認
+
+---
+
+## 外部 API 設定（オプション）
+
+### Google Maps API（地図表示・ジオコーディング用）
+
+1. Google Cloud Platform でプロジェクトを作成
+2. Maps JavaScript API と Geocoding API を有効化
+3. API キーを取得
+4. `.env`ファイルに設定:
+   ```env
+   GOOGLE_MAPS_API_KEY=your_api_key_here
+   ```
+
+### 郵便番号検索 API
+
+- zipcloud.ibsnet.co.jp の無料 API を使用（設定不要）
+- インターネット接続があれば自動で動作
 
 ---
 
-## CLI ツール・コマンド一覧
+## 開発時の注意点
 
-本プロジェクトで利用できる主な CLI ツールとコマンドの用途・実行例をまとめます。
-すべて **Docker コンテナ内** で実行してください。
+### 重要な原則
 
-| ツール/コマンド         | 用途・説明                                                               | 実行例                                                 |
-| ----------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------ |
-| RSpec (`rspec`)         | モデル・サービス等の自動テストを実行。テスト追加時やリファクタ時に推奨。 | `docker compose run --rm web rspec`                    |
-| RuboCop (`rubocop`)     | コードの静的解析・スタイルチェック。コミット前に推奨。                   | `docker compose run --rm web rubocop`                  |
-| DB マイグレーション     | スキーマ変更時に実行。                                                   | `docker compose run --rm web rails db:migrate`         |
-| シードデータ投入        | サンプルデータ投入。初回セットアップやリセット時に。                     | `docker compose run --rm web rails db:seed`            |
-| Rails コンソール        | Rails の REPL。モデル操作やデバッグに便利。                              | `docker compose run --rm web rails c`                  |
-| DB コンソール           | psql 等で DB へ直接接続。                                                | `docker compose run --rm web rails db`                 |
-| Tailwind ビルドウォッチ | Tailwind CSS の自動ビルド。スタイル編集時に。                            | `docker compose run --rm web rails tailwindcss:watch`  |
-| モデル生成              | 新しいモデル作成。                                                       | `docker compose run --rm web rails g model Xxx`        |
-| コントローラ生成        | 新しいコントローラ作成。                                                 | `docker compose run --rm web rails g controller Xxx`   |
-| Scaffold 生成           | 一括で CRUD 用コントローラ・ビュー等を生成。                             | `docker compose run --rm web rails g scaffold Xxx ...` |
-| Gem インストール        | Gemfile 変更後に実行。                                                   | `docker compose run --rm web bundle install`           |
+- **すべての Rails コマンドは `docker compose run --rm web` 経由で実行**
+- **ホスト OS に直接 Ruby 環境をインストールする必要はありません**
+- **ファイル変更はホスト側で行い、コマンド実行はコンテナ内で行います**
 
-### 補足
+### アセット管理について
 
-- すべてのコマンドは `docker compose run --rm web ...` 形式で実行してください。
-- テスト（RSpec）は `spec/` 配下にテストファイルを追加して実行します。
-- RuboCop はプロジェクトルートの `.rubocop.yml` 設定に従います。
-- DB リセットや再投入が必要な場合は `rails db:reset` も利用可能です。
-- コマンドの詳細は `rails --help` で確認できます。
+- 新しい JavaScript（Stimulus コントローラー）を追加した場合は、必ずアセットプリコンパイルを実行
+- `app/javascript/controllers/index.js`に新しいコントローラーが正しく登録されているか確認
+- JavaScript 機能が動作しない場合は、ブラウザのデベロッパーツールでコンソールエラーを確認
 
 ---
+
+## 詳細仕様
+
+詳細な仕様については以下のドキュメントを参照してください：
+
+- `rails/docs/rails_specification.md`
+- `rails/docs/system_design.md`
