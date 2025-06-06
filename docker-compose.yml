@@ -30,7 +30,6 @@ services:
       - bundle_cache:/usr/local/bundle # Gemキャッシュを永続化
     ports:
       - "3000:3000" # ホスト:コンテナ のポートマッピング
-    env_file: .env # 環境変数ファイルを読み込み
     depends_on:
       - db
       - redis
@@ -50,7 +49,6 @@ services:
       - .:/app:cached
       - .bundle:/app/.bundle
       - bundle_cache:/usr/local/bundle
-    env_file: .env
     depends_on:
       - db
       - redis
