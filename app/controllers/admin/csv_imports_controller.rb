@@ -145,7 +145,7 @@ class Admin::CsvImportsController < ApplicationController
   #
   # @return [void] エラーメッセージ表示後、温泉一覧にリダイレクト
   def handle_no_file_selected
-    flash[:alert] = t('admin.csv_imports.errors.no_file_selected', default: 'CSVファイルを選択してください')
+    flash[:alert] = t("admin.csv_imports.errors.no_file_selected", default: "CSVファイルを選択してください")
     redirect_to admin_onsens_path
   end
 end

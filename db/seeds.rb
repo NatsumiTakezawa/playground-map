@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # 温泉10件・レビュー30件のサンプルデータ投入
 # @see rails/docs/rails_specification.md
 

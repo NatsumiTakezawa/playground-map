@@ -87,7 +87,7 @@ class Admin::OnsensController < ApplicationController
     @onsen = Onsen.new(onsen_params)
 
     if @onsen.save
-      redirect_to admin_onsen_path(@onsen), notice: t('admin.onsens.create.success')
+      redirect_to admin_onsen_path(@onsen), notice: t("admin.onsens.create.success")
     else
       render :new, status: :unprocessable_entity
     end
@@ -108,7 +108,7 @@ class Admin::OnsensController < ApplicationController
     handle_image_removal if params[:onsen][:remove_image_ids].present?
 
     if @onsen.update(onsen_params)
-      redirect_to admin_onsen_path(@onsen), notice: t('admin.onsens.update.success')
+      redirect_to admin_onsen_path(@onsen), notice: t("admin.onsens.update.success")
     else
       render :edit, status: :unprocessable_entity
     end
@@ -125,7 +125,7 @@ class Admin::OnsensController < ApplicationController
   # @raise [ActiveRecord::RecordNotDestroyed] 削除に失敗した場合
   def destroy
     @onsen.destroy!
-    redirect_to admin_onsens_path, status: :see_other, notice: t('admin.onsens.destroy.success')
+    redirect_to admin_onsens_path, status: :see_other, notice: t("admin.onsens.destroy.success")
   end
 
   private

@@ -101,7 +101,7 @@ class Review < ApplicationRecord
   # 添付画像の検証ルール
   # @note ファイル形式・サイズ・枚数の制限を複合的に適用
   validates :images,
-    content_type: ["image/jpeg", "image/png", "image/gif"], # 許可ファイル形式
+    content_type: [ "image/jpeg", "image/png", "image/gif" ], # 許可ファイル形式
     size: { less_than: 3.megabytes },                       # 1枚あたり3MB未満
     limit: { max: 3 }                                        # 最大3枚まで
 

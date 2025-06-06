@@ -1,11 +1,11 @@
 Rails.application.routes.draw do
   resources :onsens, only: %i[index show] do
-    resources :reviews, only: [:create, :new]
+    resources :reviews, only: [ :create, :new ]
   end
   namespace :admin do
     root "onsens#index"
     resources :onsens
-    resources :csv_imports, only: [:new, :create]
+    resources :csv_imports, only: [ :new, :create ]
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

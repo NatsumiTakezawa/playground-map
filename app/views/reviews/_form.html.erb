@@ -1,24 +1,118 @@
-<%# レビューフォーム（Turbo Stream Modal対応予定） %>
-<%= form_with(model: [onsen, review], local: false, html: { class: "space-y-2" }) do |f| %>
-  <div>
-    <span class="block font-bold">評価</span>
-    <%= render "shared/rating_stars", rating: (review.rating || 0), form: true %>
+<%# 
+  レビューフォーム（強化版：楽観的UI + ローディング状態対応）
+  
+  == 新機能
+  - 楽観的UI: 送信と同時に画面更新
+  - ローディング状態: ボタンの状態管理
+  - エラーハンドリング: 詳細なバリデーション表示
+  - アクセシビリティ: スクリーンリーダー対応
+%>
+<%= form_with(model: [onsen, review], 
+              local: false, 
+              html: { 
+                class: "space-y-4",
+                'data-controller': "optimistic-ui loading-button",
+                'data-optimistic-ui-preview-text-value': "レビューを投稿中...",
+                'data-optimistic-ui-success-message-value': "レビューが投稿されました！",
+                'data-optimistic-ui-error-message-value': "投稿に失敗しました。もう一度お試しください。",
+                'data-action': "submit->optimistic-ui#handleOptimisticSubmit submit->loading-button#handleSubmit"
+              }) do |f| %>
+  
+  <%# 評価選択セクション %>
+  <div class="<%= review.errors[:rating].any? ? 'error-field' : '' %>">
+    <%= render 'shared/form_field',
+        field_type: :custom,
+        label: '評価',
+        required: true,
+        error: review.errors[:rating]&.first,
+        help_text: '1〜5つ星で評価してください' do %>
+      <%= render "shared/rating_stars", 
+          rating: (review.rating || 0), 
+          form: true %>
+    <% end %>
   </div>
-  <div>
-    <%= f.label :comment, "コメント", class: "block font-bold" %>
-    <%= f.text_area :comment, rows: 2, class: "border rounded w-full px-2 py-1" %>
+
+  <%# コメント入力セクション %>
+  <div class="<%= review.errors[:comment].any? ? 'error-field' : '' %>">
+    <%= render 'shared/form_field',
+        field_type: :textarea,
+        form: f,
+        field_name: :comment,
+        label: 'コメント',
+        required: false,
+        rows: 3,
+        error: review.errors[:comment]&.first,
+        help_text: '温泉の感想をお聞かせください（500文字以内）',
+        placeholder: '温泉の雰囲気、泉質、設備など、感じたことを自由にお書きください' %>
   </div>
-  <div data-controller="file-input" class="space-y-1">
-    <%= f.label :images, "画像（最大3枚）", class: "block font-bold mb-1" %>
-    <div class="flex items-center gap-2">
-      <%= f.file_field :images, multiple: true, accept: 'image/jpeg,image/png,image/gif', class: "block file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition", data: { file_input_target: "input", action: "change->file-input#updateLabel" }, aria: { describedby: "images_help" } %>
-      <span class="text-sm text-gray-600" data-file-input-target="label">画像を選択してください</span>
-    </div>
-    <p id="images_help" class="text-xs text-gray-400">
-      JPEG/PNG/GIF・1枚3MBまで・最大3枚
-    </p>
+
+  <%# 画像アップロードセクション %>
+  <div class="<%= review.errors[:images].any? ? 'error-field' : '' %>" data-controller="file-input">
+    <%= render 'shared/form_field',
+        field_type: :custom,
+        label: '画像（最大3枚）',
+        required: false,
+        error: review.errors[:images]&.first,
+        help_text: 'JPEG, PNG形式、1枚あたり3MB以下' do %>
+      <div class="flex items-center gap-2">
+        <%= f.file_field :images, 
+            multiple: true,
+            accept: "image/jpeg,image/png,image/gif",
+            class: "hidden",
+            id: "review_images",
+            'data-file-input-target': "input",
+            'data-action': "change->file-input#preview" %>
+        <%= render 'shared/button',
+            text: '画像を選択',
+            variant: :outline,
+            size: :sm,
+            icon: 'camera',
+            onclick: "document.getElementById('review_images').click()" %>
+        <span data-file-input-target="counter" class="text-sm text-gray-600">
+          0枚選択中
+        </span>
+      </div>
+      <div data-file-input-target="preview" class="mt-2 grid grid-cols-3 gap-2 hidden"></div>
+    <% end %>
   </div>
-  <div>
-    <%= f.submit t('views.reviews.form.submit'), class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
+
+  <%# 送信ボタンエリア %>
+  <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+    <%# キャンセルボタン %>
+    <%= render 'shared/button',
+        text: 'キャンセル',
+        variant: :outline,
+        size: :sm,
+        onclick: "document.querySelector('[data-controller*=\"modal\"]').remove()" %>
+    
+    <%# 送信ボタン（ローディング状態対応） %>
+    <%= render 'shared/button',
+        text: 'レビューを投稿',
+        variant: :primary,
+        size: :sm,
+        icon: 'send',
+        submit: true,
+        loading_text: '投稿中...',
+        data: {
+          'loading-button-target': 'button',
+          'loading-button-loading-text-value': '投稿中...',
+          'loading-button-loading-class-value': 'opacity-75 cursor-not-allowed',
+          'action': 'click->loading-button#startLoading'
+        } %>
   </div>
 <% end %>
+
+<%# 楽観的UI用のプレビュー表示エリア %>
+<div id="optimistic-preview-area" class="hidden">
+  <div data-optimistic-ui-target="preview" class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+    <div class="flex items-center text-blue-800">
+      <svg class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span class="text-sm font-medium" data-optimistic-ui-target="message">
+        レビューを送信しています...
+      </span>
+    </div>
+  </div>
+</div>

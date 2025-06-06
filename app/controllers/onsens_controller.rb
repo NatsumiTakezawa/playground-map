@@ -19,7 +19,6 @@
 # @author 松江市温泉マップ開発チーム
 # @since Rails 8.0.2
 class OnsensController < ApplicationController
-
   # 温泉一覧・検索機能
   #
   # 温泉の一覧表示と検索機能を提供します。

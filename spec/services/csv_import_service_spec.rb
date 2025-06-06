@@ -1,17 +1,18 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'tempfile'
 
 RSpec.describe CsvImportService, type: :service do
   describe '.call' do
     let(:valid_csv) do
-      Tempfile.new(['onsens', '.csv']).tap do |f|
+      Tempfile.new([ 'onsens', '.csv' ]).tap do |f|
         f.write("name,geo_lat,geo_lng,description,tags\nテスト温泉,35.0,133.0,説明,タグ1")
         f.rewind
       end
     end
     let(:invalid_csv) do
-      Tempfile.new(['onsens', '.csv']).tap do |f|
+      Tempfile.new([ 'onsens', '.csv' ]).tap do |f|
         f.write("name,geo_lat,geo_lng\n,35.0,133.0")
         f.rewind
       end

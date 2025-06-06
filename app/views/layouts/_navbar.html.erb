@@ -1,23 +1,58 @@
 <%# 最適化ナビバー %>
 <% current_path = request.path %>
-<nav class="bg-white border-b border-gray-200 sticky top-0 z-50" aria-label="メインナビゲーション">
+<nav class="bg-white border-b border-gray-200 sticky top-0 z-50" aria-label="メインナビゲーション" data-controller="mobile-menu">
   <div class="container mx-auto flex items-center justify-between px-4 py-2">
     <div class="flex items-center gap-4">
       <%# タイトルロゴ：リンク装飾を完全に制御 %>
       <a href="/" class="no-underline text-xl font-bold text-blue-700 hover:text-blue-800" aria-label="ホーム" <%= 'aria-current="page"' if current_path == '/' %>><%= t('views.navigation.site_title') %></a>
 
-      <% unless current_path.start_with?('/admin') %>
-        <%# 公開サイト用ナビゲーション %>
-        <a href="/" class="no-underline text-gray-700 hover:text-blue-600 font-medium <%= current_path == '/' ? 'border-b-2 border-blue-600 text-blue-600' : '' %>" aria-label="検索・地図" <%= 'aria-current="page"' if current_path == '/' %>><%= t('views.navigation.search') %></a>
-        <a href="/admin/onsens" class="no-underline text-gray-700 hover:text-blue-600 font-medium" aria-label="管理画面"><%= t('views.navigation.admin') %></a>
-      <% else %>
-        <%# 管理サイト用ナビゲーション %>
-        <a href="/admin/onsens" class="no-underline text-gray-700 hover:text-blue-600 font-medium <%= current_path.start_with?('/admin/onsens') ? 'border-b-2 border-blue-600 text-blue-600' : '' %>" aria-label="温泉管理" <%= 'aria-current="page"' if current_path.start_with?('/admin/onsens') %>><%= t('views.navigation.onsen_management') %></a>
-        <a href="/" class="no-underline text-gray-700 hover:text-blue-600 font-medium" aria-label="公開サイト"><%= t('views.navigation.public_site') %></a>
-      <% end %>
+      <%# デスクトップ用ナビゲーション %>
+      <div class="hidden md:flex items-center gap-4">
+        <% unless current_path.start_with?('/admin') %>
+          <%# 公開サイト用ナビゲーション %>
+          <a href="/" class="no-underline text-gray-700 hover:text-blue-600 font-medium <%= current_path == '/' ? 'border-b-2 border-blue-600 text-blue-600' : '' %>" aria-label="検索・地図" <%= 'aria-current="page"' if current_path == '/' %>><%= t('views.navigation.search') %></a>
+          <a href="/admin/onsens" class="no-underline text-gray-700 hover:text-blue-600 font-medium" aria-label="管理画面"><%= t('views.navigation.admin') %></a>
+        <% else %>
+          <%# 管理サイト用ナビゲーション %>
+          <a href="/admin/onsens" class="no-underline text-gray-700 hover:text-blue-600 font-medium <%= current_path.start_with?('/admin/onsens') ? 'border-b-2 border-blue-600 text-blue-600' : '' %>" aria-label="温泉管理" <%= 'aria-current="page"' if current_path.start_with?('/admin/onsens') %>><%= t('views.navigation.onsen_management') %></a>
+          <a href="/" class="no-underline text-gray-700 hover:text-blue-600 font-medium" aria-label="公開サイト"><%= t('views.navigation.public_site') %></a>
+        <% end %>
+      </div>
     </div>
+
+    <%# モバイル用ハンバーガーメニューボタン %>
     <div class="md:hidden">
-      <%# ハンバーガーメニューは今後Stimulusで実装可 %>
+      <button type="button" 
+              class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500" 
+              aria-controls="mobile-menu" 
+              aria-expanded="false"
+              data-action="click->mobile-menu#toggle"
+              data-mobile-menu-target="button"
+              aria-label="メニューを開く">
+        <%# ハンバーガーアイコン %>
+        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        <%# クローズアイコン（非表示） %>
+        <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <%# モバイル用メニューパネル %>
+  <div class="md:hidden hidden" data-mobile-menu-target="menu" id="mobile-menu">
+    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200">
+      <% unless current_path.start_with?('/admin') %>
+        <%# 公開サイト用モバイルナビゲーション %>
+        <a href="/" class="<%= current_path == '/' ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 'text-gray-700 hover:bg-gray-50' %> block px-3 py-2 text-base font-medium" aria-label="検索・地図" <%= 'aria-current="page"' if current_path == '/' %>><%= t('views.navigation.search') %></a>
+        <a href="/admin/onsens" class="text-gray-700 hover:bg-gray-50 block px-3 py-2 text-base font-medium" aria-label="管理画面"><%= t('views.navigation.admin') %></a>
+      <% else %>
+        <%# 管理サイト用モバイルナビゲーション %>
+        <a href="/admin/onsens" class="<%= current_path.start_with?('/admin/onsens') ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 'text-gray-700 hover:bg-gray-50' %> block px-3 py-2 text-base font-medium" aria-label="温泉管理" <%= 'aria-current="page"' if current_path.start_with?('/admin/onsens') %>><%= t('views.navigation.onsen_management') %></a>
+        <a href="/" class="text-gray-700 hover:bg-gray-50 block px-3 py-2 text-base font-medium" aria-label="公開サイト"><%= t('views.navigation.public_site') %></a>
+      <% end %>
     </div>
   </div>
 </nav>

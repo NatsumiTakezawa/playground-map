@@ -41,7 +41,7 @@
 #
 # @see ApplicationRecord 共通の基底クラス
 # @see Review 1対多の関連モデル（温泉:レビュー）
-# @see MapService 地理計算サービス
+# @see DistanceCalculatorService 地理距離計算サービス
 # @since 1.0.0
 # @author 松江市温泉マップ開発チーム
 class Onsen < ApplicationRecord
@@ -125,7 +125,7 @@ class Onsen < ApplicationRecord
   # 添付画像の検証ルール
   # @note ファイル形式・サイズ・枚数の制限を複合的に適用
   validates :images,
-    content_type: ["image/jpeg", "image/png", "image/gif"], # 許可ファイル形式
+    content_type: [ "image/jpeg", "image/png", "image/gif" ], # 許可ファイル形式
     size: { less_than: 5.megabytes },                       # 1枚あたり5MB未満
     limit: { max: 5 }                                        # 最大5枚まで
 
@@ -208,8 +208,8 @@ class Onsen < ApplicationRecord
   def self.extract_location_params(params)
     lat = params[:lat].to_f
     lng = params[:lng].to_f
-    radius = [[params[:radius_km].to_f, 1].max, 50].min  # 1-50km制限
-    [lat, lng, radius]
+    radius = [ [ params[:radius_km].to_f, 1 ].max, 50 ].min  # 1-50km制限
+    [ lat, lng, radius ]
   end
 
   # 第一段階：矩形範囲でデータベースレベル絞り込み
@@ -238,7 +238,7 @@ class Onsen < ApplicationRecord
   # @return [Array<Onsen>] 距離条件を満たす温泉配列
   def self.apply_precise_distance_filter(scope, lat, lng, radius)
     scope.select do |onsen|
-      MapService.distance_km(lat, lng, onsen.geo_lat, onsen.geo_lng) <= radius
+      DistanceCalculatorService.calculate(lat, lng, onsen.geo_lat, onsen.geo_lng) <= radius
     end
   end
 

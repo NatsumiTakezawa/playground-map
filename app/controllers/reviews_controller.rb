@@ -107,15 +107,14 @@ class ReviewsController < ApplicationController
         format.turbo_stream
 
         # HTML: 従来のページリダイレクト方式（非JavaScript環境対応）
-        format.html { redirect_to onsen_path(@onsen), notice: t('flash.review_created') }
+        format.html { redirect_to onsen_path(@onsen), notice: t("flash.review_created") }
       end
     else
       # 保存失敗時（バリデーションエラー）: エラー内容を表示
       respond_to do |format|
-        # Turbo Stream: モーダル内にエラー表示
+        # Turbo Stream: 専用エラービューでモーダル内にエラー表示
         format.turbo_stream {
-          render partial: "reviews/modal",
-                 locals: { review: @review, onsen: @onsen },
+          render template: "reviews/create_error",
                  status: :unprocessable_entity
         }
 

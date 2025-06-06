@@ -1,33 +1,170 @@
-<%# 温泉詳細ページ %>
-<div class="container mx-auto px-4 py-6">
-  <h1 class="text-2xl font-bold mb-2"><%= @onsen.name %></h1>
-  <div class="mb-4 text-gray-600">タグ: <%= @onsen.tags %></div>
-  <div class="mb-4">
-    <%= image_tag @onsen.images.first, class: "rounded shadow w-full max-w-md", alt: @onsen.name if @onsen.images.attached? %>
-  </div>
-  <div class="mb-6">
-    <p><%= @onsen.description %></p>
-    <p class="text-sm text-gray-500">緯度: <%= @onsen.geo_lat %> / 経度: <%= @onsen.geo_lng %></p>
-  </div>
-  <h2 class="text-xl font-semibold mb-2"><%= t('views.onsens.show.reviews') %></h2>
+<%#
+  温泉詳細ページ（Turbo Frame対応版）
+  
+  == 概要
+  温泉の詳細情報を表示し、レビューの閲覧・投稿機能を提供します。
+  Turbo FramesとTurbo Streamsを活用して、SPA風の操作性を実現しています。
+  
+  == 主要機能
+  - 温泉の基本情報表示（名前、説明、位置情報、画像）
+  - レビューの一覧表示とリアルタイム更新
+  - モーダル形式でのレビュー投稿
+  - レスポンシブデザイン対応
+  
+  == Turbo Frame構成
+  - onsen-details: 温泉基本情報（独立更新可能）
+  - onsen-rating-summary: 評価統計（レビュー投稿時に更新）
+  - reviews-section: レビュー一覧（新規投稿時に更新）
+  - modal: レビュー投稿モーダル
+  
+  @param @onsen [Onsen] 表示対象の温泉オブジェクト
+  @param @reviews [ActiveRecord::Relation] 温泉に関連するレビュー一覧
+  @param @review [Review] 新規レビュー投稿用のオブジェクト
+  @since 1.0.0
+%>
 
-  <div class="space-y-4">
-    <% @reviews.each do |review| %>
-      <div class="bg-gray-50 rounded p-3 shadow">
-        <div class="font-bold">
-          <%= render partial: "shared/rating_stars", locals: { rating: review.rating } %>
-        </div>
-        <div><%= review.comment %></div>
-        <div class="flex gap-2 mt-2">
-          <% review.images.each do |img| %>
-            <%= image_tag img.variant(resize_to_limit: [120, 120]), class: "rounded border w-20 h-20 object-cover", alt: "レビュー画像" %>
+<%# フラッシュメッセージ表示エリア %>
+<div id="flash-messages" class="container mx-auto px-4 pt-6">
+  <% flash.each do |type, message| %>
+    <%= render 'shared/alert_message', type: type.to_sym, message: message %>
+  <% end %>
+</div>
+
+<div class="container mx-auto px-4 py-6">
+  <%# 温泉基本情報セクション（Turbo Frame対応） %>
+  <%= turbo_frame_tag "onsen-details", class: "block" do %>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      <%# ヘッダー部分 %>
+      <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-6">
+        <div class="flex-1">
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">
+            <%= @onsen.name %>
+            <span id="page-title-review-count" class="text-gray-600 text-lg font-normal">
+              （<%= @onsen.reviews.count %>件のレビュー）
+            </span>
+          </h1>
+          
+          <%# 評価サマリー %>
+          <div id="onsen-rating-summary" class="mb-4">
+            <%= render partial: "onsens/rating_summary", locals: { onsen: @onsen } %>
+          </div>
+          
+          <%# タグ表示 %>
+          <% if @onsen.tags.present? %>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <% @onsen.tags.split(',').each do |tag| %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <%= tag.strip %>
+                </span>
+              <% end %>
+            </div>
           <% end %>
         </div>
-        <div class="text-xs text-gray-400"><%= l review.created_at, format: :short %></div>
+        
+        <%# アクションボタン %>
+        <div class="flex flex-col sm:flex-row gap-3 mt-4 lg:mt-0">
+          <div id="review-button-container">
+            <%= render 'shared/button', 
+                text: 'レビューを投稿', 
+                variant: :primary, 
+                path: new_onsen_review_path(@onsen),
+                icon: 'plus',
+                data: { 
+                  turbo_frame: 'modal',
+                  turbo_action: 'replace' 
+                } %>
+          </div>
+          
+          <%= render 'shared/button',
+              text: '編集',
+              variant: :outline,
+              path: edit_admin_onsen_path(@onsen),
+              icon: 'edit' %>
+        </div>
       </div>
-    <% end %>
-  </div>
-  <div class="mt-6">
-    <%= render partial: "reviews/form", locals: { review: @review, onsen: @onsen } %>
-  </div>
+      
+      <%# 画像表示 %>
+      <% if @onsen.images.attached? %>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <% @onsen.images.limit(6).each_with_index do |image, index| %>
+            <div class="relative group">
+              <%= image_tag image.variant(resize_to_limit: [400, 300]), 
+                  class: "w-full h-48 object-cover rounded-lg shadow-sm group-hover:shadow-md transition-shadow duration-200", 
+                  alt: "#{@onsen.name}の画像#{index + 1}" %>
+              <% if index == 5 && @onsen.images.count > 6 %>
+                <div class="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
+                  <span class="text-white text-lg font-semibold">
+                    +<%= @onsen.images.count - 6 %>枚
+                  </span>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+      
+      <%# 説明文 %>
+      <div class="prose max-w-none mb-6">
+        <p class="text-gray-700 leading-relaxed"><%= simple_format(@onsen.description) %></p>
+      </div>
+      
+      <%# 位置情報 %>
+      <div class="bg-gray-50 rounded-lg p-4">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">位置情報</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-600">
+          <div>
+            <span class="font-medium">緯度:</span> <%= @onsen.geo_lat %>
+          </div>
+          <div>
+            <span class="font-medium">経度:</span> <%= @onsen.geo_lng %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# レビューセクション（Turbo Frame対応） %>
+  <%= turbo_frame_tag "reviews-section", class: "block" do %>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <h2 class="text-2xl font-semibold text-gray-900 mb-6 flex items-center">
+        <svg class="w-6 h-6 mr-2 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+        </svg>
+        <%= t('views.onsens.show.reviews') %>
+      </h2>
+
+      <%# レビュー一覧 %>
+      <div id="reviews-list" class="space-y-6">
+        <% if @reviews.any? %>
+          <% @reviews.each do |review| %>
+            <%= render partial: "reviews/review", locals: { review: review } %>
+          <% end %>
+        <% else %>
+          <div class="text-center py-12 text-gray-500">
+            <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.001 8.001 0 01-7.938-7M5 20h-.5a2.5 2.5 0 010-5H5a8.001 8.001 0 017.938-7M5 20v-2a8.001 8.001 0 017.938-7H13.5a2.5 2.5 0 010 5H13a8.001 8.001 0 00-7.938 7z"/>
+            </svg>
+            <p class="text-lg">まだレビューが投稿されていません</p>
+            <p class="text-sm mt-2">最初のレビューを投稿してみませんか？</p>
+            <div class="mt-4">
+              <%= render 'shared/button',
+                  text: '最初のレビューを投稿',
+                  variant: :primary,
+                  path: new_onsen_review_path(@onsen),
+                  data: { 
+                    turbo_frame: 'modal',
+                    turbo_action: 'replace' 
+                  } %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 </div>
+
+<%# モーダル用Turbo Frame %>
+<%= turbo_frame_tag "modal", class: "fixed inset-0 z-50 hidden" %>
+
+<%# ページ固有のスタイル %>
+<div id="page-styles"></div>

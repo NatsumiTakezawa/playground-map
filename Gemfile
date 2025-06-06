@@ -23,7 +23,7 @@ gem "importmap-rails"
 # gem "bcrypt", "~> 3.1.7"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem "tzinfo-data", platforms: [:mswin, :mingw, :x64_mingw, :jruby]
+gem "tzinfo-data", platforms: [ :mswin, :mingw, :x64_mingw, :jruby ]
 
 # Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
 gem "solid_cache"
@@ -43,11 +43,11 @@ gem "thruster", require: false
 gem "image_processing", "~> 1.2"
 
 # 画像バリデーション用
-gem 'active_storage_validations'
+gem "active_storage_validations"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-  gem "debug", platforms: [:mri, :x64_mingw], require: "debug/prelude"
+  gem "debug", platforms: [ :mri, :x64_mingw ], require: "debug/prelude"
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
@@ -55,17 +55,22 @@ group :development, :test do
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
 
+  # Code quality metrics
+  gem "rubycritic", require: false
+  gem "flog", require: false
+  gem "flay", require: false
+
   # Faker（シード・テストデータ生成用）
   gem "faker"
 
-  gem 'rspec-rails'
+  gem "rspec-rails"
 end
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
   gem "foreman"
-  gem 'solargraph'
+  gem "solargraph"
 end
 
 group :test do

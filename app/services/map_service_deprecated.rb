@@ -22,9 +22,9 @@
 #   # @since 1.0.0
 #   class MapService
 
-require 'net/http'
-require 'uri'
-require 'json'
+require "net/http"
+require "uri"
+require "json"
 
 # 地図・地理情報サービス - 位置情報の計算・変換統合クラス
 #
@@ -213,13 +213,13 @@ class MapService
       json_data = JSON.parse(response.body)
 
       # レスポンス構造の検証
-      return nil unless json_data['results'] && json_data['results'][0]
+      return nil unless json_data["results"] && json_data["results"][0]
 
       # === 住所要素の組み立て ===
-      address_data = json_data['results'][0]
-      prefecture = address_data['address1']  # 都道府県
-      city = address_data['address2']        # 市区町村
-      town = address_data['address3']        # 町域
+      address_data = json_data["results"][0]
+      prefecture = address_data["address1"]  # 都道府県
+      city = address_data["address2"]        # 市区町村
+      town = address_data["address3"]        # 町域
 
       # 住所要素を結合して返却
       "#{prefecture}#{city}#{town}"
@@ -280,7 +280,7 @@ class MapService
     begin
       # === APIキーの取得 ===
       # Rails credentials（暗号化）を優先、環境変数をフォールバック
-      api_key = Rails.application.credentials.dig(:google_maps_api_key) || ENV['GOOGLE_MAPS_API_KEY']
+      api_key = Rails.application.credentials.dig(:google_maps_api_key) || ENV["GOOGLE_MAPS_API_KEY"]
 
       # APIキー未設定時は即座にnilを返す
       return nil unless api_key
@@ -301,14 +301,14 @@ class MapService
       json_data = JSON.parse(response.body)
 
       # 位置情報データの深い階層アクセス
-      location_data = json_data.dig('results', 0, 'geometry', 'location')
+      location_data = json_data.dig("results", 0, "geometry", "location")
       return nil unless location_data
 
       # === 座標データの抽出 ===
-      latitude = location_data['lat']
-      longitude = location_data['lng']
+      latitude = location_data["lat"]
+      longitude = location_data["lng"]
 
-      [latitude, longitude]
+      [ latitude, longitude ]
 
     rescue StandardError => error
       # === エラーハンドリング ===

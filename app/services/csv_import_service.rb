@@ -20,7 +20,7 @@
 #   # @since 1.0.0
 #   class CsvImportService
 
-require 'csv'
+require "csv"
 
 # CSV一括インポートサービス - 温泉データの効率的な一括登録
 #
@@ -125,10 +125,10 @@ class CsvImportService
       # - headers: true でヘッダー行を自動解析
       # - encoding: 'UTF-8' で文字エンコーディング指定
       # - foreach でメモリ効率的なストリーミング処理
-      CSV.foreach(file.path, headers: true, encoding: 'UTF-8') do |row|
+      CSV.foreach(file.path, headers: true, encoding: "UTF-8") do |row|
         # CSVの各行をハッシュとして取得（ヘッダーがキーになる）
         # to_h.slice で許可カラムのみを抽出（セキュリティ対策）
-        onsen_attributes = row.to_h.slice('name', 'geo_lat', 'geo_lng', 'description', 'tags')
+        onsen_attributes = row.to_h.slice("name", "geo_lat", "geo_lng", "description", "tags")
 
         # === Onsenモデル生成・バリデーション ===
         onsen = Onsen.new(onsen_attributes)
