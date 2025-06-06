@@ -133,109 +133,116 @@ class Onsen < ApplicationRecord
   # == クラスメソッド（検索機能）
   #
 
-  # 多条件対応の高度な温泉検索機能
+  # 多条件対応の温泉検索機能（メインエントリーポイント）
   #
-  # == 機能概要
-  # テキスト検索、タグフィルタ、位置情報検索を組み合わせた
-  # 複合検索を提供します。各条件は独立して動作し、
-  # 指定された条件の論理積（AND）で結果を絞り込みます。
+  # 各検索機能を組み合わせた複合検索を提供します。
+  # 機能別メソッドに処理を委譲し、保守性を向上させています。
   #
-  # == 検索アルゴリズム
-  # 1. 基本スコープ（全件）から開始
-  # 2. テキスト検索：名前・説明文の部分一致（大文字小文字区別なし）
-  # 3. タグ検索：カンマ区切りタグのOR条件マッチング
-  # 4. 位置検索：二段階フィルタ（粗い矩形→厳密な距離計算）
-  #
-  # == パフォーマンス最適化
-  # 位置情報検索では、先にデータベースレベルで矩形範囲に絞り込み、
-  # その後Rubyで厳密な球面距離計算を行う二段階方式を採用。
-  # 大量データでも効率的な検索を実現しています。
-  #
-  # @param params [ActionController::Parameters, Hash] 検索条件パラメータ
-  # @option params [String] :q テキスト検索クエリ（名前・説明文対象）
-  # @option params [String] :tags カンマ区切りタグリスト
-  # @option params [String, Numeric] :lat 検索基準点の緯度
-  # @option params [String, Numeric] :lng 検索基準点の経度
-  # @option params [String, Numeric] :radius_km 検索半径（km、1-50kmに制限）
-  #
+  # @param params [ActionController::Parameters, Hash] 検索条件
   # @return [ActiveRecord::Relation, Array<Onsen>] 検索結果
-  # @note 位置検索時はActiveRecord::Relationではなく配列を返す
   #
-  # @example 基本的なテキスト検索
-  #   Onsen.search(q: "玉造")
-  #   # => 名前または説明に「玉造」を含む温泉を検索
-  #
-  # @example タグ検索
-  #   Onsen.search(tags: "露天風呂,美肌")
-  #   # => 「露天風呂」または「美肌」タグを持つ温泉を検索
-  #
-  # @example 位置情報検索
-  #   Onsen.search(lat: 35.1234, lng: 132.5678, radius_km: 10)
-  #   # => 指定座標から半径10km以内の温泉を検索
-  #
-  # @example 複合検索
-  #   Onsen.search(q: "温泉", tags: "露天風呂", lat: 35.1234, lng: 132.5678, radius_km: 5)
-  #   # => すべての条件を満たす温泉を検索
-  #
-  # @see MapService.distance_km 球面距離計算の詳細
-  # @see PostgreSQL ILIKE演算子（大文字小文字を区別しない部分一致）
+  # @example Onsen.search(q: "玉造", tags: "露天風呂", lat: 35.1, lng: 132.5, radius_km: 10)
   def self.search(params)
-    # 基本スコープ（全件）から検索を開始
     scope = all
-
-    # === テキスト検索処理 ===
-    # 名前（name）と説明（description）フィールドを対象とした部分一致検索
-    if params[:q].present?
-      q = params[:q].strip  # 前後の空白文字を除去
-      # PostgreSQLのILIKE演算子を使用（大文字小文字を区別しない部分一致）
-      scope = scope.where("name ILIKE :q OR description ILIKE :q", q: "%#{q}%")
-    end
-
-    # === タグ検索処理 ===
-    # カンマ区切りの複数タグに対するOR条件検索
-    if params[:tags].present?
-      # タグ文字列を分割し、空白除去・空要素除外を実行
-      tags = params[:tags].split(",").map(&:strip).reject(&:blank?)
-
-      if tags.any?
-        # 各タグに対するILIKE条件を動的に生成
-        tag_query = tags.map { |t| "tags ILIKE ?" }.join(" OR ")
-        tag_values = tags.map { |t| "%#{t}%" }
-        scope = scope.where(tag_query, *tag_values)
-      end
-    end
-
-    # === 位置情報検索処理 ===
-    # 緯度・経度・半径がすべて指定された場合のみ実行
-    if params[:lat].present? && params[:lng].present? && params[:radius_km].present?
-      lat = params[:lat].to_f
-      lng = params[:lng].to_f
-      # 半径は1-50kmの範囲に制限（安全性とパフォーマンスのため）
-      radius = [[params[:radius_km].to_f, 1].max, 50].min
-
-      # *** 二段階検索アルゴリズム ***
-
-      # 第一段階：粗い矩形範囲でデータベースレベル絞り込み
-      # 緯度1度 ≈ 111km の近似を使用（高速化のため）
-      lat_delta = radius / 111.0
-      # 経度は緯度により変化するため、cos補正を適用
-      lng_delta = radius / (111.0 * Math.cos(lat * Math::PI / 180))
-
-      # データベースクエリで矩形範囲に絞り込み（高速）
-      scope = scope.where(
-        geo_lat: (lat - lat_delta)..(lat + lat_delta),
-        geo_lng: (lng - lng_delta)..(lng + lng_delta)
-      )
-
-      # 第二段階：Rubyで厳密な球面距離計算を実行
-      # MapServiceの球面三角法による正確な距離計算を使用
-      scope = scope.select do |onsen|
-        MapService.distance_km(lat, lng, onsen.geo_lat, onsen.geo_lng) <= radius
-      end
-    end
-
+    scope = apply_text_search(scope, params[:q])
+    scope = apply_tag_search(scope, params[:tags])
+    scope = apply_location_search(scope, params)
     scope
   end
+
+  private_class_method
+
+  # テキスト検索：名前・説明文の部分一致検索
+  #
+  # @param scope [ActiveRecord::Relation] 検索対象スコープ
+  # @param query [String, nil] 検索クエリ
+  # @return [ActiveRecord::Relation] 絞り込み後のスコープ
+  def self.apply_text_search(scope, query)
+    return scope unless query.present?
+
+    q = query.strip
+    scope.where("name ILIKE :q OR description ILIKE :q", q: "%#{q}%")
+  end
+
+  # タグ検索：カンマ区切りタグのOR条件検索
+  #
+  # @param scope [ActiveRecord::Relation] 検索対象スコープ
+  # @param tags_param [String, nil] カンマ区切りタグ文字列
+  # @return [ActiveRecord::Relation] 絞り込み後のスコープ
+  def self.apply_tag_search(scope, tags_param)
+    return scope unless tags_param.present?
+
+    tags = tags_param.split(",").map(&:strip).reject(&:blank?)
+    return scope unless tags.any?
+
+    tag_query = tags.map { |_t| "tags ILIKE ?" }.join(" OR ")
+    tag_values = tags.map { |t| "%#{t}%" }
+    scope.where(tag_query, *tag_values)
+  end
+
+  # 位置情報検索：二段階フィルタによる距離絞り込み
+  #
+  # @param scope [ActiveRecord::Relation] 検索対象スコープ
+  # @param params [Hash] 位置パラメータ（lat, lng, radius_km）
+  # @return [ActiveRecord::Relation, Array<Onsen>] 絞り込み後の結果
+  def self.apply_location_search(scope, params)
+    return scope unless location_search_valid?(params)
+
+    lat, lng, radius = extract_location_params(params)
+    scope = apply_rectangular_filter(scope, lat, lng, radius)
+    apply_precise_distance_filter(scope, lat, lng, radius)
+  end
+
+  # 位置検索パラメータの有効性チェック
+  #
+  # @param params [Hash] パラメータハッシュ
+  # @return [Boolean] 有効な位置パラメータが揃っているか
+  def self.location_search_valid?(params)
+    params[:lat].present? && params[:lng].present? && params[:radius_km].present?
+  end
+
+  # 位置検索パラメータの抽出・正規化
+  #
+  # @param params [Hash] パラメータハッシュ
+  # @return [Array<Float>] [緯度, 経度, 半径] の配列
+  def self.extract_location_params(params)
+    lat = params[:lat].to_f
+    lng = params[:lng].to_f
+    radius = [[params[:radius_km].to_f, 1].max, 50].min  # 1-50km制限
+    [lat, lng, radius]
+  end
+
+  # 第一段階：矩形範囲でデータベースレベル絞り込み
+  #
+  # @param scope [ActiveRecord::Relation] 検索対象スコープ
+  # @param lat [Float] 基準緯度
+  # @param lng [Float] 基準経度
+  # @param radius [Float] 検索半径（km）
+  # @return [ActiveRecord::Relation] 矩形範囲で絞り込み後のスコープ
+  def self.apply_rectangular_filter(scope, lat, lng, radius)
+    lat_delta = radius / 111.0  # 緯度1度≈111km
+    lng_delta = radius / (111.0 * Math.cos(lat * Math::PI / 180))  # 経度補正
+
+    scope.where(
+      geo_lat: (lat - lat_delta)..(lat + lat_delta),
+      geo_lng: (lng - lng_delta)..(lng + lng_delta)
+    )
+  end
+
+  # 第二段階：厳密な球面距離計算による最終絞り込み
+  #
+  # @param scope [ActiveRecord::Relation] 矩形で絞り込み済みスコープ
+  # @param lat [Float] 基準緯度
+  # @param lng [Float] 基準経度
+  # @param radius [Float] 検索半径（km）
+  # @return [Array<Onsen>] 距離条件を満たす温泉配列
+  def self.apply_precise_distance_filter(scope, lat, lng, radius)
+    scope.select do |onsen|
+      MapService.distance_km(lat, lng, onsen.geo_lat, onsen.geo_lng) <= radius
+    end
+  end
+
+  public
 
   #
   # == インスタンスメソッド（計算機能）

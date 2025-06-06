@@ -3,6 +3,7 @@ Rails.application.routes.draw do
     resources :reviews, only: [:create, :new]
   end
   namespace :admin do
+    root "onsens#index"
     resources :onsens
     resources :csv_imports, only: [:new, :create]
   end

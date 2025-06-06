@@ -235,6 +235,7 @@ GID=1000  # `id -g` で確認
 | Gem 追加後のインストール | `docker compose run --rm web bundle install`                      |
 | テスト実行               | `docker compose run --rm web bundle exec rspec`                   |
 | 静的解析（RuboCop）      | `docker compose run --rm web bundle exec rubocop`                 |
+| Tailwind CSS 監視モード  | `docker compose run --rm web bin/rails tailwindcss:watch`         |
 
 ### 生成系コマンド
 
@@ -318,6 +319,13 @@ GID=1000  # `id -g` で確認
 - 新しい JavaScript（Stimulus コントローラー）を追加した場合は、必ずアセットプリコンパイルを実行
 - `app/javascript/controllers/index.js`に新しいコントローラーが正しく登録されているか確認
 - JavaScript 機能が動作しない場合は、ブラウザのデベロッパーツールでコンソールエラーを確認
+- **Tailwind CSS の開発時は以下の監視コマンドを利用すると便利です:**
+
+  ```bash
+  docker compose run --rm web bin/rails tailwindcss:watch
+  ```
+
+  このコマンドを実行すると、Tailwind CSS の変更がリアルタイムで反映されます。
 
 ### 郵便番号・住所機能について
 

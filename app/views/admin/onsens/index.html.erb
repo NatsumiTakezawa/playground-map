@@ -9,14 +9,9 @@
   <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
     <h1 class="font-bold text-3xl text-gray-800"><%= t('admin.onsens.index.title', default: '温泉一覧') %></h1>
     <%= link_to t('admin.onsens.index.new', default: '新規温泉登録'), new_admin_onsen_path, class: "rounded-md px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow w-full md:w-auto text-center" %>
-  </div>
 
-  <!-- CSVインポートフォーム -->
-  <div class="mb-8 w-full overflow-x-auto">
-    <%= form_with url: import_admin_onsens_path, method: :post, local: true, html: { multipart: true, class: "flex flex-col sm:flex-row gap-2 items-center w-full" } do |f| %>
-      <%= f.file_field :file, accept: '.csv', class: "block border rounded px-2 py-1 w-full sm:w-auto" %>
-      <%= f.submit t('admin.onsens.index.import', default: 'CSVインポート'), class: "rounded-md px-4 py-2 bg-green-600 hover:bg-green-500 text-white font-semibold w-full sm:w-auto" %>
-    <% end %>
+  <!-- CSVインポートリンク -->
+  <%= link_to t('admin.onsens.index.import', default: 'CSVインポート'), new_admin_csv_import_path, class: "rounded-md px-4 py-2 bg-green-600 hover:bg-green-500 text-white font-semibold shadow w-full md:w-auto text-center" %>
   </div>
 
   <div id="admin_onsens" class="divide-y divide-gray-200 w-full overflow-x-auto">
