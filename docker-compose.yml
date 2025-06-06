@@ -23,6 +23,8 @@ services:
     user: "${UID}:${GID}"
     command: bundle exec puma -C config/puma.rb
     environment:
+      - UID=${UID:-1000}
+      - GID=${GID:-1001}
       - BUNDLE_FROZEN=false # 開発時はGemfileの変更を許可
     volumes:
       - .:/app:cached # ソースコードをマウント（高速化）
@@ -30,6 +32,7 @@ services:
       - bundle_cache:/usr/local/bundle # Gemキャッシュを永続化
     ports:
       - "3000:3000" # ホスト:コンテナ のポートマッピング
+    env_file: .env # 環境変数ファイルを読み込み
     depends_on:
       - db
       - redis
@@ -44,11 +47,14 @@ services:
     user: "${UID}:${GID}"
     command: bundle exec sidekiq
     environment:
+      - UID=${UID:-1000}
+      - GID=${GID:-1001}
       - BUNDLE_FROZEN=false
     volumes:
       - .:/app:cached
       - .bundle:/app/.bundle
       - bundle_cache:/usr/local/bundle
+    env_file: .env
     depends_on:
       - db
       - redis
