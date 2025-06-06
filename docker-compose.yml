@@ -23,8 +23,6 @@ services:
     user: "${UID}:${GID}"
     command: bundle exec puma -C config/puma.rb
     environment:
-      - UID=${UID:-1000}
-      - GID=${GID:-1001}
       - BUNDLE_FROZEN=false # 開発時はGemfileの変更を許可
     volumes:
       - .:/app:cached # ソースコードをマウント（高速化）
@@ -47,8 +45,6 @@ services:
     user: "${UID}:${GID}"
     command: bundle exec sidekiq
     environment:
-      - UID=${UID:-1000}
-      - GID=${GID:-1001}
       - BUNDLE_FROZEN=false
     volumes:
       - .:/app:cached
