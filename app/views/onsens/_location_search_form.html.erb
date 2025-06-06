@@ -1,0 +1,95 @@
+<%# 位置情報検索用パーシャル %>
+<%# 郵便番号検索、住所入力、緯度経度直接入力、現在地取得機能を統合 %>
+
+<fieldset class="border rounded-lg p-4" data-controller="zipcode">
+  <legend class="px-2 text-sm font-bold text-gray-700">位置情報検索</legend>
+
+  <%# 郵便番号から住所自動入力 %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <div>
+      <label for="zipcode" class="block text-sm font-bold mb-1">
+        <%= t('views.onsens.index.zipcode') %>
+      </label>
+      <div class="flex gap-2">
+        <input type="text"
+               id="zipcode"
+               name="zipcode"
+               value="<%= params[:zipcode] %>"
+               class="flex-1 border rounded px-3 py-2"
+               placeholder="例: 6900874"
+               maxlength="8"
+               aria-label="<%= t('views.onsens.index.zipcode') %>"
+               data-zipcode-target="zipcode" />
+        <button type="button"
+                class="px-3 py-2 bg-gray-200 rounded hover:bg-blue-100 text-sm whitespace-nowrap focus:ring-2 focus:ring-blue-500"
+                aria-label="郵便番号から住所検索"
+                data-action="click->zipcode#search">
+          <%= t('views.onsens.index.zipcode_search') %>
+        </button>
+      </div>
+      <p class="text-xs text-gray-600 mt-1">ハイフンなしで入力してください</p>
+    </div>
+
+    <%# 住所入力・ジオコーディング %>
+    <div>
+      <label for="address" class="block text-sm font-bold mb-1">
+        <%= t('views.onsens.index.address', default: '住所') %>
+      </label>
+      <div class="flex gap-2">
+        <input type="text"
+               id="address"
+               name="address"
+               value="<%= params[:address] %>"
+               class="flex-1 border rounded px-3 py-2"
+               placeholder="例: 松江市朝日町"
+               aria-label="<%= t('views.onsens.index.address', default: '住所') %>"
+               data-zipcode-target="address" />
+        <button type="button"
+                class="px-3 py-2 bg-gray-200 rounded hover:bg-blue-100 text-sm whitespace-nowrap focus:ring-2 focus:ring-blue-500"
+                aria-label="<%= t('views.onsens.index.geocode_btn', default: '住所から緯度経度を取得') %>">
+          <%= t('views.onsens.index.geocode_btn', default: '住所→座標') %>
+        </button>
+      </div>
+      <p class="text-xs text-gray-600 mt-1">住所から自動的に座標を取得</p>
+    </div>
+  </div>
+
+  <%# 緯度経度・半径の直接入力 %>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div>
+      <%= f.label :lat, t('activerecord.attributes.onsen.geo_lat'),
+                   class: "block text-sm font-bold mb-1" %>
+      <%= f.number_field :lat,
+                          value: params[:lat],
+                          step: "any",
+                          class: "w-full border rounded px-3 py-2",
+                          placeholder: "例: 35.472",
+                          'aria-label': t('activerecord.attributes.onsen.geo_lat') %>
+      <p class="text-xs text-gray-600 mt-1">北緯（度）</p>
+    </div>
+
+    <div>
+      <%= f.label :lng, t('activerecord.attributes.onsen.geo_lng'),
+                   class: "block text-sm font-bold mb-1" %>
+      <%= f.number_field :lng,
+                          value: params[:lng],
+                          step: "any",
+                          class: "w-full border rounded px-3 py-2",
+                          placeholder: "例: 133.050",
+                          'aria-label': t('activerecord.attributes.onsen.geo_lng') %>
+      <p class="text-xs text-gray-600 mt-1">東経（度）</p>
+    </div>
+
+    <div>
+      <%= f.label :radius_km, t('views.onsens.index.radius_km', default: '半径(km)'),
+                   class: "block text-sm font-bold mb-1" %>
+      <%= f.number_field :radius_km,
+                          value: params[:radius_km] || 5,
+                          min: 1,
+                          max: 50,
+                          class: "w-full border rounded px-3 py-2",
+                          'aria-label': t('views.onsens.index.radius_km', default: '半径(km)') %>
+      <p class="text-xs text-gray-600 mt-1">1〜50km</p>
+    </div>
+  </div>
+</fieldset>

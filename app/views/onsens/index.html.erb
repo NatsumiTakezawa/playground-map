@@ -1,59 +1,44 @@
-<%# 温泉一覧ページ %>
+<%# 温泉一覧ページ - メインエントリーポイント %>
+<%# 検索フォーム + 地図表示 + 温泉一覧の統合レイアウト %>
+
 <div class="container mx-auto px-4 py-6">
-  <h1 class="text-2xl font-bold mb-4"><%= t('views.onsens.index.title') %></h1>
-  <div class="mb-6">
-    <%= form_with url: onsens_path, method: :get, local: true, class: "flex flex-wrap gap-2 items-end", role: "search", 'aria-label': "温泉検索フォーム" do |f| %>
-      <div>
-        <%= f.label :q, t('activerecord.attributes.onsen.name'), class: "block text-sm font-bold" %>
-        <%= f.text_field :q, value: params[:q], class: "border rounded px-2 py-1 w-40", 'aria-label': t('views.onsens.index.search') %>
-      </div>
-      <div>
-        <%= f.label :tags, t('activerecord.attributes.onsen.tags') + t('views.onsens.index.tags_hint'), class: "block text-sm font-bold" %>
-        <%= f.text_field :tags, value: params[:tags], class: "border rounded px-2 py-1 w-40", 'aria-label': t('activerecord.attributes.onsen.tags') %>
-      </div>
-      <div>
-        <%= f.label :lat, t('activerecord.attributes.onsen.geo_lat'), class: "block text-sm font-bold" %>
-        <%= f.text_field :lat, value: params[:lat], class: "border rounded px-2 py-1 w-28", placeholder: "例: 35.472", 'aria-label': t('activerecord.attributes.onsen.geo_lat') %>
-      </div>
-      <div>
-        <%= f.label :lng, t('activerecord.attributes.onsen.geo_lng'), class: "block text-sm font-bold" %>
-        <%= f.text_field :lng, value: params[:lng], class: "border rounded px-2 py-1 w-28", placeholder: "例: 133.050", 'aria-label': t('activerecord.attributes.onsen.geo_lng') %>
-      </div>
-      <div>
-        <%= f.label :radius_km, t('views.onsens.index.radius_km', default: '半径(km)'), class: "block text-sm font-bold" %>
-        <%= f.number_field :radius_km, value: params[:radius_km] || 5, min: 1, max: 50, class: "border rounded px-2 py-1 w-20", 'aria-label': t('views.onsens.index.radius_km', default: '半径(km)') %>
-      </div>
-      <div data-controller="zipcode">
-        <div>
-          <label for="zipcode" class="block text-sm font-bold"><%= t('views.onsens.index.zipcode') %></label>
-          <input type="text" id="zipcode" name="zipcode" value="<%= params[:zipcode] %>" class="border rounded px-2 py-1 w-32" placeholder="例: 6900874" aria-label="<%= t('views.onsens.index.zipcode') %>" data-zipcode-target="zipcode" />
-          <button type="button" class="ml-2 px-3 py-1 bg-gray-200 rounded hover:bg-blue-100 text-sm" id="zipcode-search-btn" aria-label="郵便番号から住所検索" data-action="click->zipcode#search"><%= t('views.onsens.index.zipcode_search') %></button>
-        </div>
-        <div>
-          <label for="address" class="block text-sm font-bold"><%= t('views.onsens.index.address', default: '住所') %></label>
-          <input type="text" id="address" name="address" value="<%= params[:address] %>" class="border rounded px-2 py-1 w-64" placeholder="例: 松江市朝日町" aria-label="<%= t('views.onsens.index.address', default: '住所') %>" data-zipcode-target="address" />
-          <button type="button" class="ml-2 px-3 py-1 bg-gray-200 rounded hover:bg-blue-100 text-sm" id="geocode-btn" aria-label="<%= t('views.onsens.index.geocode_btn', default: '住所から緯度経度を取得') %>"><%= t('views.onsens.index.geocode_btn', default: '住所から緯度経度') %></button>
-        </div>
-      </div>
-      <div>
-        <%= f.submit t('views.onsens.index.search'), class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700", 'aria-label': t('views.onsens.index.search') %>
-      </div>
-    <% end %>
-  </div>
+  <%# ページタイトル %>
+  <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">
+    <%= t('views.onsens.index.title') %>
+  </h1>
+
+  <%# 検索フォーム（パーシャル分割） %>
+  <%= render 'search_form' %>
+
+  <%# メインコンテンツ：地図 + 温泉一覧 %>
   <div class="grid lg:grid-cols-2 gap-6 min-h-[600px]">
-    <!-- 地図エリア -->
+    <%# 地図エリア（左側・デスクトップ時） %>
     <div class="order-2 lg:order-1">
-      <div class="relative h-96 lg:h-[600px] rounded overflow-hidden shadow">
+      <div class="relative h-96 lg:h-[600px] rounded-lg overflow-hidden shadow-lg">
         <%= render partial: "map" %>
-        <button type="button" class="absolute top-2 right-2 bg-white border rounded px-3 py-1 text-sm shadow hover:bg-blue-100 z-10" data-action="click->map#locate"><%= t('views.onsens.index.current_location') %></button>
+        <button type="button"
+                class="absolute top-3 right-3 bg-white border rounded-lg px-4 py-2 text-sm shadow-lg hover:bg-blue-50 z-10 focus:ring-2 focus:ring-blue-500"
+                data-action="click->map#locate">
+          📍 <%= t('views.onsens.index.current_location') %>
+        </button>
       </div>
     </div>
 
-    <!-- 温泉一覧エリア -->
+    <%# 温泉一覧エリア（右側・デスクトップ時） %>
     <div class="order-1 lg:order-2">
       <div class="space-y-4 lg:max-h-[600px] lg:overflow-y-auto lg:pr-2">
-        <% @onsens.each do |onsen| %>
-        <%= render partial: "spot_card", locals: { onsen: onsen } %>
+        <% if @onsens.any? %>
+          <p class="text-sm text-gray-600 mb-4">
+            検索結果: <%= @onsens.count %>件の温泉が見つかりました
+          </p>
+          <% @onsens.each do |onsen| %>
+            <%= render partial: "spot_card", locals: { onsen: onsen } %>
+          <% end %>
+        <% else %>
+          <div class="text-center py-8 text-gray-500">
+            <p class="text-lg mb-2">🔍 温泉が見つかりませんでした</p>
+            <p class="text-sm">検索条件を変更してお試しください</p>
+          </div>
         <% end %>
       </div>
     </div>
