@@ -1,0 +1,43 @@
+<%# filepath: app/views/reviews/_image_upload_field.html.erb %>
+<%#
+@param form [ActionView::Helpers::FormBuilder] フォームビルダー
+@param review [Review] レビューオブジェクト
+@param field_id [String] フィールドのユニークID（デフォルト: "review_images"）
+@param show_error [Boolean] エラー表示フラグ（デフォルト: false）
+%>
+<%
+  field_id ||= "review_images"
+  show_error ||= false
+  wrapper_class = show_error && review.errors[:images].any? ? 'error-field' : ''
+%>
+
+<div class="<%= wrapper_class %>" data-controller="file-input">
+  <%= render 'shared/form_field',
+      field_type: :custom,
+      label: '画像（最大3枚）',
+      required: false,
+      error: review.errors[:images]&.first,
+      help_text: 'JPEG, PNG形式、1枚あたり3MB以下' do %>
+    <div class="flex items-center gap-2">
+      <%= form.file_field :images,
+          multiple: true,
+          accept: "image/jpeg,image/png,image/gif",
+          class: "hidden",
+          id: field_id,
+          'data-file-input-target': "input",
+          'data-action': "change->file-input#preview" %>
+      <%= render 'shared/button',
+          text: '画像を選択',
+          variant: :outline,
+          size: :sm,
+          icon: 'camera',
+          onclick: "document.getElementById('#{field_id}').click()" %>
+      <span data-file-input-target="counter" class="text-sm text-gray-600">
+        0枚選択中
+      </span>
+    </div>
+
+    <%# 画像プレビューエリア %>
+    <div data-file-input-target="preview" class="mt-2 flex flex-wrap gap-2"></div>
+  <% end %>
+</div>

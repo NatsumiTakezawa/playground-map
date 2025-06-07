@@ -1,16 +1,31 @@
 <%#
   統一ボタンコンポーネント
-  
+
   == 概要
   アプリケーション全体で一貫したボタンUIを提供するパーシャルです。
   プライマリ、セカンダリ、危険、無効化などの状態に対応し、
   アクセシビリティと学習効率を重視した実装を提供します。
-  
+
   == 使用方法
-  <%= render 'shared/button', text: '保存', type: :submit, variant: :primary %>
+  <%= render 'shared/    <%# ローディングアイコン %>
+    <% if loading %>
+      <svg class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    <% end %>
+
+    <%# 左側アイコン %>
+    <%= render_button_icon(icon_svg_path, :left, loading: loading) if icon.present? && icon_position == :left %>
+
+    <%# ボタンテキスト %>
+    <span><%= text %></span>
+
+    <%# 右側アイコン %>
+    <%= render_button_icon(icon_svg_path, :right, loading: loading) if icon.present? && icon_position == :right %> type: :submit, variant: :primary %>
   <%= render 'shared/button', text: 'キャンセル', variant: :secondary, path: root_path %>
   <%= render 'shared/button', text: '削除', variant: :danger, confirm: '本当に削除しますか？' %>
-  
+
   == パラメータ
   - text: ボタンテキスト（必須）
   - variant: ボタンの種類 (:primary, :secondary, :danger, :outline, :ghost)
@@ -28,13 +43,13 @@
   - class: 追加CSSクラス
   - data: data属性のハッシュ
   - aria_label: アクセシビリティ用ラベル
-  
+
   == アクセシビリティ
   - aria-label, aria-describedby による適切な説明
   - disabled状態での適切なマークアップ
   - キーボード操作対応
   - loading状態でのaria-busy
-  
+
   @param text [String] ボタンテキスト
   @param variant [Symbol] ボタンの種類
   @param type [Symbol] ボタンタイプ
@@ -51,7 +66,7 @@
   @param class [String] 追加CSSクラス
   @param data [Hash] data属性
   @param aria_label [String] アクセシビリティラベル
-  
+
   @since 1.0.0
 %>
 
@@ -73,7 +88,7 @@
   additional_class ||= ''
   data ||= {}
   aria_label ||= nil
-  
+
   # == バリアント別のスタイル定義 ==
   variant_classes = case variant.to_s
   when 'primary'
@@ -89,7 +104,7 @@
   else
     'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 text-white border-transparent'
   end
-  
+
   # == サイズ別のスタイル定義 ==
   size_classes = case size.to_s
   when 'sm'
@@ -103,17 +118,17 @@
   else
     'px-4 py-2 text-sm'
   end
-  
+
   # == 無効化・ローディング状態のスタイル ==
   state_classes = if disabled || loading
     'opacity-50 cursor-not-allowed'
   else
     'cursor-pointer'
   end
-  
+
   # == 基本スタイルクラス ==
   base_classes = 'inline-flex items-center justify-center border rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200'
-  
+
   # == 最終的なCSSクラス ==
   final_classes = [
     base_classes,
@@ -122,19 +137,19 @@
     state_classes,
     additional_class
   ].compact.join(' ')
-  
+
   # == data属性の設定 ==
   final_data = data.dup
   final_data[:confirm] = confirm if confirm.present?
   final_data[:turbo] = turbo unless turbo == true
   final_data[:method] = method if method != :get && path.present?
-  
+
   # == アクセシビリティ属性 ==
   accessibility_attrs = {}
   accessibility_attrs['aria-label'] = aria_label if aria_label.present?
   accessibility_attrs['aria-busy'] = 'true' if loading
   accessibility_attrs['aria-disabled'] = 'true' if disabled
-  
+
   # == アイコンSVG定義（よく使用されるもの） ==
   icon_svgs = {
     'plus' => 'M12 4v16m8-8H4',
@@ -147,14 +162,14 @@
     'download' => 'M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10',
     'upload' => 'M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12'
   }
-  
+
   icon_svg_path = icon_svgs[icon] || icon
 %>
 
 <%# ボタン本体のレンダリング %>
 <% if path.present? %>
   <%# リンクとしてレンダリング %>
-  <%= link_to path, 
+  <%= link_to path,
         class: final_classes,
         data: final_data,
         target: target,
@@ -166,28 +181,20 @@
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
     <% end %>
-    
+
     <%# 左側アイコン %>
-    <% if icon.present? && icon_position == :left && !loading %>
-      <svg class="-ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="<%= icon_svg_path %>" />
-      </svg>
-    <% end %>
-    
+    <%= render_button_icon(icon_svg_path, :left, loading: loading) if icon.present? && icon_position == :left %>
+
     <%# ボタンテキスト %>
     <span><%= text %></span>
-    
+
     <%# 右側アイコン %>
-    <% if icon.present? && icon_position == :right && !loading %>
-      <svg class="ml-2 -mr-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="<%= icon_svg_path %>" />
-      </svg>
-    <% end %>
+    <%= render_button_icon(icon_svg_path, :right, loading: loading) if icon.present? && icon_position == :right %>
   <% end %>
-  
+
 <% else %>
   <%# ボタンとしてレンダリング %>
-  <button type="<%= type %>" 
+  <button type="<%= type %>"
           class="<%= final_classes %>"
           <% if final_data.any? %>
             <% final_data.each do |key, value| %>
@@ -200,7 +207,7 @@
               <%= key %>="<%= value %>"
             <% end %>
           <% end %>>
-    
+
     <%# ローディングアイコン %>
     <% if loading %>
       <svg class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -208,22 +215,14 @@
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
     <% end %>
-    
+
     <%# 左側アイコン %>
-    <% if icon.present? && icon_position == :left && !loading %>
-      <svg class="-ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="<%= icon_svg_path %>" />
-      </svg>
-    <% end %>
-    
+    <%= render_button_icon(icon_svg_path, :left, loading: loading) if icon.present? && icon_position == :left %>
+
     <%# ボタンテキスト %>
     <span><%= text %></span>
-    
+
     <%# 右側アイコン %>
-    <% if icon.present? && icon_position == :right && !loading %>
-      <svg class="ml-2 -mr-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="<%= icon_svg_path %>" />
-      </svg>
-    <% end %>
+    <%= render_button_icon(icon_svg_path, :right, loading: loading) if icon.present? && icon_position == :right %>
   </button>
 <% end %>

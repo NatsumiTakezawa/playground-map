@@ -1,21 +1,21 @@
 <%#
   統一フォームフィールドコンポーネント
-  
+
   == 概要
   アプリケーション全体で一貫したフォームフィールドUIを提供するパーシャルです。
   ラベル、入力フィールド、エラーメッセージ、ヘルプテキストを統一的にレンダリングし、
   アクセシビリティに配慮した学習しやすい実装を提供します。
-  
+
   == 使用方法
-  <%= render 'shared/form_field', 
-        form: f, 
-        field: :name, 
+  <%= render 'shared/form_field',
+        form: f,
+        field: :name,
         type: :text,
         label: '温泉名',
         placeholder: '例: 玉造温泉',
         help_text: '正式名称を入力してください',
         required: true %>
-  
+
   == パラメータ
   - form: フォームビルダーオブジェクト
   - field: フィールド名（シンボル）
@@ -31,13 +31,13 @@
   - accept: ファイルタイプ制限（fileタイプの場合）
   - wrapper_class: ラッパーdivの追加CSSクラス（オプション）
   - input_class: 入力要素の追加CSSクラス（オプション）
-  
+
   == アクセシビリティ
   - aria-describedby によるヘルプテキストとエラーメッセージの関連付け
   - required属性とaria-required
   - 適切なラベル関連付け
   - エラー時のaria-invalid
-  
+
   @param form [ActionView::Helpers::FormBuilder] フォームビルダー
   @param field [Symbol] フィールド名
   @param type [Symbol] 入力タイプ
@@ -52,7 +52,7 @@
   @param accept [String] ファイルタイプ制限
   @param wrapper_class [String] ラッパーの追加CSSクラス
   @param input_class [String] 入力要素の追加CSSクラス
-  
+
   @see ApplicationHelper#form_field_errors エラーメッセージ表示ヘルパー
   @since 1.0.0
 %>
@@ -71,24 +71,24 @@
   accept ||= nil
   wrapper_class ||= ''
   input_class ||= ''
-  
+
   # == フィールドの状態とエラー情報を取得 ==
   object = form.object
   field_errors = object.errors[field] if object&.errors&.[](field)&.any?
   has_errors = field_errors&.any?
   field_value = object&.send(field)
-  
+
   # == 一意なID生成（複数フォームでの重複を避ける） ==
   field_id = "#{object&.class&.name&.underscore}_#{field}_#{SecureRandom.hex(4)}"
   help_text_id = "#{field_id}_help" if help_text.present?
   error_id = "#{field_id}_error" if has_errors
-  
+
   # == aria-describedby 属性の設定 ==
   describedby_ids = []
   describedby_ids << help_text_id if help_text.present?
   describedby_ids << error_id if has_errors
   describedby = describedby_ids.any? ? describedby_ids.join(' ') : nil
-  
+
   # == CSSクラスの設定 ==
   base_input_classes = case type
   when :textarea
@@ -100,18 +100,18 @@
   else
     'block w-full px-3 py-2 border rounded-md shadow-sm text-sm'
   end
-  
+
   # エラー状態に応じたスタイリング
   if has_errors
     state_classes = 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
   else
     state_classes = 'border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500'
   end
-  
+
   # 無効化・読み取り専用状態のスタイリング
   disabled_classes = disabled ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : ''
   readonly_classes = readonly ? 'bg-gray-50' : ''
-  
+
   # 最終的な入力要素のCSSクラス
   final_input_classes = [
     base_input_classes,
@@ -130,9 +130,17 @@
       <span class="text-red-500 ml-1" aria-label="必須">*</span>
     <% end %>
   <% end %>
-  
+
   <%# 入力フィールド表示 %>
   <div class="relative">
+    <%
+      # 共通のaria属性を定義
+      common_aria_attrs = {
+        'aria-describedby': describedby,
+        'aria-invalid': has_errors ? 'true' : 'false',
+        'aria-required': required ? 'true' : 'false'
+      }
+    %>
     <% case type %>
     <% when :textarea %>
       <%= form.text_area field,
@@ -142,11 +150,9 @@
             required: required,
             disabled: disabled,
             readonly: readonly,
-            'aria-describedby': describedby,
-            'aria-invalid': has_errors ? 'true' : 'false',
-            'aria-required': required ? 'true' : 'false',
-            rows: 4 %>
-      
+            rows: 4,
+            **common_aria_attrs %>
+
     <% when :select %>
       <%= form.select field, options_for_select(options, field_value),
             { prompt: placeholder },
@@ -156,11 +162,9 @@
               required: required,
               disabled: disabled,
               multiple: multiple,
-              'aria-describedby': describedby,
-              'aria-invalid': has_errors ? 'true' : 'false',
-              'aria-required': required ? 'true' : 'false'
+              **common_aria_attrs
             } %>
-      
+
     <% when :file %>
       <%= form.file_field field,
             id: field_id,
@@ -169,13 +173,11 @@
             disabled: disabled,
             multiple: multiple,
             accept: accept,
-            'aria-describedby': describedby,
-            'aria-invalid': has_errors ? 'true' : 'false',
-            'aria-required': required ? 'true' : 'false' %>
-      
+            **common_aria_attrs %>
+
     <% when :hidden %>
       <%= form.hidden_field field, id: field_id %>
-      
+
     <% else %>
       <%# text, email, password, number, etc. %>
       <%= form.send("#{type}_field", field,
@@ -185,11 +187,9 @@
             required: required,
             disabled: disabled,
             readonly: readonly,
-            'aria-describedby': describedby,
-            'aria-invalid': has_errors ? 'true' : 'false',
-            'aria-required': required ? 'true' : 'false') %>
+            **common_aria_attrs) %>
     <% end %>
-    
+
     <%# エラーアイコン表示（エラーがある場合） %>
     <% if has_errors %>
       <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -199,14 +199,14 @@
       </div>
     <% end %>
   </div>
-  
+
   <%# ヘルプテキスト表示 %>
   <% if help_text.present? %>
     <p id="<%= help_text_id %>" class="mt-1 text-sm text-gray-500">
       <%= help_text %>
     </p>
   <% end %>
-  
+
   <%# エラーメッセージ表示 %>
   <% if has_errors %>
     <div id="<%= error_id %>" class="mt-1">

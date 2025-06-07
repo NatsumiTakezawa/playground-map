@@ -1,22 +1,22 @@
 <%#
   温泉詳細ページ（Turbo Frame対応版）
-  
+
   == 概要
   温泉の詳細情報を表示し、レビューの閲覧・投稿機能を提供します。
   Turbo FramesとTurbo Streamsを活用して、SPA風の操作性を実現しています。
-  
+
   == 主要機能
   - 温泉の基本情報表示（名前、説明、位置情報、画像）
   - レビューの一覧表示とリアルタイム更新
   - モーダル形式でのレビュー投稿
   - レスポンシブデザイン対応
-  
+
   == Turbo Frame構成
   - onsen-details: 温泉基本情報（独立更新可能）
   - onsen-rating-summary: 評価統計（レビュー投稿時に更新）
   - reviews-section: レビュー一覧（新規投稿時に更新）
   - modal: レビュー投稿モーダル
-  
+
   @param @onsen [Onsen] 表示対象の温泉オブジェクト
   @param @reviews [ActiveRecord::Relation] 温泉に関連するレビュー一覧
   @param @review [Review] 新規レビュー投稿用のオブジェクト
@@ -43,12 +43,12 @@
               （<%= @onsen.reviews.count %>件のレビュー）
             </span>
           </h1>
-          
+
           <%# 評価サマリー %>
           <div id="onsen-rating-summary" class="mb-4">
             <%= render partial: "onsens/rating_summary", locals: { onsen: @onsen } %>
           </div>
-          
+
           <%# タグ表示 %>
           <% if @onsen.tags.present? %>
             <div class="flex flex-wrap gap-2 mb-4">
@@ -60,21 +60,21 @@
             </div>
           <% end %>
         </div>
-        
+
         <%# アクションボタン %>
         <div class="flex flex-col sm:flex-row gap-3 mt-4 lg:mt-0">
           <div id="review-button-container">
-            <%= render 'shared/button', 
-                text: 'レビューを投稿', 
-                variant: :primary, 
+            <%= render 'shared/button',
+                text: 'レビューを投稿',
+                variant: :primary,
                 path: new_onsen_review_path(@onsen),
                 icon: 'plus',
-                data: { 
+                data: {
                   turbo_frame: 'modal',
-                  turbo_action: 'replace' 
+                  turbo_action: 'replace'
                 } %>
           </div>
-          
+
           <%= render 'shared/button',
               text: '編集',
               variant: :outline,
@@ -82,14 +82,14 @@
               icon: 'edit' %>
         </div>
       </div>
-      
+
       <%# 画像表示 %>
       <% if @onsen.images.attached? %>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           <% @onsen.images.limit(6).each_with_index do |image, index| %>
             <div class="relative group">
-              <%= image_tag image.variant(resize_to_limit: [400, 300]), 
-                  class: "w-full h-48 object-cover rounded-lg shadow-sm group-hover:shadow-md transition-shadow duration-200", 
+              <%= image_tag image.variant(resize_to_limit: [400, 300]),
+                  class: "w-full h-48 object-cover rounded-lg shadow-sm group-hover:shadow-md transition-shadow duration-200",
                   alt: "#{@onsen.name}の画像#{index + 1}" %>
               <% if index == 5 && @onsen.images.count > 6 %>
                 <div class="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
@@ -102,12 +102,12 @@
           <% end %>
         </div>
       <% end %>
-      
+
       <%# 説明文 %>
       <div class="prose max-w-none mb-6">
         <p class="text-gray-700 leading-relaxed"><%= simple_format(@onsen.description) %></p>
       </div>
-      
+
       <%# 位置情報 %>
       <div class="bg-gray-50 rounded-lg p-4">
         <h3 class="text-lg font-semibold text-gray-900 mb-2">位置情報</h3>
@@ -151,9 +151,9 @@
                   text: '最初のレビューを投稿',
                   variant: :primary,
                   path: new_onsen_review_path(@onsen),
-                  data: { 
+                  data: {
                     turbo_frame: 'modal',
-                    turbo_action: 'replace' 
+                    turbo_action: 'replace'
                   } %>
             </div>
           </div>

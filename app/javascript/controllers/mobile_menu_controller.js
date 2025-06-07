@@ -26,25 +26,25 @@
 // @since 1.0.0
 // @author 松江市温泉マップ開発チーム
 
-import { Controller } from "@hotwired/stimulus"
+import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
   // == Stimulus Target 定義 ==
   // DOM要素への参照を自動設定
-  static targets = ["button", "menu"]
+  static targets = ["button", "menu"];
 
   // == 初期化処理 ==
   // コントローラがDOMにアタッチされた際に実行
   connect() {
     // キーボードイベントの設定
-    this.boundHandleKeydown = this.handleKeydown.bind(this)
-    document.addEventListener("keydown", this.boundHandleKeydown)
-    
+    this.boundHandleKeydown = this.handleKeydown.bind(this);
+    document.addEventListener("keydown", this.boundHandleKeydown);
+
     // 初期状態の確保（メニューは閉じた状態）
-    this.ensureClosedState()
-    
+    this.ensureClosedState();
+
     // デバッグログ（開発時のみ）
-    console.log("[mobile-menu] コントローラが接続されました")
+    console.log("[mobile-menu] コントローラが接続されました");
   }
 
   // == 終了処理 ==
@@ -52,10 +52,10 @@ export default class extends Controller {
   disconnect() {
     // イベントリスナーの適切な削除（メモリリーク防止）
     if (this.boundHandleKeydown) {
-      document.removeEventListener("keydown", this.boundHandleKeydown)
+      document.removeEventListener("keydown", this.boundHandleKeydown);
     }
-    
-    console.log("[mobile-menu] コントローラが切断されました")
+
+    console.log("[mobile-menu] コントローラが切断されました");
   }
 
   // == メニューのトグル操作 ==
@@ -64,52 +64,54 @@ export default class extends Controller {
   // @param {Event} event - クリックイベント
   toggle(event) {
     // イベントのバブリングを防止
-    event.preventDefault()
-    event.stopPropagation()
+    event.preventDefault();
+    event.stopPropagation();
 
     // 現在の表示状態を判定
-    const isOpen = this.isMenuOpen()
-    
+    const isOpen = this.isMenuOpen();
+
     // トグル実行
     if (isOpen) {
-      this.closeMenu()
+      this.closeMenu();
     } else {
-      this.openMenu()
+      this.openMenu();
     }
-    
+
     // デバッグログ
-    console.log(`[mobile-menu] メニューをトグル: ${isOpen ? 'クローズ' : 'オープン'}`)
+    console.log(
+      `[mobile-menu] メニューをトグル: ${isOpen ? "クローズ" : "オープン"}`
+    );
   }
 
   // == メニューを開く ==
   // メニューパネルの表示とアクセシビリティ属性の更新
   openMenu() {
     // メニューパネルの表示
-    this.menuTarget.classList.remove("hidden")
-    
+    this.menuTarget.classList.remove("hidden");
+
     // ボタンのARIA属性更新（スクリーンリーダー対応）
-    this.buttonTarget.setAttribute("aria-expanded", "true")
-    this.buttonTarget.setAttribute("aria-label", "メニューを閉じる")
-    
+    this.buttonTarget.setAttribute("aria-expanded", "true");
+    this.buttonTarget.setAttribute("aria-label", "メニューを閉じる");
+
     // アイコンの切り替え（ハンバーガー→クローズ）
-    this.switchToCloseIcon()
-    
+    this.switchToCloseIcon();
+
     // フォーカスをメニュー内の最初のリンクに移動（キーボードナビゲーション対応）
-    this.focusFirstMenuItem()
+    this.focusFirstMenuItem();
   }
 
   // == メニューを閉じる ==
   // メニューパネルの非表示とアクセシビリティ属性の復元
   closeMenu() {
     // メニューパネルの非表示
-    this.menuTarget.classList.add("hidden")
-    
+    this.menuTarget.classList.add("hidden");
+
     // ボタンのARIA属性復元
-    this.buttonTarget.setAttribute("aria-expanded", "false")
-    this.buttonTarget.setAttribute("aria-label", "メニューを開く")
-    
+    this.buttonTarget.setAttribute("aria-expanded", "false");
+    this.buttonTarget.setAttribute("aria-label", "メニューを開く");
+
     // アイコンの切り替え（クローズ→ハンバーガー）
-    this.switchToHamburgerIcon()
+    this.switchToHamburgerIcon();
   }
 
   // == キーボードイベントハンドラ ==
@@ -119,12 +121,12 @@ export default class extends Controller {
   handleKeydown(event) {
     // Escキーが押された場合にメニューを閉じる
     if (event.key === "Escape" && this.isMenuOpen()) {
-      this.closeMenu()
-      
+      this.closeMenu();
+
       // フォーカスをハンバーガーボタンに戻す
-      this.buttonTarget.focus()
-      
-      console.log("[mobile-menu] Escキーでメニューをクローズしました")
+      this.buttonTarget.focus();
+
+      console.log("[mobile-menu] Escキーでメニューをクローズしました");
     }
   }
 
@@ -133,49 +135,49 @@ export default class extends Controller {
   // メニューの開閉状態を判定
   // @return {boolean} メニューが開いている場合true
   isMenuOpen() {
-    return !this.menuTarget.classList.contains("hidden")
+    return !this.menuTarget.classList.contains("hidden");
   }
 
   // ハンバーガーアイコンに切り替え
   switchToHamburgerIcon() {
-    const hamburgerIcon = this.buttonTarget.querySelector("svg:first-child")
-    const closeIcon = this.buttonTarget.querySelector("svg:last-child")
-    
+    const hamburgerIcon = this.buttonTarget.querySelector("svg:first-child");
+    const closeIcon = this.buttonTarget.querySelector("svg:last-child");
+
     if (hamburgerIcon && closeIcon) {
-      hamburgerIcon.classList.remove("hidden")
-      hamburgerIcon.classList.add("block")
-      closeIcon.classList.remove("block")
-      closeIcon.classList.add("hidden")
+      hamburgerIcon.classList.remove("hidden");
+      hamburgerIcon.classList.add("block");
+      closeIcon.classList.remove("block");
+      closeIcon.classList.add("hidden");
     }
   }
 
   // クローズアイコンに切り替え
   switchToCloseIcon() {
-    const hamburgerIcon = this.buttonTarget.querySelector("svg:first-child")
-    const closeIcon = this.buttonTarget.querySelector("svg:last-child")
-    
+    const hamburgerIcon = this.buttonTarget.querySelector("svg:first-child");
+    const closeIcon = this.buttonTarget.querySelector("svg:last-child");
+
     if (hamburgerIcon && closeIcon) {
-      hamburgerIcon.classList.remove("block")
-      hamburgerIcon.classList.add("hidden")
-      closeIcon.classList.remove("hidden")
-      closeIcon.classList.add("block")
+      hamburgerIcon.classList.remove("block");
+      hamburgerIcon.classList.add("hidden");
+      closeIcon.classList.remove("hidden");
+      closeIcon.classList.add("block");
     }
   }
 
   // 初期状態の確保（開発時の状態リセット）
   ensureClosedState() {
-    this.menuTarget.classList.add("hidden")
-    this.buttonTarget.setAttribute("aria-expanded", "false")
-    this.buttonTarget.setAttribute("aria-label", "メニューを開く")
-    this.switchToHamburgerIcon()
+    this.menuTarget.classList.add("hidden");
+    this.buttonTarget.setAttribute("aria-expanded", "false");
+    this.buttonTarget.setAttribute("aria-label", "メニューを開く");
+    this.switchToHamburgerIcon();
   }
 
   // メニュー内の最初のリンクにフォーカス移動
   // キーボードナビゲーションのユーザビリティ向上
   focusFirstMenuItem() {
-    const firstLink = this.menuTarget.querySelector("a")
+    const firstLink = this.menuTarget.querySelector("a");
     if (firstLink) {
-      firstLink.focus()
+      firstLink.focus();
     }
   }
 }

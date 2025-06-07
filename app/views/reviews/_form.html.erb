@@ -1,15 +1,15 @@
-<%# 
+<%#
   レビューフォーム（強化版：楽観的UI + ローディング状態対応）
-  
+
   == 新機能
   - 楽観的UI: 送信と同時に画面更新
   - ローディング状態: ボタンの状態管理
   - エラーハンドリング: 詳細なバリデーション表示
   - アクセシビリティ: スクリーンリーダー対応
 %>
-<%= form_with(model: [onsen, review], 
-              local: false, 
-              html: { 
+<%= form_with(model: [onsen, review],
+              local: false,
+              html: {
                 class: "space-y-4",
                 'data-controller': "optimistic-ui loading-button",
                 'data-optimistic-ui-preview-text-value': "レビューを投稿中...",
@@ -17,7 +17,7 @@
                 'data-optimistic-ui-error-message-value': "投稿に失敗しました。もう一度お試しください。",
                 'data-action': "submit->optimistic-ui#handleOptimisticSubmit submit->loading-button#handleSubmit"
               }) do |f| %>
-  
+
   <%# 評価選択セクション %>
   <div class="<%= review.errors[:rating].any? ? 'error-field' : '' %>">
     <%= render 'shared/form_field',
@@ -26,8 +26,8 @@
         required: true,
         error: review.errors[:rating]&.first,
         help_text: '1〜5つ星で評価してください' do %>
-      <%= render "shared/rating_stars", 
-          rating: (review.rating || 0), 
+      <%= render "shared/rating_stars",
+          rating: (review.rating || 0),
           form: true %>
     <% end %>
   </div>
@@ -47,34 +47,7 @@
   </div>
 
   <%# 画像アップロードセクション %>
-  <div class="<%= review.errors[:images].any? ? 'error-field' : '' %>" data-controller="file-input">
-    <%= render 'shared/form_field',
-        field_type: :custom,
-        label: '画像（最大3枚）',
-        required: false,
-        error: review.errors[:images]&.first,
-        help_text: 'JPEG, PNG形式、1枚あたり3MB以下' do %>
-      <div class="flex items-center gap-2">
-        <%= f.file_field :images, 
-            multiple: true,
-            accept: "image/jpeg,image/png,image/gif",
-            class: "hidden",
-            id: "review_images",
-            'data-file-input-target': "input",
-            'data-action': "change->file-input#preview" %>
-        <%= render 'shared/button',
-            text: '画像を選択',
-            variant: :outline,
-            size: :sm,
-            icon: 'camera',
-            onclick: "document.getElementById('review_images').click()" %>
-        <span data-file-input-target="counter" class="text-sm text-gray-600">
-          0枚選択中
-        </span>
-      </div>
-      <div data-file-input-target="preview" class="mt-2 grid grid-cols-3 gap-2 hidden"></div>
-    <% end %>
-  </div>
+  <%= render 'image_upload_field', form: f, review: review, field_id: "review_images" %>
 
   <%# 送信ボタンエリア %>
   <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
@@ -84,7 +57,7 @@
         variant: :outline,
         size: :sm,
         onclick: "document.querySelector('[data-controller*=\"modal\"]').remove()" %>
-    
+
     <%# 送信ボタン（ローディング状態対応） %>
     <%= render 'shared/button',
         text: 'レビューを投稿',
