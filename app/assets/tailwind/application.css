@@ -1,0 +1,27 @@
+/* app/assets/tailwind/application.css */
+
+/* 1. Tailwind 本体の読み込み */
+@import "tailwindcss"; /*  */
+
+/* 2. クラス検出のためのソース指定 */
+
+/* 3. カスタムスタイルのレイヤ分け */
+@layer base {
+  /* ベーススタイルを定義 */
+}
+@layer components {
+  /* ボタン押下アニメーション（scale, color） */
+  .scale-95 {
+    transform: scale(0.95);
+  }
+
+  /* テキストの複数行省略表示 */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+}
+@layer utilities {
+}

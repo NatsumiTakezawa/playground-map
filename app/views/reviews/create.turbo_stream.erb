@@ -1,0 +1,107 @@
+<%#
+  レビュー作成成功時のTurbo Streamレスポンス
+
+  == 概要
+  レビューの投稿が成功した際に、ページリロードなしで以下の操作を実行します：
+  1. モーダルを閉じる
+  2. 新しいレビューをレビューリストに追加
+  3. 成功メッセージを表示
+  4. 統計情報を更新（評価平均、レビュー数など）
+
+  == Turbo Stream アクション説明
+  - replace: 既存要素を置き換え
+  - append: 要素をリストの最後に追加
+  - prepend: 要素をリストの最初に追加
+  - update: 要素の内容を更新
+  - remove: 要素を削除
+
+  @param @review [Review] 作成されたレビューオブジェクト
+  @param @onsen [Onsen] レビュー対象の温泉オブジェクト
+  @since 1.0.0
+%>
+
+<%# 1. モーダルを閉じる %>
+<turbo-stream action="replace" target="modal">
+  <template></template>
+</turbo-stream>
+
+<%# 2. 成功メッセージを表示 %>
+<turbo-stream action="prepend" target="flash-messages">
+  <template>
+    <%= render 'shared/alert_message',
+        type: :success,
+        title: 'レビューを投稿しました',
+        message: 'ご投稿いただきありがとうございます。他の利用者の参考になります。',
+        dismissible: true %>
+  </template>
+</turbo-stream>
+
+<%# 3. 新しいレビューをレビューリストの先頭に追加 %>
+<turbo-stream action="prepend" target="reviews-list">
+  <template>
+    <div class="new-review-highlight">
+      <%= render partial: "reviews/review", locals: { review: @review } %>
+    </div>
+  </template>
+</turbo-stream>
+
+<%# 4. 温泉の統計情報を更新（評価平均、レビュー数） %>
+<turbo-stream action="replace" target="onsen-rating-summary">
+  <template>
+    <%= render partial: "onsens/rating_summary", locals: { onsen: @onsen } %>
+  </template>
+</turbo-stream>
+
+<%# 5. レビュー投稿ボタンのテキストを一時的に更新（フィードバック向上） %>
+<turbo-stream action="replace" target="review-button-container">
+  <template>
+    <div id="review-button-container" class="mb-4">
+      <%= render 'shared/button',
+          text: '別のレビューを投稿する',
+          variant: :outline,
+          path: new_onsen_review_path(@onsen),
+          icon: 'plus',
+          data: {
+            turbo_frame: 'modal',
+            turbo_action: 'replace'
+          } %>
+    </div>
+  </template>
+</turbo-stream>
+
+<%# 6. 新しいレビューにハイライト効果を適用（CSS アニメーション） %>
+<turbo-stream action="replace" target="page-styles">
+  <template>
+    <style>
+      .new-review-highlight {
+        animation: highlight-fade 3s ease-in-out;
+        border-left: 4px solid #10B981;
+        padding-left: 1rem;
+        margin-left: -1rem;
+      }
+
+      @keyframes highlight-fade {
+        0% {
+          background-color: #D1FAE5;
+          transform: scale(1.02);
+        }
+        50% {
+          background-color: #A7F3D0;
+        }
+        100% {
+          background-color: transparent;
+          transform: scale(1);
+        }
+      }
+    </style>
+  </template>
+</turbo-stream>
+
+<%# 7. ページタイトルのレビュー数を更新 %>
+<turbo-stream action="replace" target="page-title-review-count">
+  <template>
+    <span id="page-title-review-count" class="text-gray-600">
+      （<%= @onsen.reviews.count %>件のレビュー）
+    </span>
+  </template>
+</turbo-stream>

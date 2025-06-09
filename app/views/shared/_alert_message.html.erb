@@ -1,0 +1,140 @@
+<%#
+  統一エラーメッセージコンポーネント
+
+  == 概要
+  アプリケーション全体で一貫したエラーメッセージ表示を提供するパーシャルです。
+  バリデーションエラー、システムエラー、警告メッセージなど、
+  様々な種類のメッセージに対応した統一的なUI/UXを実現します。
+
+  == 使用方法
+  <%= render 'shared/alert_message', type: :error, title: 'エラーが発生しました', message: 'フォームの入力内容を確認してください' %>
+  <%= render 'shared/alert_message', type: :success, message: '保存が完了しました' %>
+  <%= render 'shared/alert_message', type: :warning, message: '一部のデータが更新されませんでした' %>
+
+  == パラメータ
+  - type: メッセージの種類 (:error, :success, :warning, :info)
+  - title: メッセージのタイトル（オプション）
+  - message: メインメッセージ
+  - details: 詳細メッセージ（配列可、オプション）
+  - dismissible: 閉じるボタンの表示可否（デフォルト: true）
+
+  == アクセシビリティ
+  - ARIA role による適切な意味付け
+  - スクリーンリーダー対応
+  - キーボード操作対応
+
+  @param type [Symbol] メッセージタイプ (:error, :success, :warning, :info)
+  @param title [String] メッセージタイトル（オプション）
+  @param message [String] メインメッセージ
+  @param details [Array<String>, String] 詳細メッセージ（オプション）
+  @param dismissible [Boolean] 閉じるボタンの表示（デフォルト: true）
+
+  @see ApplicationController#flash フラッシュメッセージとの連携
+  @since 1.0.0
+%>
+
+<%
+  # == パラメータのデフォルト設定 ==
+  type ||= :info
+  title ||= nil
+  message ||= ''
+  details ||= []
+  dismissible = true if dismissible.nil?
+
+  # 詳細メッセージを配列に正規化
+  details = Array(details)
+
+  # スタイル設定の取得
+  style_config = alert_style_config(type)
+  base_classes = style_config[:base_classes]
+  icon_classes = style_config[:icon_classes]
+  title_classes = style_config[:title_classes]
+  message_classes = style_config[:message_classes]
+  button_classes = style_config[:button_classes]
+  icon_path = style_config[:icon_path]
+  role = style_config[:role]
+  aria_live = style_config[:aria_live]
+  default_title = style_config[:default_title]
+
+  else # info
+    base_classes = 'bg-blue-50 border border-blue-200'
+    icon_classes = 'text-blue-400'
+    title_classes = 'text-blue-800 font-semibold'
+    message_classes = 'text-blue-700'
+    button_classes = 'text-blue-400 hover:text-blue-600'
+    icon_path = 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+    role = 'status'
+    aria_live = 'polite'
+    default_title = '情報'
+  end
+
+  # タイトルが未設定の場合、デフォルトタイトルを使用
+  display_title = title.present? ? title : default_title
+%>
+
+<div class="<%= base_classes %> rounded-lg p-4 mb-4 <%= 'dismissible-alert' if dismissible %>"
+     role="<%= role %>"
+     aria-live="<%= aria_live %>"
+     <%= 'data-controller="dismissible-alert"' if dismissible %>
+     data-alert-type="<%= type %>">
+
+  <div class="flex items-start">
+    <%# アイコン表示 %>
+    <div class="flex-shrink-0">
+      <svg class="h-5 w-5 <%= icon_classes %>" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<%= icon_path %>" />
+      </svg>
+    </div>
+
+    <%# メッセージ本文 %>
+    <div class="ml-3 flex-1">
+      <%# タイトル表示 %>
+      <% if display_title.present? %>
+        <h3 class="<%= title_classes %> text-sm mb-1">
+          <%= display_title %>
+        </h3>
+      <% end %>
+
+      <%# メインメッセージ %>
+      <% if message.present? %>
+        <div class="<%= message_classes %> text-sm <%= display_title.present? ? '' : 'font-medium' %>">
+          <%= simple_format(message, {}, wrapper_tag: 'div') %>
+        </div>
+      <% end %>
+
+      <%# 詳細メッセージ（配列対応） %>
+      <% if details.any? %>
+        <div class="<%= message_classes %> text-sm mt-2">
+          <% if details.size == 1 %>
+            <%# 単一詳細メッセージ %>
+            <div><%= simple_format(details.first, {}, wrapper_tag: 'div') %></div>
+          <% else %>
+            <%# 複数詳細メッセージ（リスト形式） %>
+            <ul class="list-disc list-inside space-y-1">
+              <% details.each do |detail| %>
+                <li><%= simple_format(detail, {}, wrapper_tag: 'span') %></li>
+              <% end %>
+            </ul>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <%# 閉じるボタン（dismissible時のみ） %>
+    <% if dismissible %>
+      <div class="ml-auto pl-3">
+        <div class="-mx-1.5 -my-1.5">
+          <button type="button"
+                  class="inline-flex bg-transparent rounded-md p-1.5 <%= button_classes %> hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  data-action="click->dismissible-alert#dismiss"
+                  aria-label="メッセージを閉じる">
+            <span class="sr-only">メッセージを閉じる</span>
+            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

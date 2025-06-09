@@ -1,0 +1,24 @@
+<%#
+  @param link [Hash] ナビゲーションリンクの情報
+  @param style [String] リンクのスタイル（'desktop' または 'mobile'）
+%>
+<%
+  # 共通属性の定義
+  common_attrs = {
+    href: link[:path],
+    "aria-label": link[:aria_label]
+  }
+  common_attrs["aria-current"] = "page" if link[:current]
+
+  # スタイル別CSSクラスの定義
+  css_class = if style == "desktop"
+    "no-underline text-gray-700 hover:text-blue-600 font-medium #{link[:current] ? 'border-b-2 border-blue-600 text-blue-600' : ''}"
+  else
+    "#{link[:current] ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 'text-gray-700 hover:bg-gray-50'} block px-3 py-2 text-base font-medium"
+  end
+%>
+
+<%= link_to link[:label], link[:path],
+    class: css_class,
+    "aria-label": link[:aria_label],
+    "aria-current": (link[:current] ? "page" : nil) %>

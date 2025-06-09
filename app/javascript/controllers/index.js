@@ -1,0 +1,24 @@
+import { application } from "controllers/application";
+import RatingStarsController from "controllers/rating_stars_controller";
+import SpotCardController from "controllers/spot_card_controller";
+import MapController from "controllers/map_controller";
+import ModalController from "controllers/modal_controller";
+import FileInputController from "controllers/file_input_controller";
+import ZipcodeController from "controllers/zipcode_controller";
+import DismissibleAlertController from "controllers/dismissible_alert_controller";
+import MobileMenuController from "controllers/mobile_menu_controller";
+import LoadingButtonController from "controllers/loading_button_controller";
+import OptimisticUiController from "controllers/optimistic_ui_controller";
+import ImageModalController from "controllers/image_modal_controller";
+
+application.register("rating-stars", RatingStarsController);
+application.register("spot-card", SpotCardController);
+application.register("map", MapController);
+application.register("modal", ModalController);
+application.register("file-input", FileInputController);
+application.register("zipcode", ZipcodeController);
+application.register("dismissible-alert", DismissibleAlertController);
+application.register("mobile-menu", MobileMenuController);
+application.register("loading-button", LoadingButtonController);
+application.register("optimistic-ui", OptimisticUiController);
+application.register("image-modal", ImageModalController);

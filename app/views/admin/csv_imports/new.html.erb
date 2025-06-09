@@ -1,0 +1,135 @@
+<%# filepath: /app/views/admin/csv_imports/new.html.erb %>
+<%# CSVインポート専用ページ %>
+<%#
+# 管理画面でのCSVファイルアップロード機能を提供します。
+# Admin::CsvImportsControllerから呼び出されます。
+#
+# @note 初学者向け解説
+#   - multipart: true でファイルアップロードに対応
+#   - accept: '.csv' でファイル選択を制限
+#   - local: true でTurboを無効化（ファイルアップロード時の安定性確保）
+#   - Tailwind CSSでレスポンシブデザイン
+%>
+
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <!-- ページヘッダー -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">
+      <%= t('admin.csv_imports.new.title', default: 'CSVインポート') %>
+    </h1>
+    <p class="text-gray-600">
+      <%= t('admin.csv_imports.new.description', default: 'CSVファイルから温泉データを一括登録できます。') %>
+    </p>
+  </div>
+
+  <!-- 戻るリンク -->
+  <div class="mb-6">
+    <%= link_to t('admin.csv_imports.new.back', default: '← 温泉管理に戻る'),
+        admin_onsens_path,
+        class: "text-blue-600 hover:text-blue-500 font-medium" %>
+  </div>
+
+  <!-- CSVインポートフォーム -->
+  <div class="bg-white shadow rounded-lg p-6 mb-8">
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">
+      <%= t('admin.csv_imports.new.form_title', default: 'ファイル選択') %>
+    </h2>
+
+    <%= form_with url: admin_csv_imports_path,
+                  method: :post,
+                  local: true,
+                  html: { multipart: true, class: "space-y-4" } do |form| %>
+
+      <!-- ファイル選択 -->
+      <div>
+        <%= form.label :file, t('admin.csv_imports.new.file_label', default: 'CSVファイル'),
+                       class: "block text-sm font-medium text-gray-700 mb-2" %>
+        <%= form.file_field :file,
+                           accept: '.csv',
+                           required: true,
+                           class: "block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded-md cursor-pointer" %>
+        <p class="mt-1 text-sm text-gray-500">
+          <%= t('admin.csv_imports.new.file_help', default: 'CSV形式のファイルを選択してください（UTF-8エンコード推奨）') %>
+        </p>
+      </div>
+
+      <!-- 送信ボタン -->
+      <div class="flex justify-end">
+        <%= form.submit t('admin.csv_imports.new.submit', default: 'インポート実行'),
+                       class: "rounded-md px-6 py-2 bg-green-600 hover:bg-green-500 text-white font-semibold transition-colors duration-200 shadow-sm" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- CSV形式の説明 -->
+  <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+    <h3 class="text-lg font-semibold text-blue-900 mb-3">
+      <%= t('admin.csv_imports.new.format_title', default: 'CSVファイル形式') %>
+    </h3>
+
+    <div class="space-y-3 text-sm text-blue-800">
+      <p>
+        <%= t('admin.csv_imports.new.format_description', default: '以下の形式でCSVファイルを作成してください：') %>
+      </p>
+
+      <!-- サンプルCSV -->
+      <div class="bg-white border border-blue-200 rounded p-3 font-mono text-xs overflow-x-auto">
+        <div class="text-gray-600 mb-1"># ヘッダー行（必須）</div>
+        <div>name,geo_lat,geo_lng,description,tags</div>
+        <div class="text-gray-600 mb-1 mt-2"># データ行の例</div>
+        <div>玉造温泉,35.4167,133.0167,美肌の湯として有名,美肌,露天風呂</div>
+        <div>有福温泉,34.9833,132.4167,歴史ある温泉地,歴史,静寂</div>
+      </div>
+
+      <!-- 項目説明 -->
+      <div class="mt-4">
+        <h4 class="font-semibold mb-2">各項目の説明：</h4>
+        <ul class="space-y-1 text-xs">
+          <li><strong>name:</strong> 温泉名（必須、100文字以内）</li>
+          <li><strong>geo_lat:</strong> 緯度（必須、小数点6桁まで）</li>
+          <li><strong>geo_lng:</strong> 経度（必須、小数点6桁まで）</li>
+          <li><strong>description:</strong> 説明文（任意、1000文字以内）</li>
+          <li><strong>tags:</strong> タグ（任意、カンマ区切り）</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- インポート結果表示エリア -->
+  <% if @import_result %>
+    <div class="mt-8">
+      <% if @import_result[:error] %>
+        <!-- エラー表示 -->
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div class="flex">
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">
+                <%= t('admin.csv_imports.new.error_title', default: 'インポートエラー') %>
+              </h3>
+              <p class="mt-1 text-sm text-red-700">
+                <%= @import_result[:error] %>
+              </p>
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <!-- 成功表示 -->
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div class="flex">
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-green-800">
+                <%= t('admin.csv_imports.new.success_title', default: 'インポート完了') %>
+              </h3>
+              <div class="mt-1 text-sm text-green-700">
+                <p>正常処理: <%= @import_result[:imported] || 0 %>件</p>
+                <% if @import_result[:skipped] && @import_result[:skipped] > 0 %>
+                  <p>スキップ: <%= @import_result[:skipped] %>件</p>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

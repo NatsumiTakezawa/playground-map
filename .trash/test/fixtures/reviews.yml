@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  rating: 5
+  comment: 最高の景色とお湯でした
+  onsen: one
+
+two:
+  rating: 4
+  comment: 美肌効果を実感
+  onsen: two

@@ -1,0 +1,197 @@
+<%#
+  レビュー作成失敗時のTurbo Streamレスポンス
+
+  == 概要
+  レビューの投稿が失敗した際に、ページリロードなしで以下の操作を実行します：
+  1. エラーメッセージを表示
+  2. モーダル内のフォームをエラー状態で再表示
+  3. 入力データを保持
+  4. フォーカス管理とアクセシビリティ配慮
+
+  == エラーハンドリングのベストプラクティス
+  - ユーザーの入力データを保持（フラストレーション軽減）
+  - 具体的で分かりやすいエラーメッセージ
+  - エラー箇所への自動フォーカス
+  - 視覚的フィードバック（赤色ハイライト等）
+
+  @param @review [Review] バリデーションエラーが発生したレビューオブジェクト
+  @param @onsen [Onsen] レビュー対象の温泉オブジェクト
+  @since 1.0.0
+%>
+
+<%# 1. エラーメッセージを表示 %>
+<turbo-stream action="prepend" target="flash-messages">
+  <template>
+    <%= render 'shared/alert_message',
+        type: :error,
+        title: 'レビューの投稿に失敗しました',
+        message: 'フォームに不備があります。入力内容をご確認ください。',
+        dismissible: true %>
+  </template>
+</turbo-stream>
+
+<%# 2. モーダル内のフォームをエラー状態で再表示 %>
+<turbo-stream action="replace" target="modal">
+  <template>
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+         data-controller="modal"
+         data-action="keydown.escape->modal#close click@window->modal#backdrop">
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative error-state"
+           tabindex="-1"
+           role="dialog"
+           aria-modal="true"
+           aria-labelledby="modal-title"
+           aria-describedby="modal-error">
+
+        <%# モーダルヘッダー（エラー状態表示） %>
+        <div class="flex items-center justify-between mb-4 pb-2 border-b border-red-200">
+          <h2 id="modal-title" class="text-lg font-semibold text-red-800 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            レビュー投稿 - 入力エラー
+          </h2>
+          <button type="button"
+                  class="text-gray-400 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
+                  aria-label="閉じる"
+                  data-action="modal#close">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <%# エラー概要メッセージ %>
+        <div id="modal-error" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+          <p class="text-sm text-red-700">
+            <strong>入力内容に問題があります：</strong>
+          </p>
+          <ul class="mt-2 text-sm text-red-600 space-y-1">
+            <% @review.errors.full_messages.each do |message| %>
+              <li class="flex items-start">
+                <span class="text-red-500 mr-1">•</span>
+                <%= message %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+
+        <%# フォーム本体（入力データ保持） %>
+        <%= form_with(model: [@onsen, @review],
+                      local: false,
+                      html: {
+                        class: "space-y-4",
+                        'data-controller': "loading-button",
+                        'data-loading-button-loading-class': "opacity-50 cursor-not-allowed"
+                      }) do |f| %>
+
+          <%# 評価選択（エラー時はハイライト） %>
+          <div class="<%= @review.errors[:rating].any? ? 'error-field' : '' %>">
+            <%= render 'shared/form_field',
+                field_type: :custom,
+                label: '評価',
+                required: true,
+                error: @review.errors[:rating]&.first,
+                help_text: '1〜5つ星で評価してください' do %>
+              <%= render "shared/rating_stars",
+                  rating: (@review.rating || 0),
+                  form: true %>
+            <% end %>
+          </div>
+
+          <%# コメント入力（エラー時はハイライト） %>
+          <div class="<%= @review.errors[:comment].any? ? 'error-field' : '' %>">
+            <%= render 'shared/form_field',
+                field_type: :textarea,
+                form: f,
+                field_name: :comment,
+                label: 'コメント',
+                required: false,
+                rows: 3,
+                error: @review.errors[:comment]&.first,
+                help_text: '温泉の感想をお聞かせください（500文字以内）',
+                placeholder: '温泉の雰囲気、泉質、設備など、感じたことを自由にお書きください' %>
+          </div>
+
+          <%# 画像アップロード（エラー時はハイライト） %>
+          <%= render 'reviews/image_upload_field',
+              form: f,
+              review: @review,
+              field_id: "review_images_error",
+              show_error: true %>
+
+          <%# 送信ボタン（ローディング状態対応） %>
+          <div class="flex justify-end gap-3 pt-4 border-t">
+            <%= render 'shared/button',
+                text: 'キャンセル',
+                variant: :outline,
+                size: :sm,
+                onclick: "document.querySelector('[data-controller=\"modal\"]').remove()" %>
+
+            <%= render 'shared/button',
+                text: '再送信',
+                variant: :primary,
+                size: :sm,
+                icon: 'send',
+                submit: true,
+                loading_text: '投稿中...',
+                data: {
+                  'loading-button-target': 'button',
+                  'action': 'click->loading-button#startLoading'
+                } %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </template>
+</turbo-stream>
+
+<%# 3. ボタンを元の状態に戻す（ローディング解除） %>
+<turbo-stream action="replace" target="review-button-container">
+  <template>
+    <div id="review-button-container" class="mb-4">
+      <%= render 'shared/button',
+          text: 'レビューを投稿',
+          variant: :primary,
+          path: new_onsen_review_path(@onsen),
+          icon: 'edit',
+          data: {
+            turbo_frame: 'modal',
+            turbo_action: 'replace'
+          } %>
+    </div>
+  </template>
+</turbo-stream>
+
+<%# 4. エラー状態用のスタイル追加 %>
+<turbo-stream action="replace" target="page-styles">
+  <template>
+    <style>
+      .error-state {
+        animation: shake 0.5s ease-in-out;
+        border: 2px solid #FCA5A5;
+      }
+
+      .error-field {
+        animation: field-error 0.3s ease-in-out;
+      }
+
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+      }
+
+      @keyframes field-error {
+        0% {
+          background-color: #FEE2E2;
+          border-color: #FCA5A5;
+        }
+        100% {
+          background-color: transparent;
+          border-color: initial;
+        }
+      }
+    </style>
+  </template>
+</turbo-stream>
