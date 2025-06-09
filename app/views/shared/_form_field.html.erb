@@ -1,0 +1,220 @@
+<%#
+  統一フォームフィールドコンポーネント
+
+  == 概要
+  アプリケーション全体で一貫したフォームフィールドUIを提供するパーシャルです。
+  ラベル、入力フィールド、エラーメッセージ、ヘルプテキストを統一的にレンダリングし、
+  アクセシビリティに配慮した学習しやすい実装を提供します。
+
+  == 使用方法
+  <%= render 'shared/form_field',
+        form: f,
+        field: :name,
+        type: :text,
+        label: '温泉名',
+        placeholder: '例: 玉造温泉',
+        help_text: '正式名称を入力してください',
+        required: true %>
+
+  == パラメータ
+  - form: フォームビルダーオブジェクト
+  - field: フィールド名（シンボル）
+  - type: 入力タイプ (:text, :email, :password, :number, :textarea, :select, :file, :hidden)
+  - label: ラベルテキスト
+  - placeholder: プレースホルダーテキスト（オプション）
+  - help_text: ヘルプテキスト（オプション）
+  - required: 必須フィールドかどうか（デフォルト: false）
+  - disabled: 無効化フィールドかどうか（デフォルト: false）
+  - readonly: 読み取り専用かどうか（デフォルト: false）
+  - options: セレクトボックス用オプション（selectタイプの場合）
+  - multiple: 複数選択可能か（selectタイプの場合、デフォルト: false）
+  - accept: ファイルタイプ制限（fileタイプの場合）
+  - wrapper_class: ラッパーdivの追加CSSクラス（オプション）
+  - input_class: 入力要素の追加CSSクラス（オプション）
+
+  == アクセシビリティ
+  - aria-describedby によるヘルプテキストとエラーメッセージの関連付け
+  - required属性とaria-required
+  - 適切なラベル関連付け
+  - エラー時のaria-invalid
+
+  @param form [ActionView::Helpers::FormBuilder] フォームビルダー
+  @param field [Symbol] フィールド名
+  @param type [Symbol] 入力タイプ
+  @param label [String] ラベルテキスト
+  @param placeholder [String] プレースホルダーテキスト（オプション）
+  @param help_text [String] ヘルプテキスト（オプション）
+  @param required [Boolean] 必須フィールドかどうか
+  @param disabled [Boolean] 無効化フィールドかどうか
+  @param readonly [Boolean] 読み取り専用かどうか
+  @param options [Array] セレクトボックス用オプション
+  @param multiple [Boolean] 複数選択可能か
+  @param accept [String] ファイルタイプ制限
+  @param wrapper_class [String] ラッパーの追加CSSクラス
+  @param input_class [String] 入力要素の追加CSSクラス
+
+  @see ApplicationHelper#form_field_errors エラーメッセージ表示ヘルパー
+  @since 1.0.0
+%>
+
+<%
+  # == パラメータのデフォルト設定 ==
+  type ||= :text
+  label ||= field.to_s.humanize
+  placeholder ||= nil
+  help_text ||= nil
+  required ||= false
+  disabled ||= false
+  readonly ||= false
+  options ||= []
+  multiple ||= false
+  accept ||= nil
+  wrapper_class ||= ''
+  input_class ||= ''
+
+  # == フィールドの状態とエラー情報を取得 ==
+  object = form.object
+  field_errors = object.errors[field] if object&.errors&.[](field)&.any?
+  has_errors = field_errors&.any?
+  field_value = object&.send(field)
+
+  # == 一意なID生成（複数フォームでの重複を避ける） ==
+  field_id = "#{object&.class&.name&.underscore}_#{field}_#{SecureRandom.hex(4)}"
+  help_text_id = "#{field_id}_help" if help_text.present?
+  error_id = "#{field_id}_error" if has_errors
+
+  # == aria-describedby 属性の設定 ==
+  describedby_ids = []
+  describedby_ids << help_text_id if help_text.present?
+  describedby_ids << error_id if has_errors
+  describedby = describedby_ids.any? ? describedby_ids.join(' ') : nil
+
+  # == CSSクラスの設定 ==
+  base_input_classes = case type
+  when :textarea
+    'block w-full px-3 py-2 border rounded-md shadow-sm text-sm'
+  when :select
+    'block w-full px-3 py-2 border rounded-md shadow-sm text-sm bg-white'
+  when :file
+    'block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100'
+  else
+    'block w-full px-3 py-2 border rounded-md shadow-sm text-sm'
+  end
+
+  # エラー状態に応じたスタイリング
+  if has_errors
+    state_classes = 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
+  else
+    state_classes = 'border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500'
+  end
+
+  # 無効化・読み取り専用状態のスタイリング
+  disabled_classes = disabled ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : ''
+  readonly_classes = readonly ? 'bg-gray-50' : ''
+
+  # 最終的な入力要素のCSSクラス
+  final_input_classes = [
+    base_input_classes,
+    state_classes,
+    disabled_classes,
+    readonly_classes,
+    input_class
+  ].compact.join(' ')
+%>
+
+<div class="form-field-wrapper <%= wrapper_class %>">
+  <%# ラベル表示 %>
+  <%= form.label field, id: field_id, class: "block text-sm font-medium text-gray-700 mb-1" do %>
+    <%= label %>
+    <% if required %>
+      <span class="text-red-500 ml-1" aria-label="必須">*</span>
+    <% end %>
+  <% end %>
+
+  <%# 入力フィールド表示 %>
+  <div class="relative">
+    <%
+      # 共通のaria属性を定義
+      common_aria_attrs = {
+        'aria-describedby': describedby,
+        'aria-invalid': has_errors ? 'true' : 'false',
+        'aria-required': required ? 'true' : 'false'
+      }
+    %>
+    <% case type %>
+    <% when :textarea %>
+      <%= form.text_area field,
+            id: field_id,
+            class: final_input_classes,
+            placeholder: placeholder,
+            required: required,
+            disabled: disabled,
+            readonly: readonly,
+            rows: 4,
+            **common_aria_attrs %>
+
+    <% when :select %>
+      <%= form.select field, options_for_select(options, field_value),
+            { prompt: placeholder },
+            {
+              id: field_id,
+              class: final_input_classes,
+              required: required,
+              disabled: disabled,
+              multiple: multiple,
+              **common_aria_attrs
+            } %>
+
+    <% when :file %>
+      <%= form.file_field field,
+            id: field_id,
+            class: final_input_classes,
+            required: required,
+            disabled: disabled,
+            multiple: multiple,
+            accept: accept,
+            **common_aria_attrs %>
+
+    <% when :hidden %>
+      <%= form.hidden_field field, id: field_id %>
+
+    <% else %>
+      <%# text, email, password, number, etc. %>
+      <%= form.send("#{type}_field", field,
+            id: field_id,
+            class: final_input_classes,
+            placeholder: placeholder,
+            required: required,
+            disabled: disabled,
+            readonly: readonly,
+            **common_aria_attrs) %>
+    <% end %>
+
+    <%# エラーアイコン表示（エラーがある場合） %>
+    <% if has_errors %>
+      <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+        <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+      </div>
+    <% end %>
+  </div>
+
+  <%# ヘルプテキスト表示 %>
+  <% if help_text.present? %>
+    <p id="<%= help_text_id %>" class="mt-1 text-sm text-gray-500">
+      <%= help_text %>
+    </p>
+  <% end %>
+
+  <%# エラーメッセージ表示 %>
+  <% if has_errors %>
+    <div id="<%= error_id %>" class="mt-1">
+      <% field_errors.each do |error| %>
+        <p class="text-sm text-red-600" role="alert">
+          <%= error %>
+        </p>
+      <% end %>
+    </div>
+  <% end %>
+</div>

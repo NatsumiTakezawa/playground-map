@@ -2,21 +2,23 @@
 
 ## 1. 目的
 
-松江市周辺の温泉を検索・閲覧・レビューできる Web アプリを、**React 等を使わず Ruby on Rails 7.1 + Hotwire + Tailwind** で構築する。学習教材としてコードを読みやすく保つことを最優先とする。
+松江市周辺の温泉を検索・閲覧・レビューできる Web アプリを、**React 等を使わず Ruby on Rails 8.0 + Hotwire + Tailwind** で構築する。学習教材としてコードを読みやすく保つことを最優先とする。
 開発／CI／本番すべてを Docker コンテナで再現できる学習用リポジトリを提供する。
 **認証・権限は一切設けない**。
 
 ## 2. 技術スタック
 
-| カテゴリ         | 採用技術 / バージョン                                |
-| ---------------- | ---------------------------------------------------- |
-| 言語 / FW        | Ruby 3.3, Rails 7.1 (最新安定版にする)               |
-| フロント         | Hotwire (Turbo, Stimulus) + Tailwind CSS + Importmap |
-| DB（開発・本番） | PostgreSQL 15（Docker コンテナ／Heroku Postgres）    |
-| ストレージ       | Active Storage（開発: local、<br>本番: Amazon S3）   |
-| メッセージ       | Redis 7 + Sidekiq（バックグラウンドジョブ）          |
-| インフラ         | Docker, docker-compose, Heroku Container Registry    |
-| CI/CD            | GitHub Actions → Heroku Container 自動デプロイ       |
+| カテゴリ           | 採用技術 / バージョン                                |
+| ------------------ | ---------------------------------------------------- |
+| 言語 / FW          | Ruby 3.3.8, Rails 8.0.2                              |
+| フロント           | Hotwire (Turbo, Stimulus) + Tailwind CSS + Importmap |
+| DB（開発・本番）   | PostgreSQL 15（Docker コンテナ）                     |
+| ストレージ         | ローカルストレージ（`public/uploads`）               |
+| メッセージ         | Redis 7 + Sidekiq（バックグラウンドジョブ）          |
+| アセット           | Propshaft（Rails 8 デフォルト）                      |
+| キャッシュ・キュー | Solid Cache, Solid Queue, Solid Cable                |
+| インフラ           | Docker, docker-compose                               |
+| CI/CD              | 現在は設定なし（ローカル開発優先）                   |
 
 > **ポイント**
 >
@@ -25,19 +27,39 @@
 
 ## 3. サイトマップ
 
-| ID  | 画面名       | URL / 経路           | アクセス権 |
-| --- | ------------ | -------------------- | ---------- |
-| S00 | トップ       | `/`                  | 全員       |
-| S01 | 温泉詳細     | `/onsens/:id`        | 全員       |
-| S02 | 新規温泉     | `/onsens/new`        | 全員       |
-| S03 | 温泉編集     | `/onsens/:id/edit`   | 全員       |
-| S04 | 温泉削除     | `DELETE /onsens/:id` | 全員       |
-| S05 | レビュー投稿 | Turbo Stream Modal   | 全員       |
+| ID  | 画面名                 | URL                      | アクセス権 |
+| --- | ---------------------- | ------------------------ | ---------- |
+| S00 | トップ                 | `/`                      | 全員       |
+| S01 | 温泉詳細               | `/onsens/:id`            | 全員       |
+| S02 | レビュー投稿           | Turbo Stream Modal       | 全員       |
+| S03 | **管理ダッシュボード** | `/admin`                 | 全員       |
+| S04 | 温泉一覧 (管理)        | `/admin/onsens`          | 全員       |
+| S05 | 新規温泉 (管理)        | `/admin/onsens/new`      | 全員       |
+| S06 | 温泉編集 (管理)        | `/admin/onsens/:id/edit` | 全員       |
+| S07 | CSV インポート         | `/admin/onsens/import`   | 全員       |
 
 > **備考**
 >
-> - `/admin` 名前空間は存在しません。
 > - CRUD はすべて `OnsensController` に統合し、匿名で操作可。
+> - 認証は無いままですが、UI の整理のため /admin 名前空間を「管理画面」と呼称します。
+> - ルートは次のように定義し、フィルタは一切置きません。
+
+      ```ruby
+
+      # config/routes.rb
+
+      Rails.application.routes.draw do
+      resources :onsens, only: %i[index show] # 一般閲覧
+      namespace :admin do # 誰でも利用可
+      root "onsens#index"
+      resources :onsens do
+      collection { post :import } # POST /admin/onsens/import
+      end
+      end
+      root "onsens#index"
+      end
+
+      ```
 
 ## 4. ドメインモデル
 
@@ -87,7 +109,7 @@
 | ---------------- | ------------------------------------------------------------- |
 | セキュリティ     | Rails デフォルトの CSRF / XSS 保護を利用                      |
 | アクセシビリティ | WCAG 2.1 AA 相当：alt 属性、キーボード操作、ARIA ランドマーク |
-| 国際化           | I18n 構造で実装。v1 は `ja` のみ                              |
+| 国際化           | 日本語のみ対応。多言語化は将来課題                            |
 
 ## 7. 実行プラットフォーム
 
@@ -96,3 +118,7 @@
 | 開発 | `docker-compose up --build` | web / db / redis / sidekiq     |
 | CI   | GitHub Actions `services:`  | docker-compose を再利用        |
 | 本番 | Heroku Container Registry   | `heroku container:release web` |
+
+```
+
+```

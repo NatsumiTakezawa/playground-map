@@ -12,26 +12,24 @@ docker-compose.yml
 
 ## 2. ディレクトリ構成（抜粋）
 
-```
+```text
 app/
-├─ controllers/
-│ └─ onsens_controller.rb # CRUD + CSV インポート
-├─ models/ # onsen.rb, review.rb
-├─ views/ # ERB + Tailwind
-├─ services/
-│ ├─ csv_import_service.rb
-│ └─ map_service.rb # 住所→緯度経度変換 & ハバシン距離
-├─ jobs/
-│ └─ review_broadcast_job.rb
-├─ javascript/
-│ └─ controllers/ # Stimulus
-└─ assets/
-└─ stylesheets/application.tailwind.css
+├── controllers
+│   ├── application_controller.rb
+│   ├── onsens_controller.rb            # 公開側 (index, show)
+│   ├── reviews_controller.rb
+│   └── admin
+│       └── onsens_controller.rb        # 管理 CRUD + CSV インポート (認証無し)
+...
+├── views
+│   ├── admin
+│   │   └── onsens                      # index.html.erb, new.html.erb, edit.html.erb, import.html.erb
+│   └── onsens                          # 公開側ビュー
 ```
 
-## 2.1 ディレクトリ構成(詳細版)
+## 2.1 ディレクトリ構成 (詳細版)
 
-```
+```plaintext
 .
 ├── Dockerfile
 ├── docker-compose.yml
@@ -40,84 +38,92 @@ app/
 ├── Gemfile.lock
 ├── Rakefile
 ├── config
-│   ├── application.rb
-│   ├── boot.rb
-│   ├── cable.yml
-│   ├── credentials.yml.enc
-│   ├── database.yml
-│   ├── environment.rb
-│   ├── environments
-│   │   ├── development.rb
-│   │   ├── production.rb
-│   │   └── test.rb
-│   ├── initializers
-│   │   ├── active_storage.rb
-│   │   ├── assets.rb
-│   │   ├── backtrace_silencers.rb
-│   │   ├── content_security_policy.rb
-│   │   ├── cors.rb
-│   │   ├── filter_parameter_logging.rb
-│   │   ├── hotwire.rb
-│   │   └── wrap_parameters.rb
-│   ├── locales
-│   │   └── ja.yml
-│   └── routes.rb
+│ ├── application.rb
+│ ├── boot.rb
+│ ├── cable.yml
+│ ├── credentials.yml.enc
+│ ├── database.yml
+│ ├── environment.rb
+│ ├── environments
+│ │ ├── development.rb
+│ │ ├── production.rb
+│ │ └── test.rb
+│ ├── initializers
+│ │ ├── active_storage.rb
+│ │ ├── assets.rb
+│ │ ├── backtrace_silencers.rb
+│ │ ├── content_security_policy.rb
+│ │ ├── cors.rb
+│ │ ├── filter_parameter_logging.rb
+│ │ ├── hotwire.rb
+│ │ └── wrap_parameters.rb
+│ ├── locales
+│ │ └── ja.yml
+│ └── routes.rb
 ├── app
-│   ├── controllers
-│   │   ├── application_controller.rb
-│   │   ├── onsens_controller.rb
-│   │   └── reviews_controller.rb
-│   ├── models
-│   │   ├── onsen.rb
-│   │   └── review.rb
-│   ├── views
-│   │   ├── layouts
-│   │   │   ├── application.html.erb
-│   │   │   └── _navbar.html.erb
-│   │   ├── onsens
-│   │   │   ├── index.html.erb
-│   │   │   ├── show.html.erb
-│   │   │   ├── new.html.erb
-│   │   │   ├── edit.html.erb
-│   │   │   └── _spot_card.html.erb
-│   │   └── reviews
-│   │       └── _form.html.erb
-│   ├── services
-│   │   ├── csv_import_service.rb
-│   │   └── map_service.rb
-│   ├── jobs
-│   │   └── review_broadcast_job.rb
-│   ├── javascript
-│   │   └── controllers
-│   │       ├── index.js
-│   │       ├── application.js
-│   │       ├── spot_card_controller.js
-│   │       └── modal_controller.js
-│   └── assets
-│       └── stylesheets
-│           ├── application.tailwind.css
-│           └── components.css
+│ ├── controllers
+│ │ ├── application_controller.rb
+│ │ ├── onsens_controller.rb # 公開側：index, show
+│ │ ├── reviews_controller.rb # レビュー投稿
+│ │ └── admin
+│ │ └── onsens_controller.rb # 管理画面：CRUD + CSV インポート
+│ ├── models
+│ │ ├── onsen.rb
+│ │ └── review.rb
+│ ├── views
+│ │ ├── layouts
+│ │ │ ├── application.html.erb
+│ │ │ └── \_navbar.html.erb
+│ │ ├── onsens
+│ │ │ ├── index.html.erb
+│ │ │ ├── show.html.erb
+│ │ │ ├── new.html.erb
+│ │ │ ├── edit.html.erb
+│ │ │ └── \_spot_card.html.erb
+│ │ ├── reviews
+│ │ │ └── \_form.html.erb
+│ │ └── admin
+│ │ └── onsens
+│ │ ├── index.html.erb
+│ │ ├── new.html.erb
+│ │ ├── edit.html.erb
+│ │ └── import.html.erb
+│ ├── services
+│ │ ├── csv_import_service.rb
+│ │ └── map_service.rb # 住所 → 緯度経度変換 & 距離計算
+│ ├── jobs
+│ │ └── review_broadcast_job.rb
+│ ├── javascript
+│ │ └── controllers # Stimulus controllers
+│ │ ├── application.js
+│ │ ├── index.js
+│ │ ├── spot_card_controller.js
+│ │ └── modal_controller.js
+│ └── assets
+│ └── stylesheets
+│ ├── application.tailwind.css
+│ └── components.css
 ├── db
-│   ├── migrate
-│   │   ├── 2025xxxxxx_create_onsens.rb
-│   │   ├── 2025xxxxxx_create_reviews.rb
-│   │   ├── 2025xxxxxx_create_active_storage_tables.rb
-│   │   └── schema.rb
-│   └── seeds.rb
+│ ├── migrate
+│ │ ├── 20250xxxxx_create_onsens.rb
+│ │ ├── 20250xxxxx_create_reviews.rb
+│ │ ├── 20250xxxxx_create_active_storage_tables.rb
+│ │ └── schema.rb
+│ └── seeds.rb
 ├── lib
-│   ├── tasks
-│   │   └── csv_import.rake
-│   └── map_utils.rb
+│ ├── tasks
+│ │ └── csv_import.rake
+│ └── map_utils.rb
 ├── log
-│   ├── development.log
-│   ├── production.log
-│   └── test.log
+│ ├── development.log
+│ ├── production.log
+│ └── test.log
 ├── tmp
-│   ├── cache
-│   └── pids
+│ ├── cache
+│ └── pids
 └── vendor
-    └── assets
-        └── images
+└── assets
+└── images
 
 ```
 

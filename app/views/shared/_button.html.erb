@@ -1,0 +1,228 @@
+<%#
+  統一ボタンコンポーネント
+
+  == 概要
+  アプリケーション全体で一貫したボタンUIを提供するパーシャルです。
+  プライマリ、セカンダリ、危険、無効化などの状態に対応し、
+  アクセシビリティと学習効率を重視した実装を提供します。
+
+  == 使用方法
+  <%= render 'shared/    <%# ローディングアイコン %>
+    <% if loading %>
+      <svg class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    <% end %>
+
+    <%# 左側アイコン %>
+    <%= render_button_icon(icon_svg_path, :left, loading: loading) if icon.present? && icon_position == :left %>
+
+    <%# ボタンテキスト %>
+    <span><%= text %></span>
+
+    <%# 右側アイコン %>
+    <%= render_button_icon(icon_svg_path, :right, loading: loading) if icon.present? && icon_position == :right %> type: :submit, variant: :primary %>
+  <%= render 'shared/button', text: 'キャンセル', variant: :secondary, path: root_path %>
+  <%= render 'shared/button', text: '削除', variant: :danger, confirm: '本当に削除しますか？' %>
+
+  == パラメータ
+  - text: ボタンテキスト（必須）
+  - variant: ボタンの種類 (:primary, :secondary, :danger, :outline, :ghost)
+  - type: ボタンタイプ (:button, :submit, :reset) - form内でのみ有効
+  - size: ボタンサイズ (:sm, :md, :lg, :xl)
+  - path: リンク先URL（指定時はlink_toを使用、未指定時はbuttonを使用）
+  - method: HTTPメソッド (:get, :post, :patch, :put, :delete)
+  - confirm: 確認ダイアログのメッセージ
+  - disabled: 無効化フラグ
+  - loading: ローディング状態フラグ
+  - icon: アイコン名（オプション、SVGパス）
+  - icon_position: アイコン位置 (:left, :right)
+  - target: リンクターゲット (:_blank等)
+  - turbo: Turboの動作制御（true/false/"frame"）
+  - class: 追加CSSクラス
+  - data: data属性のハッシュ
+  - aria_label: アクセシビリティ用ラベル
+
+  == アクセシビリティ
+  - aria-label, aria-describedby による適切な説明
+  - disabled状態での適切なマークアップ
+  - キーボード操作対応
+  - loading状態でのaria-busy
+
+  @param text [String] ボタンテキスト
+  @param variant [Symbol] ボタンの種類
+  @param type [Symbol] ボタンタイプ
+  @param size [Symbol] ボタンサイズ
+  @param path [String] リンク先URL
+  @param method [Symbol] HTTPメソッド
+  @param confirm [String] 確認ダイアログメッセージ
+  @param disabled [Boolean] 無効化フラグ
+  @param loading [Boolean] ローディング状態フラグ
+  @param icon [String] アイコンSVGパス
+  @param icon_position [Symbol] アイコン位置
+  @param target [String] リンクターゲット
+  @param turbo [Boolean, String] Turbo動作制御
+  @param class [String] 追加CSSクラス
+  @param data [Hash] data属性
+  @param aria_label [String] アクセシビリティラベル
+
+  @since 1.0.0
+%>
+
+<%
+  # == パラメータのデフォルト設定 ==
+  text ||= 'ボタン'
+  variant ||= :primary
+  type ||= :button
+  size ||= :md
+  path ||= nil
+  method ||= :get
+  confirm ||= nil
+  disabled ||= false
+  loading ||= false
+  icon ||= nil
+  icon_position ||= :left
+  target ||= nil
+  turbo ||= true
+  additional_class ||= ''
+  data ||= {}
+  aria_label ||= nil
+
+  # == バリアント別のスタイル定義 ==
+  variant_classes = case variant.to_s
+  when 'primary'
+    'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 text-white border-transparent'
+  when 'secondary'
+    'bg-white hover:bg-gray-50 focus:ring-blue-500 text-gray-700 border-gray-300'
+  when 'danger'
+    'bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white border-transparent'
+  when 'outline'
+    'bg-transparent hover:bg-gray-50 focus:ring-blue-500 text-blue-600 border-blue-600'
+  when 'ghost'
+    'bg-transparent hover:bg-gray-100 focus:ring-gray-500 text-gray-600 border-transparent'
+  else
+    'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 text-white border-transparent'
+  end
+
+  # == サイズ別のスタイル定義 ==
+  size_classes = case size.to_s
+  when 'sm'
+    'px-3 py-2 text-sm'
+  when 'md'
+    'px-4 py-2 text-sm'
+  when 'lg'
+    'px-6 py-3 text-base'
+  when 'xl'
+    'px-8 py-4 text-lg'
+  else
+    'px-4 py-2 text-sm'
+  end
+
+  # == 無効化・ローディング状態のスタイル ==
+  state_classes = if disabled || loading
+    'opacity-50 cursor-not-allowed'
+  else
+    'cursor-pointer'
+  end
+
+  # == 基本スタイルクラス ==
+  base_classes = 'inline-flex items-center justify-center border rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200'
+
+  # == 最終的なCSSクラス ==
+  final_classes = [
+    base_classes,
+    variant_classes,
+    size_classes,
+    state_classes,
+    additional_class
+  ].compact.join(' ')
+
+  # == data属性の設定 ==
+  final_data = data.dup
+  final_data[:confirm] = confirm if confirm.present?
+  final_data[:turbo] = turbo unless turbo == true
+  final_data[:method] = method if method != :get && path.present?
+
+  # == アクセシビリティ属性 ==
+  accessibility_attrs = {}
+  accessibility_attrs['aria-label'] = aria_label if aria_label.present?
+  accessibility_attrs['aria-busy'] = 'true' if loading
+  accessibility_attrs['aria-disabled'] = 'true' if disabled
+
+  # == アイコンSVG定義（よく使用されるもの） ==
+  icon_svgs = {
+    'plus' => 'M12 4v16m8-8H4',
+    'edit' => 'M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7m-2 2l2-2m0 0l-7-7m7 7H8',
+    'delete' => 'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16',
+    'save' => 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m22-7l-4-4-4 4m4-4v11',
+    'search' => 'M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z',
+    'arrow-left' => 'M19 12H5m7-7l-7 7 7 7',
+    'arrow-right' => 'M5 12h14m-7-7l7 7-7 7',
+    'download' => 'M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10',
+    'upload' => 'M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12'
+  }
+
+  icon_svg_path = icon_svgs[icon] || icon
+%>
+
+<%# ボタン本体のレンダリング %>
+<% if path.present? %>
+  <%# リンクとしてレンダリング %>
+  <%= link_to path,
+        class: final_classes,
+        data: final_data,
+        target: target,
+        **accessibility_attrs do %>
+    <%# ローディングアイコン %>
+    <% if loading %>
+      <svg class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    <% end %>
+
+    <%# 左側アイコン %>
+    <%= render_button_icon(icon_svg_path, :left, loading: loading) if icon.present? && icon_position == :left %>
+
+    <%# ボタンテキスト %>
+    <span><%= text %></span>
+
+    <%# 右側アイコン %>
+    <%= render_button_icon(icon_svg_path, :right, loading: loading) if icon.present? && icon_position == :right %>
+  <% end %>
+
+<% else %>
+  <%# ボタンとしてレンダリング %>
+  <button type="<%= type %>"
+          class="<%= final_classes %>"
+          <% if final_data.any? %>
+            <% final_data.each do |key, value| %>
+              data-<%= key %>="<%= value %>"
+            <% end %>
+          <% end %>
+          <%= 'disabled' if disabled || loading %>
+          <% if accessibility_attrs.any? %>
+            <% accessibility_attrs.each do |key, value| %>
+              <%= key %>="<%= value %>"
+            <% end %>
+          <% end %>>
+
+    <%# ローディングアイコン %>
+    <% if loading %>
+      <svg class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    <% end %>
+
+    <%# 左側アイコン %>
+    <%= render_button_icon(icon_svg_path, :left, loading: loading) if icon.present? && icon_position == :left %>
+
+    <%# ボタンテキスト %>
+    <span><%= text %></span>
+
+    <%# 右側アイコン %>
+    <%= render_button_icon(icon_svg_path, :right, loading: loading) if icon.present? && icon_position == :right %>
+  </button>
+<% end %>

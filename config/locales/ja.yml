@@ -1,0 +1,76 @@
+ja:
+  activerecord:
+    models:
+      onsen: 温泉
+      review: レビュー
+    attributes:
+      onsen:
+        name: 温泉名
+        geo_lat: 緯度
+        geo_lng: 経度
+        description: 説明
+        tags: タグ
+        images: 画像
+      review:
+        rating: 評価
+        comment: コメント
+        images: 画像
+  errors:
+    format: "%{attribute} %{message}"
+    messages:
+      blank: "を入力してください"
+  time:
+    formats:
+      short: "%Y/%m/%d %H:%M"
+      too_long: "は%{count}文字以内で入力してください"
+      too_short: "は%{count}文字以上で入力してください"
+      not_a_number: "は数値で入力してください"
+      inclusion: "は一覧にありません"
+      content_type_invalid: "はJPEG/PNG/GIF画像のみアップロードできます"
+      file_too_large: "は%{max_size}MB以下にしてください"
+      limit_exceeded: "は%{max}枚までアップロードできます"
+  helpers:
+    submit:
+      create: "%{model}を登録する"
+      update: "%{model}を更新する"
+  views:
+    navigation:
+      site_title: 松江温泉マップ
+      search: 検索
+      admin: 管理画面
+      onsen_management: 温泉管理
+      public_site: 公開サイト
+    onsens:
+    onsens:
+      index:
+        title: 松江市周辺の温泉一覧
+        search: 検索
+        radius_km: 半径(km)
+        address: 住所
+        geocode_btn: 住所から緯度経度
+        zipcode: 郵便番号
+        zipcode_search: 住所自動入力
+        current_location: 現在地
+        tags_hint: (カンマ区切り)
+      show:
+        reviews: レビュー
+        post_review: レビュー投稿
+    reviews:
+      form:
+        submit: レビュー投稿
+  admin:
+    onsens:
+      create:
+        success: "温泉を登録しました"
+      update:
+        success: "温泉情報を更新しました"
+      destroy:
+        success: "温泉を削除しました"
+      import:
+        success: "インポート完了"
+        skipped: "インポート完了（%{count}行スキップ）"
+        error: "CSVインポート失敗: %{error}"
+        no_file: "CSVファイルを選択してください"
+  flash:
+    review_created: "レビューを投稿しました。"
+    review_failed: "レビュー投稿に失敗しました。"

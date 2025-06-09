@@ -1,0 +1,2 @@
+<%# Google Maps 地図表示パーシャル %>
+<div id="map" data-controller="map" data-map-onsens="<%= h @onsens.to_json(only: [:id, :name, :geo_lat, :geo_lng]) %>" class="w-full h-full rounded shadow"></div>
