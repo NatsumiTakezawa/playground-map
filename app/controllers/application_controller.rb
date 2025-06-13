@@ -19,6 +19,13 @@
 # @author 松江市温泉マップ開発チーム
 # @since Rails 8.0.2
 class ApplicationController < ActionController::Base
+    helper_method :current_path
+
+ # @return [String] 現在のページのパス
+    def current_path
+      request.path
+    end
+  end
   # モダンブラウザのみアクセス許可
   #
   # Rails 8.0の新機能で、古いブラウザからのアクセスを制限します。
@@ -31,5 +38,8 @@ class ApplicationController < ActionController::Base
   #   - 開発効率とユーザー体験の向上が期待できます
   #
   # @see https://guides.rubyonrails.org/configuring.html#config-allow-browser-versions
-  allow_browser versions: :modern
-end
+  # allow_browser versions: :modern
+
+
+
+

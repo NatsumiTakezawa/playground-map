@@ -1,7 +1,12 @@
 module ApplicationHelper
+  # @return [String] 現在のリクエストパスを返す
+    def current_path
+      request.path
+    end
+  
   # @return [Array<Hash>] ナビゲーションリンクの配列を返す
   def navigation_links
-    if current_path.start_with?("/admin")
+    if request.path.start_with?("/admin")
       admin_navigation_links
     else
       public_navigation_links
@@ -112,4 +117,6 @@ module ApplicationHelper
       }
     end
   end
+
+
 end
