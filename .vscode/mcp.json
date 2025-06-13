@@ -17,7 +17,7 @@
     //   "command": "npx",
     //   "args": ["-y", "@modelcontextprotocol/server-github"],
     //   "env": {
-    //     "GITHUB_PERSONAL_ACCESS_TOKEN": "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"
+    //     "GITHUB_PERSONAL_ACCESS_TOKEN": ""
     //   }
     // }
   }
