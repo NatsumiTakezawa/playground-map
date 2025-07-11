@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_26_074233) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_08_001408) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,12 +42,59 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_26_074233) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "age_groups", force: :cascade do |t|
+    t.string "name"
+    t.string "min_age"
+    t.string "max_age"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "onsens", force: :cascade do |t|
     t.string "name", limit: 100
     t.decimal "geo_lat"
     t.decimal "geo_lng"
     t.text "description"
     t.string "tags"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "playground_age_groups", force: :cascade do |t|
+    t.bigint "playground_id", null: false
+    t.bigint "age_group_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["age_group_id"], name: "index_playground_age_groups_on_age_group_id"
+    t.index ["playground_id"], name: "index_playground_age_groups_on_playground_id"
+  end
+
+  create_table "playgrounds", force: :cascade do |t|
+    t.string "name"
+    t.string "title"
+    t.string "address"
+    t.string "google_maps_link"
+    t.string "opening_hours"
+    t.string "closed_days"
+    t.boolean "parking_area"
+    t.boolean "free"
+    t.string "site_link"
+    t.integer "play_genre"
+    t.boolean "nursing_room"
+    t.boolean "diaper_stand"
+    t.boolean "toilet"
+    t.boolean "kids_toilet"
+    t.boolean "baby_keep"
+    t.boolean "rain"
+    t.boolean "stroller"
+    t.boolean "cafe"
+    t.boolean "bbq"
+    t.boolean "store"
+    t.boolean "vending_machine"
+    t.boolean "bring_own_food"
+    t.boolean "large_playground"
+    t.boolean "insect_repellent"
+    t.boolean "has_grassy_area"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -63,5 +110,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_26_074233) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "playground_age_groups", "age_groups"
+  add_foreign_key "playground_age_groups", "playgrounds"
   add_foreign_key "reviews", "onsens"
 end

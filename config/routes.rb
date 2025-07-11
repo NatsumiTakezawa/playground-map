@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  get "playgrounds/index"
+  get "playgrounds/show"
+  resources :playgrounds, only: [:new, :create, :show]
+
   resources :onsens, only: %i[index show] do
     resources :reviews, only: [ :create, :new ]
   end

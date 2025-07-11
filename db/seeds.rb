@@ -30,3 +30,60 @@ ActiveRecord::Base.transaction do
   end
 end
 puts 'シード投入完了！'
+
+
+# 年齢カテゴリ・施設1件のサンプルデータ投入
+
+puts '年齢カテゴリを作成中...'
+ag1 = AgeGroup.create!(name: "乳児", min_age: 0, max_age: 1)
+ag2 = AgeGroup.create!(name: "幼児", min_age: 2, max_age: 4)
+ag3 = AgeGroup.create!(name: "未就学児", min_age: 5, max_age: 6)
+ag4 = AgeGroup.create!(name: "小学生", min_age: 7, max_age: 12)
+
+puts '遊び場データを作成中...'
+Playground.destroy_all
+
+#Playgroundジャンルの関連付け
+# play_genre:
+# 0: 公園
+# 1: 屋内（ボールプール・屋内遊園地）
+# 2: レジャー施設・体験施設（ワークショップ・手作り体験）
+# 3: 水遊び
+# 4: 文化・教育（博物館・図書館など）
+# 5: 児童館・地域福祉センター
+
+pg1 = Playground.create!(
+  name: "あそびの杜公園",
+  title: "自然の中で思い切り遊べる！",
+  address: "富山県〇〇市1-2-3",
+  google_maps_link: "https://maps.google.com/?q=あそびの杜公園",
+  opening_hours: "9:00〜17:00",
+  closed_days: "火曜日",
+  parking_area: true,
+  free: true,
+  site_link: "https://asobi-park.jp",
+  play_genre: 1,  
+  nursing_room: true,
+  diaper_stand: true,
+  toilet: true,
+  kids_toilet: true,
+  baby_keep: false,
+  rain: false,
+  stroller: true,
+  cafe: false,
+  bbq: true,
+  store: false,
+  vending_machine: true,
+  bring_own_food: true,
+  large_playground: true,
+  insect_repellent: false,
+  has_grassy_area: true
+)
+
+
+
+
+# 関連付け
+pg1.age_groups << [ag1, ag2]
+
+puts 'シードデータ投入完了！'
