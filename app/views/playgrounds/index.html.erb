@@ -1,4 +1,12 @@
-<div>
-  <h1 class="font-bold text-4xl">Playgrounds#index</h1>
-  <p>Find me in app/views/playgrounds/index.html.erb</p>
-</div>
+<h1>遊び場一覧</h1>
+<%= link_to "新規登録", new_playground_path %>
+
+<ul>
+  <% @playgrounds.each do |playground| %>
+    <li>
+      <%= link_to playground.name, playground_path(playground) %> |
+      <%= link_to "編集", edit_playground_path(playground) %>
+    </li>
+  <% end %>
+</ul>
+

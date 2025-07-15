@@ -1,16 +1,37 @@
 class PlaygroundsController < ApplicationController
-def new
-  @playground = Playground.new
-end
-
-def create
-  @playground = Playground.new(playground_params)
-  if @playground.save
-    redirect_to @playground, notice: "施設を登録しました！"
-  else
-    render :new
+  def index
+    @playgrounds = Playground.all
   end
-end
+
+  def show
+    @playground = Playground.find(params[:id])
+  end
+
+  def new
+    @playground = Playground.new
+  end
+
+  def create
+    @playground = Playground.new(playground_params)
+    if @playground.save
+      redirect_to @playground, notice: "登録しました"
+    else
+      render :new
+    end
+  end
+
+  def edit
+    @playground = Playground.find(params[:id])
+  end
+
+  def update
+    @playground = Playground.find(params[:id])
+    if @playground.update(playground_params)
+      redirect_to @playground, notice: "更新しました"
+    else
+      render :edit
+    end
+  end
 
 private
 
@@ -24,3 +45,4 @@ def playground_params
   )
 end
 
+end

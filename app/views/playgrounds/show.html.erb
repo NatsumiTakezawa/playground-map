@@ -1,4 +1,8 @@
-<div>
-  <h1 class="font-bold text-4xl">Playgrounds#show</h1>
-  <p>Find me in app/views/playgrounds/show.html.erb</p>
-</div>
+<h1><%= @playground.name %></h1>
+
+<p>住所: <%= @playground.address %></p>
+<p>Google Map: <%= @playground.google_maps_link %></p>
+<p>駐車場あり: <%= @playground.parking_area ? "あり" : "なし" %></p>
+
+<%= link_to "編集", edit_playground_path(@playground) %> |
+<%= link_to "一覧へ戻る", playgrounds_path %>

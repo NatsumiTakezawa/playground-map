@@ -1,0 +1,25 @@
+<%= form_with model: @playground, local: true do |form| %>
+  <div>
+    <%= form.label :name, "施設名" %><br>
+    <%= form.text_field :name %>
+  </div>
+
+  <div>
+    <%= form.label :address, "住所" %><br>
+    <%= form.text_field :address %>
+  </div>
+
+  <div>
+    <%= form.label :google_maps_link, "Googleマップリンク" %><br>
+    <%= form.text_field :google_maps_link %>
+  </div>
+
+  <div>
+    <%= form.label :parking_area, "駐車場あり" %><br>
+    <%= form.check_box :parking_area %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>
