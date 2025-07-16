@@ -1,21 +1,54 @@
 <%= form_with model: @playground, local: true do |form| %>
   <div>
     <%= form.label :name, "施設名" %><br>
+      <!-- エラーメッセージの表示 -->
+      <% if @playground.errors[:name].any? %>
+        <div class="error-message" style="color: red;">
+          <% @playground.errors[:name].each do |error| %>
+            <p><%= error %></p>
+          <% end %>
+        </div>
+      <% end %>
+      <!-- 入力フィールド -->
     <%= form.text_field :name %>
   </div>
 
   <div>
     <%= form.label :title, "タイトル" %><br>
+      <!-- エラーメッセージの表示 -->
+      <% if @playground.errors[:title].any? %>
+        <div class="error-message" style="color: red;">
+          <% @playground.errors[:title].each do |error| %>
+            <p><%= error %></p>
+          <% end %>
+        </div>
+      <% end %>
     <%= form.text_field :title %>
   </div>
 
   <div>
     <%= form.label :address, "住所" %><br>
+      <!-- エラーメッセージの表示 -->
+      <% if @playground.errors[:address].any? %>
+        <div class="error-message" style="color: red;">
+          <% @playground.errors[:address].each do |error| %>
+            <p><%= error %></p>
+          <% end %>
+        </div>
+      <% end %>
     <%= form.text_field :address %>
   </div>
 
   <div>
     <%= form.label :google_maps_link, "Googleマップリンク" %><br>
+      <!-- エラーメッセージの表示 -->
+      <% if @playground.errors[:google_maps_link].any? %>
+        <div class="error-message" style="color: red;">
+          <% @playground.errors[:google_maps_link].each do |error| %>
+            <p><%= error %></p>
+          <% end %>
+        </div>
+      <% end %>
     <%= form.text_field :google_maps_link %>
   </div>
 
@@ -134,15 +167,27 @@
     <%= form.check_box :has_grassy_area %>
   </div>
 
-  <div>
-    <h3>対象年齢</h3>
-    <% AgeGroup.all.each do |age_group| %>
-      <div>
-        <%= check_box_tag "playground[age_group_ids][]", age_group.id, @playground.age_group_ids.include?(age_group.id) %>
-        <%= label_tag "playground_age_group_ids_#{age_group.id}", age_group.name %>
-      </div>
-    <% end %>
-  </div>
+
+<div class="field">
+  <%= form.label :age_group_ids, "対象年齢" %>
+  
+  <!-- エラーメッセージの表示 -->
+  <% if @playground.errors[:age_groups].any? %>
+    <div class="error-message" style="color: red;">
+      <% @playground.errors[:age_groups].each do |error| %>
+        <p><%= error %></p>
+      <% end %>
+    </div>
+  <% end %>
+  
+  <!-- チェックボックス -->
+  <%= form.collection_check_boxes :age_group_ids, AgeGroup.all, :id, :name do |b| %>
+    <div class="check-box">
+      <%= b.check_box %>
+      <%= b.label %>
+    </div>
+  <% end %>
+</div>
 
   <div>
     <%= form.label :photos, "写真（複数可）" %><br>
