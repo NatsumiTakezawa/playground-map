@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_16_023315) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_16_085209) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -85,7 +85,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_16_023315) do
     t.boolean "parking_area"
     t.boolean "free"
     t.string "site_link"
-    t.integer "play_genre"
     t.boolean "nursing_room"
     t.boolean "diaper_stand"
     t.boolean "toilet"
