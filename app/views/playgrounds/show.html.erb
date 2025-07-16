@@ -20,7 +20,7 @@
     <% end %>
     
     <% if @playground.genre.present? %>
-      <p><strong>ジャンル:</strong> <%= @playground.genre.name %></p>
+    <p><strong>ジャンル:</strong> <%= genre_name_in_japanese(@playground.genre.name) %></p>
     <% end %>
     
     <% if @playground.opening_hours.present? %>

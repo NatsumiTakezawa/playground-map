@@ -44,12 +44,12 @@ puts '遊び場データを作成中...'
 Playground.destroy_all
 
 #Playgroundジャンルの関連付け
-# 0: 公園
-# 1: 屋内（ボールプール・屋内遊園地）
-# 2: レジャー施設・体験施設（ワークショップ・手作り体験）
-# 3: 水遊び
-# 4: 文化・教育（博物館・図書館など）
-# 5: 児童館・地域福祉センター
+# 1: 公園
+# 2: 屋内（ボールプール・屋内遊園地）
+# 3: レジャー施設・体験施設（ワークショップ・手作り体験）
+# 4: 水遊び
+# 5: 文化・教育（博物館・図書館など）
+# 6: 児童館・地域福祉センター
 
 pg1 = Playground.create!(
   name: "あそびの杜公園",
@@ -61,7 +61,7 @@ pg1 = Playground.create!(
   parking_area: true,
   free: true,
   site_link: "https://asobi-park.jp",
-  play_genre: 1,  
+  genre_id: 1,  
   nursing_room: true,
   diaper_stand: true,
   toilet: true,
