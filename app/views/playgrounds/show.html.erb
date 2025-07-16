@@ -1,8 +1,138 @@
-<h1><%= @playground.name %></h1>
+<div class="playground-detail">
+  <h1><%= @playground.name %></h1>
+  
+  <% if @playground.title.present? %>
+    <h2><%= @playground.title %></h2>
+  <% end %>
 
-<p>住所: <%= @playground.address %></p>
-<p>Google Map: <%= @playground.google_maps_link %></p>
-<p>駐車場あり: <%= @playground.parking_area ? "あり" : "なし" %></p>
+  <!-- 基本情報 -->
+  <div class="basic-info">
+    <h3>基本情報</h3>
+    
+    <% if @playground.address.present? %>
+      <p><strong>住所:</strong> <%= @playground.address %></p>
+    <% end %>
+    
+    <% if @playground.google_maps_link.present? %>
+      <p><strong>Google Map:</strong> 
+        <%= link_to "地図を見る", @playground.google_maps_link, target: "_blank" %>
+      </p>
+    <% end %>
+    
+    <% if @playground.genre.present? %>
+      <p><strong>ジャンル:</strong> <%= @playground.genre.name %></p>
+    <% end %>
+    
+    <% if @playground.opening_hours.present? %>
+      <p><strong>営業時間:</strong> <%= @playground.opening_hours %></p>
+    <% end %>
+    
+    <% if @playground.closed_days.present? %>
+      <p><strong>定休日:</strong> <%= @playground.closed_days %></p>
+    <% end %>
+    
+    <% if @playground.site_link.present? %>
+      <p><strong>公式サイト:</strong> 
+        <%= link_to "公式サイトへ", @playground.site_link, target: "_blank" %>
+      </p>
+    <% end %>
+  </div>
 
-<%= link_to "編集", edit_playground_path(@playground) %> |
-<%= link_to "一覧へ戻る", playgrounds_path %>
+  <!-- 料金・駐車場 -->
+  <div class="cost-parking">
+    <h3>料金・駐車場</h3>
+    <p><strong>料金:</strong> <%= @playground.free ? "無料" : "有料" %></p>
+    <p><strong>駐車場:</strong> <%= @playground.parking_area ? "あり" : "なし" %></p>
+  </div>
+
+  <!-- 設備・施設 -->
+  <div class="facilities">
+    <h3>設備・施設</h3>
+    
+    <div class="facility-grid">
+      <div class="facility-section">
+        <h4>トイレ関連</h4>
+        <ul>
+          <li>トイレ: <%= @playground.toilet ? "あり" : "なし" %></li>
+          <li>子ども用トイレ: <%= @playground.kids_toilet ? "あり" : "なし" %></li>
+          <li>おむつ台: <%= @playground.diaper_stand ? "あり" : "なし" %></li>
+          <li>ベビーキープ: <%= @playground.baby_keep ? "あり" : "なし" %></li>
+        </ul>
+      </div>
+      
+      <div class="facility-section">
+        <h4>授乳・育児関連</h4>
+        <ul>
+          <li>授乳室: <%= @playground.nursing_room ? "あり" : "なし" %></li>
+          <li>ベビーカーOK: <%= @playground.stroller ? "OK" : "NG" %></li>
+        </ul>
+      </div>
+      
+      <div class="facility-section">
+        <h4>飲食関連</h4>
+        <ul>
+          <li>カフェ: <%= @playground.cafe ? "あり" : "なし" %></li>
+          <li>売店: <%= @playground.store ? "あり" : "なし" %></li>
+          <li>自動販売機: <%= @playground.vending_machine ? "あり" : "なし" %></li>
+          <li>飲食持ち込み: <%= @playground.bring_own_food ? "可" : "不可" %></li>
+          <li>BBQ施設: <%= @playground.bbq ? "あり" : "なし" %></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 遊び・環境 -->
+  <div class="play-environment">
+    <h3>遊び・環境</h3>
+    <div class="play-grid">
+      <div class="play-section">
+        <h4>遊具・遊び場</h4>
+        <ul>
+          <li>大型遊具: <%= @playground.large_playground ? "あり" : "なし" %></li>
+          <li>芝生エリア: <%= @playground.has_grassy_area ? "あり" : "なし" %></li>
+          <li>虫取りスポット: <%= @playground.insect_repellent ? "あり" : "なし" %></li>
+        </ul>
+      </div>
+      
+      <div class="play-section">
+        <h4>天候対応</h4>
+        <ul>
+          <li>雨の日でも遊べる: <%= @playground.rain ? "OK" : "NG" %></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 年齢グループ -->
+  <% if @playground.age_groups.any? %>
+    <div class="age-groups">
+      <h3>対象年齢</h3>
+      <p>
+        <% @playground.age_groups.each do |age_group| %>
+          <span class="age-tag"><%= age_group.name %></span>
+        <% end %>
+      </p>
+    </div>
+  <% end %>
+
+  <!-- 写真 -->
+  <% if @playground.photos.any? %>
+    <div class="photos">
+      <h3>写真</h3>
+      <div class="photo-grid">
+        <% @playground.photos.each do |photo| %>
+          <div class="photo-item">
+            <%= image_tag photo, alt: @playground.name, class: "playground-photo" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- ナビゲーション -->
+  <div class="navigation">
+    <%= link_to "編集", edit_playground_path(@playground), class: "btn btn-primary" %> |
+    <%= link_to "一覧へ戻る", playgrounds_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+

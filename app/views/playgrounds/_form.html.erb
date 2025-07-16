@@ -5,6 +5,11 @@
   </div>
 
   <div>
+    <%= form.label :title, "タイトル" %><br>
+    <%= form.text_field :title %>
+  </div>
+
+  <div>
     <%= form.label :address, "住所" %><br>
     <%= form.text_field :address %>
   </div>
@@ -15,11 +20,127 @@
   </div>
 
   <div>
+    <%= form.label :opening_hours, "営業時間" %><br>
+    <%= form.text_field :opening_hours %>
+  </div>
+
+  <div>
+    <%= form.label :closed_days, "定休日" %><br>
+    <%= form.text_field :closed_days %>
+  </div>
+
+  <div>
+    <%= form.label :site_link, "公式サイトリンク" %><br>
+    <%= form.text_field :site_link %>
+  </div>
+
+  <div>
+    <%= form.label :genre_id, "ジャンル" %><br>
+    <%= form.select :genre_id, 
+        Genre.all.map { |genre| 
+          [genre.name == 'park' ? '公園' : 
+          genre.name == 'indoor' ? '屋内施設' : 
+          genre.name == 'leisure' ? 'レジャー施設' : 
+          genre.name == 'water_play' ? '水遊び' : 
+          genre.name == 'culture' ? '文化施設' : 
+          genre.name == 'community_center' ? 'コミュニティセンター' : 
+          genre.name, genre.id] 
+        }, 
+        { prompt: "ジャンルを選択してください" } %>
+  </div>
+
+  <div>
     <%= form.label :parking_area, "駐車場あり" %><br>
     <%= form.check_box :parking_area %>
   </div>
 
   <div>
-    <%= form.submit %>
+    <%= form.label :free, "無料かどうか" %><br>
+    <%= form.check_box :free %>
+  </div>
+
+  <div>
+    <%= form.label :nursing_room, "授乳室" %><br>
+    <%= form.check_box :nursing_room %>
+  </div>
+
+  <div>
+    <%= form.label :diaper_stand, "おむつ台" %><br>
+    <%= form.check_box :diaper_stand %>
+  </div>
+
+  <div>
+    <%= form.label :toilet, "トイレ" %><br>
+    <%= form.check_box :toilet %>
+  </div>
+
+  <div>
+    <%= form.label :kids_toilet, "子ども用トイレ" %><br>
+    <%= form.check_box :kids_toilet %>
+  </div>
+
+  <div>
+    <%= form.label :baby_keep, "ベビーキープ" %><br>
+    <%= form.check_box :baby_keep %>
+  </div>
+
+  <div>
+    <%= form.label :rain, "雨の日でも遊べる" %><br>
+    <%= form.check_box :rain %>
+  </div>
+
+  <div>
+    <%= form.label :stroller, "ベビーカーOK" %><br>
+    <%= form.check_box :stroller %>
+  </div>
+
+  <div>
+    <%= form.label :cafe, "カフェ" %><br>
+    <%= form.check_box :cafe %>
+  </div>
+
+  <div>
+    <%= form.label :bbq, "BBQ施設" %><br>
+    <%= form.check_box :bbq %>
+  </div>
+
+  <div>
+    <%= form.label :store, "売店" %><br>
+    <%= form.check_box :store %>
+  </div>
+
+  <div>
+    <%= form.label :vending_machine, "自動販売機" %><br>
+    <%= form.check_box :vending_machine %>
+  </div>
+
+  <div>
+    <%= form.label :bring_own_food, "飲食持ち込み可" %><br>
+    <%= form.check_box :bring_own_food %>
+  </div>
+
+  <div>
+    <%= form.label :large_playground, "大型遊具あり" %><br>
+    <%= form.check_box :large_playground %>
+  </div>
+
+  <div>
+    <%= form.label :insect_repellent, "虫取りスポット" %><br>
+    <%= form.check_box :insect_repellent %>
+  </div>
+
+  <div>
+    <%= form.label :has_grassy_area, "芝生エリアあり" %><br>
+    <%= form.check_box :has_grassy_area %>
+  </div>
+
+  <div>
+    <%= form.label :photos, "写真（複数可）" %><br>
+    <%= form.file_field :photos, multiple: true %>
+  </div>
+
+  <div>
+    <%= form.submit "登録する" %>
   </div>
 <% end %>
+

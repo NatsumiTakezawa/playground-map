@@ -7,8 +7,8 @@ has_many_attached :photos
 has_many :playground_age_groups, dependent: :destroy
 has_many :age_groups, through: :playground_age_groups
 
-
-
+# Genreモデルとの関連付け
+belongs_to :genre
 
 end
 

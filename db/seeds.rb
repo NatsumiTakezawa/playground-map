@@ -44,7 +44,6 @@ puts '遊び場データを作成中...'
 Playground.destroy_all
 
 #Playgroundジャンルの関連付け
-# play_genre:
 # 0: 公園
 # 1: 屋内（ボールプール・屋内遊園地）
 # 2: レジャー施設・体験施設（ワークショップ・手作り体験）
