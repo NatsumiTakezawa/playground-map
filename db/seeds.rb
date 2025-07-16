@@ -33,12 +33,14 @@ puts 'シード投入完了！'
 
 
 # 年齢カテゴリ・施設1件のサンプルデータ投入
-
 puts '年齢カテゴリを作成中...'
-ag1 = AgeGroup.create!(name: "乳児", min_age: 0, max_age: 1)
-ag2 = AgeGroup.create!(name: "幼児", min_age: 2, max_age: 4)
-ag3 = AgeGroup.create!(name: "未就学児", min_age: 5, max_age: 6)
-ag4 = AgeGroup.create!(name: "小学生", min_age: 7, max_age: 12)
+AgeGroup.destroy_all
+infant = AgeGroup.create!(name: '乳児', min_age: 0, max_age: 1)
+toddler = AgeGroup.create!(name: '幼児', min_age: 2, max_age: 4)
+preschool = AgeGroup.create!(name: '未就学児', min_age: 5, max_age: 6)
+elementary = AgeGroup.create!(name: '小学生', min_age: 7, max_age: 12)
+
+
 
 puts '遊び場データを作成中...'
 Playground.destroy_all
@@ -83,6 +85,6 @@ pg1 = Playground.create!(
 
 
 # 関連付け
-pg1.age_groups << [ag1, ag2]
+pg1.age_groups << [infant, toddler]
 
 puts 'シードデータ投入完了！'

@@ -135,6 +135,16 @@
   </div>
 
   <div>
+    <h3>対象年齢</h3>
+    <% AgeGroup.all.each do |age_group| %>
+      <div>
+        <%= check_box_tag "playground[age_group_ids][]", age_group.id, @playground.age_group_ids.include?(age_group.id) %>
+        <%= label_tag "playground_age_group_ids_#{age_group.id}", age_group.name %>
+      </div>
+    <% end %>
+  </div>
+
+  <div>
     <%= form.label :photos, "写真（複数可）" %><br>
     <%= form.file_field :photos, multiple: true %>
   </div>
